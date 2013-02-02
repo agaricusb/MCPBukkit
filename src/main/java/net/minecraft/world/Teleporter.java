@@ -366,13 +366,21 @@ public class Teleporter
 
         if (event.isCancelled() || to == null || !entity.func_70089_S())
         {
-            position = from;
-            velocity = before;
+            position.setX(from.getX());
+            position.setY(from.getY());
+            position.setZ(from.getZ());
+            position.setYaw(from.getYaw());
+            position.setPitch(from.getPitch());
+            velocity.copy(before);
         }
         else
         {
-            position = to;
-            velocity = event.getAfter();
+            position.setX(to.getX());
+            position.setY(to.getY());
+            position.setZ(to.getZ());
+            position.setYaw(to.getYaw());
+            position.setPitch(to.getPitch());
+            velocity.copy(event.getAfter()); // event.getAfter() will never be null, as setAfter() will cause an NPE if null is passed in
         }
 
         // CraftBukkit end
