@@ -2160,7 +2160,7 @@ public abstract class Entity
             Location enter = this.getBukkitEntity().getLocation();
             Location exit = exitWorld != null ? minecraftserver.func_71203_ab().calculateTarget(enter, minecraftserver.func_71218_a(p_71027_1_)) : null;
             boolean useTravelAgent = exitWorld != null && !(this.field_71093_bK == 1 && exitWorld.dimension == 1); // don't use agent for custom worlds or return from THE_END
-            TravelAgent agent = exit != null ? (TravelAgent)((CraftWorld) exit.getWorld()).getHandle().func_85176_s() : null;
+            TravelAgent agent = exit != null ? (TravelAgent)((CraftWorld) exit.getWorld()).getHandle().func_85176_s() : org.bukkit.craftbukkit.CraftTravelAgent.DEFAULT;  // return arbitrary TA to compensate for implementation dependent plugins
             EntityPortalEvent event = new EntityPortalEvent(this.getBukkitEntity(), enter, exit, agent);
             event.useTravelAgent(useTravelAgent);
             event.getEntity().getServer().getPluginManager().callEvent(event);

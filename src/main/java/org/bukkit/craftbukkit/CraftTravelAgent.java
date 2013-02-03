@@ -6,12 +6,17 @@ import org.bukkit.TravelAgent;
 
 public class CraftTravelAgent extends net.minecraft.world.Teleporter/*was:PortalTravelAgent*/ implements TravelAgent {
 
+    public static TravelAgent DEFAULT = null;
+
     private int searchRadius = 128;
     private int creationRadius = 16;
     private boolean canCreatePortal = true;
 
     public CraftTravelAgent(net.minecraft.world.WorldServer/*was:WorldServer*/ worldserver) {
         super(worldserver);
+        if (DEFAULT == null && worldserver.dimension == 0) {
+            DEFAULT = (TravelAgent) worldserver.func_85176_s/*was:s*/();
+        }
     }
 
     public Location findOrCreate(Location target) {
