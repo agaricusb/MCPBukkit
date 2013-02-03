@@ -400,10 +400,10 @@ public abstract class ServerConfigurationManager
     // CraftBukkit start
     public EntityPlayerMP func_72368_a(EntityPlayerMP p_72368_1_, int p_72368_2_, boolean p_72368_3_)
     {
-        return this.moveToWorld(p_72368_1_, p_72368_2_, p_72368_3_, null);
+        return this.moveToWorld(p_72368_1_, p_72368_2_, p_72368_3_, null, true);
     }
 
-    public EntityPlayerMP moveToWorld(EntityPlayerMP entityplayermp, int i, boolean flag, Location location)
+    public EntityPlayerMP moveToWorld(EntityPlayerMP entityplayermp, int i, boolean flag, Location location, boolean avoidSuffocation)
     {
         // CraftBukkit end
         entityplayermp.func_71121_q().func_73039_n().func_72787_a(entityplayermp);
@@ -464,7 +464,7 @@ public abstract class ServerConfigurationManager
         // CraftBukkit end
         worldserver.field_73059_b.func_73158_c((int)entityplayermp1.field_70165_t >> 4, (int)entityplayermp1.field_70161_v >> 4);
 
-        while (!worldserver.func_72945_a(entityplayermp1, entityplayermp1.field_70121_D).isEmpty())
+        while (avoidSuffocation && !worldserver.func_72945_a(entityplayermp1, entityplayermp1.field_70121_D).isEmpty())   // CraftBukkit
         {
             entityplayermp1.func_70107_b(entityplayermp1.field_70165_t, entityplayermp1.field_70163_u + 1.0D, entityplayermp1.field_70161_v);
         }
@@ -569,7 +569,7 @@ public abstract class ServerConfigurationManager
         exitWorld.field_73059_b.field_73250_a = true;
         exitWorld.func_85176_s().adjustExit(entityplayermp, exit, velocity);
         exitWorld.field_73059_b.field_73250_a = before;
-        this.moveToWorld(entityplayermp, exitWorld.dimension, true, exit);
+        this.moveToWorld(entityplayermp, exitWorld.dimension, true, exit, false); // Vanilla doesn't check for suffocation when handling portals, so neither should we
 
         if (entityplayermp.field_70159_w != velocity.getX() || entityplayermp.field_70181_x != velocity.getY() || entityplayermp.field_70179_y != velocity.getZ())
         {
