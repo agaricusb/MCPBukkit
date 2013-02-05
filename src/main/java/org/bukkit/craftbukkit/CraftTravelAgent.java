@@ -15,7 +15,7 @@ public class CraftTravelAgent extends net.minecraft.world.Teleporter/*was:Portal
     public CraftTravelAgent(net.minecraft.world.WorldServer/*was:WorldServer*/ worldserver) {
         super(worldserver);
         if (DEFAULT == null && worldserver.dimension == 0) {
-            DEFAULT = (TravelAgent) worldserver.func_85176_s/*was:s*/();
+            DEFAULT = this;
         }
     }
 
