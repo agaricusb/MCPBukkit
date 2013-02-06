@@ -1929,7 +1929,10 @@ public class NetServerHandler extends NetHandler
             }
             catch (Exception exception)
             {
-                exception.printStackTrace();
+                // CraftBukkit start
+                field_72577_a.log(Level.WARNING, this.field_72574_e.field_71092_bJ + " sent invalid MC|BEdit data", exception);
+                this.func_72565_c("Invalid book data!");
+                // CraftBukkit end
             }
         }
         else if ("MC|BSign".equals(p_72501_1_.field_73630_a))
@@ -1957,7 +1960,8 @@ public class NetServerHandler extends NetHandler
             catch (Exception exception1)
             {
                 // CraftBukkit start
-                // exception1.printStackTrace();
+                field_72577_a.log(Level.WARNING, this.field_72574_e.field_71092_bJ + " sent invalid MC|BSign data", exception);
+                this.func_72565_c("Invalid book data!");
                 // CraftBukkit end
             }
         }
@@ -1980,7 +1984,10 @@ public class NetServerHandler extends NetHandler
                 }
                 catch (Exception exception2)
                 {
-                    exception2.printStackTrace();
+                    // CraftBukkit start
+                    field_72577_a.log(Level.WARNING, this.field_72574_e.field_71092_bJ + " sent invalid MC|TrSel data", exception);
+                    this.func_72565_c("Invalid trade data!");
+                    // CraftBukkit end
                 }
             }
             else
@@ -2013,7 +2020,10 @@ public class NetServerHandler extends NetHandler
                         }
                         catch (Exception exception3)
                         {
-                            exception3.printStackTrace();
+                            // CraftBukkit start
+                            field_72577_a.log(Level.WARNING, this.field_72574_e.field_71092_bJ + " sent invalid MC|AdvCdm data", exception);
+                            this.func_72565_c("Invalid CommandBlock data!");
+                            // CraftBukkit end
                         }
                     }
                     else
@@ -2044,7 +2054,10 @@ public class NetServerHandler extends NetHandler
                         }
                         catch (Exception exception4)
                         {
-                            exception4.printStackTrace();
+                            // CraftBukkit start
+                            field_72577_a.log(Level.WARNING, this.field_72574_e.field_71092_bJ + " sent invalid MC|Beacon data", exception);
+                            this.func_72565_c("Invalid beacon data!");
+                            // CraftBukkit end
                         }
                     }
                 }
@@ -2080,7 +2093,7 @@ public class NetServerHandler extends NetHandler
                     }
                     catch (UnsupportedEncodingException ex)
                     {
-                        Logger.getLogger(NetServerHandler.class.getName()).log(Level.SEVERE, "Could not parse REGISTER payload in plugin message packet", ex);
+                        throw new AssertionError(ex);
                     }
                 }
                 else if (p_72501_1_.field_73630_a.equals("UNREGISTER"))
@@ -2096,7 +2109,7 @@ public class NetServerHandler extends NetHandler
                     }
                     catch (UnsupportedEncodingException ex)
                     {
-                        Logger.getLogger(NetServerHandler.class.getName()).log(Level.SEVERE, "Could not parse UNREGISTER payload in plugin message packet", ex);
+                        throw new AssertionError(ex);
                     }
                 }
                 else
