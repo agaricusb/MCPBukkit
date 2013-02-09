@@ -1,7 +1,7 @@
 package net.minecraft.inventory;
 
 // CraftBukkit start
-import org.bukkit.craftbukkit.inventory.CraftInventory;
+import org.bukkit.craftbukkit.inventory.CraftInventoryBrewer;
 import org.bukkit.craftbukkit.inventory.CraftInventoryView;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -159,7 +159,7 @@ public class ContainerBrewingStand extends Container
             return bukkitEntity;
         }
 
-        CraftInventory inventory = new CraftInventory(this.field_75188_e);
+        CraftInventoryBrewer inventory = new CraftInventoryBrewer(this.field_75188_e);
         bukkitEntity = new CraftInventoryView(this.player.field_70458_d.getBukkitEntity(), inventory, this);
         return bukkitEntity;
     }
