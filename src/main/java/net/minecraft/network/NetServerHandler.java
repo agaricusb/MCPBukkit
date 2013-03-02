@@ -1960,7 +1960,7 @@ public class NetServerHandler extends NetHandler
             catch (Exception exception1)
             {
                 // CraftBukkit start
-                field_72577_a.log(Level.WARNING, this.field_72574_e.field_71092_bJ + " sent invalid MC|BSign data", exception);
+                field_72577_a.log(Level.WARNING, this.field_72574_e.field_71092_bJ + " sent invalid MC|BSign data", exception1);
                 this.func_72565_c("Invalid book data!");
                 // CraftBukkit end
             }
@@ -1985,7 +1985,7 @@ public class NetServerHandler extends NetHandler
                 catch (Exception exception2)
                 {
                     // CraftBukkit start
-                    field_72577_a.log(Level.WARNING, this.field_72574_e.field_71092_bJ + " sent invalid MC|TrSel data", exception);
+                    field_72577_a.log(Level.WARNING, this.field_72574_e.field_71092_bJ + " sent invalid MC|TrSel data", exception2);
                     this.func_72565_c("Invalid trade data!");
                     // CraftBukkit end
                 }
@@ -2021,7 +2021,7 @@ public class NetServerHandler extends NetHandler
                         catch (Exception exception3)
                         {
                             // CraftBukkit start
-                            field_72577_a.log(Level.WARNING, this.field_72574_e.field_71092_bJ + " sent invalid MC|AdvCdm data", exception);
+                            field_72577_a.log(Level.WARNING, this.field_72574_e.field_71092_bJ + " sent invalid MC|AdvCdm data", exception3);
                             this.func_72565_c("Invalid CommandBlock data!");
                             // CraftBukkit end
                         }
@@ -2055,7 +2055,7 @@ public class NetServerHandler extends NetHandler
                         catch (Exception exception4)
                         {
                             // CraftBukkit start
-                            field_72577_a.log(Level.WARNING, this.field_72574_e.field_71092_bJ + " sent invalid MC|Beacon data", exception);
+                            field_72577_a.log(Level.WARNING, this.field_72574_e.field_71092_bJ + " sent invalid MC|Beacon data", exception4);
                             this.func_72565_c("Invalid beacon data!");
                             // CraftBukkit end
                         }
