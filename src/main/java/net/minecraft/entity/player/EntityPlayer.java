@@ -31,6 +31,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.packet.Packet103SetSlot;
 import net.minecraft.potion.Potion;
 import net.minecraft.stats.AchievementList;
 import net.minecraft.stats.StatBase;
@@ -54,11 +55,13 @@ import net.minecraft.world.chunk.IChunkProvider;
 // CraftBukkit start
 import org.bukkit.craftbukkit.entity.CraftHumanEntity;
 import org.bukkit.craftbukkit.entity.CraftItem;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 // CraftBukkit end
 
 public abstract class EntityPlayer extends EntityLiving implements ICommandSender
@@ -342,6 +345,37 @@ public abstract class EntityPlayer extends EntityLiving implements ICommandSende
         {
             this.func_71010_c(this.field_71074_e, 16);
             int i = this.field_71074_e.field_77994_a;
+            // CraftBukkit start
+            org.bukkit.inventory.ItemStack craftItem = CraftItemStack.asBukkitCopy(this.field_71074_e);
+            PlayerItemConsumeEvent event = new PlayerItemConsumeEvent((Player) this.getBukkitEntity(), craftItem);
+            field_70170_p.getServer().getPluginManager().callEvent(event);
+
+            if (event.isCancelled())
+            {
+                // Update client
+                if (this instanceof EntityPlayerMP)
+                {
+                    ((EntityPlayerMP) this).field_71135_a.func_72567_b(new Packet103SetSlot((byte) 0, field_71070_bA.func_75147_a((IInventory) this.field_71071_by, this.field_71071_by.field_70461_c).field_75225_a, this.field_71074_e));
+                }
+
+                return;
+            }
+
+            // Plugin modified the item, process it but don't remove it
+            if (!craftItem.equals(event.getItem()))
+            {
+                CraftItemStack.asNMSCopy(event.getItem()).func_77950_b(this.field_70170_p, this);
+
+                // Update client
+                if (this instanceof EntityPlayerMP)
+                {
+                    ((EntityPlayerMP) this).field_71135_a.func_72567_b(new Packet103SetSlot((byte) 0, field_71070_bA.func_75147_a((IInventory) this.field_71071_by, this.field_71071_by.field_70461_c).field_75225_a, this.field_71074_e));
+                }
+
+                return;
+            }
+
+            // CraftBukkit end
             ItemStack itemstack = this.field_71074_e.func_77950_b(this.field_70170_p, this);
 
             if (itemstack != this.field_71074_e || itemstack != null && itemstack.field_77994_a != i)
