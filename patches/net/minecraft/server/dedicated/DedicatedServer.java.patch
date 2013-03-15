@@ -1,0 +1,173 @@
+--- ../net/minecraft/server/dedicated/DedicatedServer.java
++++ ../net/minecraft/server/dedicated/DedicatedServer.java
+@@ -7,6 +7,7 @@
+ import java.util.Collections;
+ import java.util.List;
+ import java.util.Random;
++import java.util.concurrent.Callable;
+ import net.minecraft.command.ICommandSender;
+ import net.minecraft.command.ServerCommand;
+ import net.minecraft.crash.CrashReport;
+@@ -28,6 +29,15 @@
+ import net.minecraft.world.World;
+ import net.minecraft.world.WorldSettings;
+ import net.minecraft.world.WorldType;
++import net.minecraft.world.chunk.storage.AnvilSaveConverter;
++
++// CraftBukkit start
++import java.io.PrintStream;
++import java.util.logging.Level;
++
++import org.bukkit.craftbukkit.LoggerOutputStream;
++import org.bukkit.event.server.ServerCommandEvent;
++// CraftBukkit end
+ 
+ public class DedicatedServer extends MinecraftServer implements IServer
+ {
+@@ -35,24 +45,30 @@
+     private final ILogAgent field_98131_l;
+     private RConThreadQuery field_71342_m;
+     private RConThreadMain field_71339_n;
+-    private PropertyManager field_71340_o;
++    public PropertyManager field_71340_o; // CraftBukkit - private -> public
+     private boolean field_71338_p;
+     private EnumGameType field_71337_q;
+     private NetworkListenThread field_71336_r;
+     private boolean field_71335_s = false;
+ 
+-    public DedicatedServer(File p_i3382_1_)
+-    {
+-        super(p_i3382_1_);
+-        this.field_98131_l = new LogAgent("Minecraft-Server", (String)null, (new File(p_i3382_1_, "server.log")).getAbsolutePath());
++    // CraftBukkit start - Signature changed
++    public DedicatedServer(joptsimple.OptionSet options)
++    {
++        super(options);
++        // CraftBukkit end
++        this.field_98131_l = new LogAgent("Minecraft-Server", (String) null, (String) null); // CraftBukkit - null last argument
+         new DedicatedServerSleepThread(this);
+     }
+ 
+-    protected boolean func_71197_b() throws IOException
++    protected boolean func_71197_b() throws java.net.UnknownHostException   // CraftBukkit - throws UnknownHostException
+     {
+         DedicatedServerCommandThread dedicatedservercommandthread = new DedicatedServerCommandThread(this);
+         dedicatedservercommandthread.setDaemon(true);
+         dedicatedservercommandthread.start();
++        // CraftBukkit start
++        System.setOut(new PrintStream(new LoggerOutputStream(this.func_98033_al().func_98076_a(), Level.INFO), true));
++        System.setErr(new PrintStream(new LoggerOutputStream(this.func_98033_al().func_98076_a(), Level.SEVERE), true));
++        // CraftBukkit end
+         this.func_98033_al().func_98233_a("Starting minecraft server version 1.5");
+ 
+         if (Runtime.getRuntime().maxMemory() / 1024L / 1024L < 512L)
+@@ -61,7 +77,7 @@
+         }
+ 
+         this.func_98033_al().func_98233_a("Loading properties");
+-        this.field_71340_o = new PropertyManager(new File("server.properties"), this.func_98033_al());
++        this.field_71340_o = new PropertyManager(this.options, this.func_98033_al()); // CraftBukkit - CLI argument support
+ 
+         if (this.func_71264_H())
+         {
+@@ -113,7 +129,7 @@
+         {
+             this.field_71336_r = new DedicatedServerListenThread(this, inetaddress, this.func_71215_F());
+         }
+-        catch (IOException ioexception)
++        catch (Throwable ioexception)     // CraftBukkit - IOException -> Throwable
+         {
+             this.func_98033_al().func_98236_b("**** FAILED TO BIND TO PORT!");
+             this.func_98033_al().func_98231_b("The exception was: {0}", new Object[] {ioexception.toString()});
+@@ -121,6 +137,8 @@
+             return false;
+         }
+ 
++        this.func_71210_a((ServerConfigurationManager)(new DedicatedPlayerList(this)));  // CraftBukkit
++
+         if (!this.func_71266_T())
+         {
+             this.func_98033_al().func_98236_b("**** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!");
+@@ -129,7 +147,8 @@
+             this.func_98033_al().func_98236_b("To change this, set \"online-mode\" to \"true\" in the server.properties file.");
+         }
+ 
+-        this.func_71210_a(new DedicatedPlayerList(this));
++        // this.a((PlayerList) (new DedicatedPlayerList(this))); // CraftBukkit - moved up
++        this.field_71310_m = new AnvilSaveConverter(server.getWorldContainer()); // CraftBukkit - moved from MinecraftServer constructor
+         long j = System.nanoTime();
+ 
+         if (this.func_71270_I() == null)
+@@ -188,11 +207,28 @@
+             this.func_98033_al().func_98233_a("Starting remote control listener");
+             this.field_71339_n = new RConThreadMain(this);
+             this.field_71339_n.func_72602_a();
++            this.remoteConsole = new org.bukkit.craftbukkit.command.CraftRemoteConsoleCommandSender(); // CraftBukkit
++        }
++
++        // CraftBukkit start
++        if (this.server.getBukkitSpawnRadius() > -1)
++        {
++            this.func_98033_al().func_98233_a("'settings.spawn-radius' in bukkit.yml has been moved to 'spawn-protection' in server.properties. I will move your config for you.");
++            this.field_71340_o.field_73672_b.remove("spawn-protection");
++            this.field_71340_o.func_73669_a("spawn-protection", this.server.getBukkitSpawnRadius());
++            this.server.removeBukkitSpawnRadius();
++            this.field_71340_o.func_73668_b();
+         }
+ 
+         return true;
+     }
+ 
++    public PropertyManager getPropertyManager()
++    {
++        return this.field_71340_o;
++    }
++    // CraftBukkit end
++
+     public boolean func_71225_e()
+     {
+         return this.field_71338_p;
+@@ -205,7 +241,7 @@
+ 
+     public int func_71232_g()
+     {
+-        return this.field_71340_o.func_73669_a("difficulty", 1);
++        return Math.max(0, Math.min(3, this.field_71340_o.func_73669_a("difficulty", 1))); // CraftBukkit - clamp values
+     }
+ 
+     public boolean func_71199_h()
+@@ -233,8 +269,8 @@
+     public CrashReport func_71230_b(CrashReport p_71230_1_)
+     {
+         p_71230_1_ = super.func_71230_b(p_71230_1_);
+-        p_71230_1_.func_85056_g().func_71500_a("Is Modded", new CallableType(this));
+-        p_71230_1_.func_85056_g().func_71500_a("Type", new CallableServerType(this));
++        p_71230_1_.func_85056_g().func_71500_a("Is Modded", (Callable)(new CallableType(this)));
++        p_71230_1_.func_85056_g().func_71500_a("Type", (Callable)(new CallableServerType(this)));
+         return p_71230_1_;
+     }
+ 
+@@ -243,7 +279,7 @@
+         System.exit(0);
+     }
+ 
+-    public void func_71190_q()
++    public void func_71190_q()   // CraftBukkit - protected -> public
+     {
+         super.func_71190_q();
+         this.func_71333_ah();
+@@ -281,7 +317,13 @@
+         while (!this.field_71341_l.isEmpty())
+         {
+             ServerCommand servercommand = (ServerCommand)this.field_71341_l.remove(0);
+-            this.func_71187_D().func_71556_a(servercommand.field_73701_b, servercommand.field_73702_a);
++            // CraftBukkit start - ServerCommand for preprocessing
++            ServerCommandEvent event = new ServerCommandEvent(this.console, servercommand.field_73702_a);
++            this.server.getPluginManager().callEvent(event);
++            servercommand = new ServerCommand(event.getCommand(), servercommand.field_73701_b);
++            // this.getCommandHandler().a(servercommand.source, servercommand.command); // Called in dispatchServerCommand
++            this.server.dispatchServerCommand(this.console, servercommand);
++            // CraftBukkit end
+         }
+     }
+ 

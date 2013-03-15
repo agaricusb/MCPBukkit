@@ -1,0 +1,20 @@
+--- ../net/minecraft/village/VillageSiege.java
++++ ../net/minecraft/village/VillageSiege.java
+@@ -194,7 +194,7 @@
+             }
+ 
+             entityzombie.func_70012_b(vec3.field_72450_a, vec3.field_72448_b, vec3.field_72449_c, this.field_75537_a.field_73012_v.nextFloat() * 360.0F, 0.0F);
+-            this.field_75537_a.func_72838_d(entityzombie);
++            this.field_75537_a.addEntity(entityzombie, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.VILLAGE_INVASION); // CraftBukkit
+             ChunkCoordinates chunkcoordinates = this.field_75531_f.func_75577_a();
+             entityzombie.func_70598_b(chunkcoordinates.field_71574_a, chunkcoordinates.field_71572_b, chunkcoordinates.field_71573_c, this.field_75531_f.func_75568_b());
+             return true;
+@@ -211,7 +211,7 @@
+ 
+             if (this.field_75531_f.func_75570_a(i1, j1, k1) && SpawnerAnimals.func_77190_a(EnumCreatureType.monster, this.field_75537_a, i1, j1, k1))
+             {
+-                this.field_75537_a.func_82732_R().func_72345_a((double)i1, (double)j1, (double)k1);
++                return this.field_75537_a.func_82732_R().func_72345_a((double) i1, (double) j1, (double) k1);
+             }
+         }
+ 

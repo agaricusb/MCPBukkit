@@ -1,0 +1,39 @@
+--- ../net/minecraft/entity/projectile/EntityLargeFireball.java
++++ ../net/minecraft/entity/projectile/EntityLargeFireball.java
+@@ -1,6 +1,6 @@
+ package net.minecraft.entity.projectile;
+ 
+-import net.minecraft.entity.Entity;
++import org.bukkit.event.entity.ExplosionPrimeEvent; // CraftBukkit
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.util.DamageSource;
+@@ -30,7 +30,17 @@
+                 p_70227_1_.field_72308_g.func_70097_a(DamageSource.func_76362_a(this, this.field_70235_a), 6);
+             }
+ 
+-            this.field_70170_p.func_72885_a((Entity)null, this.field_70165_t, this.field_70163_u, this.field_70161_v, (float)this.field_92057_e, true, this.field_70170_p.func_82736_K().func_82766_b("mobGriefing"));
++            // CraftBukkit start
++            ExplosionPrimeEvent event = new ExplosionPrimeEvent((org.bukkit.entity.Explosive) org.bukkit.craftbukkit.entity.CraftEntity.getEntity(this.field_70170_p.getServer(), this));
++            this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++            if (!event.isCancelled())
++            {
++                // give 'this' instead of (Entity) null so we know what causes the damage
++                this.field_70170_p.func_72885_a(this, this.field_70165_t, this.field_70163_u, this.field_70161_v, event.getRadius(), event.getFire(), this.field_70170_p.func_82736_K().func_82766_b("mobGriefing"));
++            }
++
++            // CraftBukkit end
+             this.func_70106_y();
+         }
+     }
+@@ -47,7 +57,8 @@
+ 
+         if (p_70037_1_.func_74764_b("ExplosionPower"))
+         {
+-            this.field_92057_e = p_70037_1_.func_74762_e("ExplosionPower");
++            // CraftBukkit - set yield when setting explosionpower
++            this.yield = this.field_92057_e = p_70037_1_.func_74762_e("ExplosionPower");
+         }
+     }
+ }

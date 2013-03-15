@@ -1,0 +1,77 @@
+--- ../net/minecraft/util/FoodStats.java
++++ ../net/minecraft/util/FoodStats.java
+@@ -1,16 +1,23 @@
+ package net.minecraft.util;
+ 
++import org.bukkit.event.entity.EntityDamageEvent; // CraftBukkit
+ import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.item.ItemFood;
+ import net.minecraft.nbt.NBTTagCompound;
++import net.minecraft.network.packet.Packet8UpdateHealth;
+ 
+ public class FoodStats
+ {
+-    private int field_75127_a = 20;
+-    private float field_75125_b = 5.0F;
+-    private float field_75126_c;
+-    private int field_75123_d = 0;
++    // CraftBukkit start - all made public
++    public int field_75127_a = 20;
++    public float field_75125_b = 5.0F;
++    public float field_75126_c;
++    public int field_75123_d = 0;
++    // CraftBukkit end
+     private int field_75124_e = 20;
++
++    public FoodStats() {}
+ 
+     public void func_75122_a(int p_75122_1_, float p_75122_2_)
+     {
+@@ -38,7 +45,16 @@
+             }
+             else if (i > 0)
+             {
+-                this.field_75127_a = Math.max(this.field_75127_a - 1, 0);
++                // CraftBukkit start
++                org.bukkit.event.entity.FoodLevelChangeEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callFoodLevelChangeEvent(p_75118_1_, Math.max(this.field_75127_a - 1, 0));
++
++                if (!event.isCancelled())
++                {
++                    this.field_75127_a = event.getFoodLevel();
++                }
++
++                ((EntityPlayerMP) p_75118_1_).field_71135_a.func_72567_b(new Packet8UpdateHealth(p_75118_1_.func_70630_aN(), this.field_75127_a, this.field_75125_b));
++                // CraftBukkit end
+             }
+         }
+ 
+@@ -48,7 +64,8 @@
+ 
+             if (this.field_75123_d >= 80)
+             {
+-                p_75118_1_.func_70691_i(1);
++                // CraftBukkit - added RegainReason
++                p_75118_1_.heal(1, org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason.SATIATED);
+                 this.field_75123_d = 0;
+             }
+         }
+@@ -60,7 +77,17 @@
+             {
+                 if (p_75118_1_.func_70630_aN() > 10 || i >= 3 || p_75118_1_.func_70630_aN() > 1 && i >= 2)
+                 {
+-                    p_75118_1_.func_70097_a(DamageSource.field_76366_f, 1);
++                    // CraftBukkit start
++                    EntityDamageEvent event = new EntityDamageEvent(p_75118_1_.getBukkitEntity(), EntityDamageEvent.DamageCause.STARVATION, 1);
++                    p_75118_1_.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++                    if (!event.isCancelled())
++                    {
++                        event.getEntity().setLastDamageCause(event);
++                        p_75118_1_.func_70097_a(DamageSource.field_76366_f, event.getDamage());
++                    }
++
++                    // CraftBukkit end
+                 }
+ 
+                 this.field_75123_d = 0;

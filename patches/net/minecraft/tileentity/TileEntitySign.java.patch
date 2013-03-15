@@ -1,0 +1,39 @@
+--- ../net/minecraft/tileentity/TileEntitySign.java
++++ ../net/minecraft/tileentity/TileEntitySign.java
+@@ -3,12 +3,13 @@
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.network.packet.Packet;
+ import net.minecraft.network.packet.Packet130UpdateSign;
+-
+ public class TileEntitySign extends TileEntity
+ {
+     public String[] field_70412_a = new String[] {"", "", "", ""};
+     public int field_70410_b = -1;
+-    private boolean field_70411_c = true;
++    public boolean field_70411_c = true; // CraftBukkit - privite -> public
++
++    public TileEntitySign() {}
+ 
+     public void func_70310_b(NBTTagCompound p_70310_1_)
+     {
+@@ -38,7 +39,19 @@
+     public Packet func_70319_e()
+     {
+         String[] astring = new String[4];
+-        System.arraycopy(this.field_70412_a, 0, astring, 0, 4);
++
++        // CraftBukkit start - limit sign text to 15 chars per line
++        for (int i = 0; i < 4; ++i)
++        {
++            astring[i] = this.field_70412_a[i];
++
++            if (this.field_70412_a[i].length() > 15)
++            {
++                astring[i] = this.field_70412_a[i].substring(0, 15);
++            }
++        }
++
++        // CraftBukkit end
+         return new Packet130UpdateSign(this.field_70329_l, this.field_70330_m, this.field_70327_n, astring);
+     }
+ 

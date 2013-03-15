@@ -1,0 +1,177 @@
+--- ../net/minecraft/network/NetLoginHandler.java
++++ ../net/minecraft/network/NetLoginHandler.java
+@@ -1,6 +1,5 @@
+ package net.minecraft.network;
+ 
+-import java.io.IOException;
+ import java.io.Serializable;
+ import java.net.InetAddress;
+ import java.net.Socket;
+@@ -10,6 +9,7 @@
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Random;
++import java.util.logging.Logger;
+ import javax.crypto.SecretKey;
+ import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.network.packet.NetHandler;
+@@ -34,18 +34,26 @@
+     public final TcpConnection field_72538_b;
+     public boolean field_72539_c = false;
+     private int field_72535_g = 0;
+-    public String field_72543_h = null;
++    private String field_72543_h = null;
+     private volatile boolean field_72544_i = false;
+-    private String field_72541_j = "";
++    private String field_72541_j = Long.toString(field_72537_e.nextLong(), 16); // CraftBukkit - Security fix
+     private boolean field_92079_k = false;
+     private SecretKey field_72542_k = null;
+-
+-    public NetLoginHandler(MinecraftServer p_i3400_1_, Socket p_i3400_2_, String p_i3400_3_) throws IOException
++    public String hostname = ""; // CraftBukkit - add field
++
++    public NetLoginHandler(MinecraftServer p_i3400_1_, Socket p_i3400_2_, String p_i3400_3_) throws java.io.IOException   // CraftBukkit - throws IOException
+     {
+         this.field_72534_f = p_i3400_1_;
+         this.field_72538_b = new TcpConnection(p_i3400_1_.func_98033_al(), p_i3400_2_, p_i3400_3_, this, p_i3400_1_.func_71250_E().getPrivate());
+         this.field_72538_b.field_74468_e = 0;
+     }
++
++    // CraftBukkit start
++    public Socket getSocket()
++    {
++        return this.field_72538_b.func_74452_g();
++    }
++    // CraftBukkit end
+ 
+     public void func_72532_c()
+     {
+@@ -81,6 +89,9 @@
+ 
+     public void func_72500_a(Packet2ClientProtocol p_72500_1_)
+     {
++        // CraftBukkit start
++        this.hostname = p_72500_1_.field_73457_c == null ? "" : p_72500_1_.field_73457_c + ':' + p_72500_1_.field_73455_d;
++        // CraftBukkit end
+         this.field_72543_h = p_72500_1_.func_73454_f();
+ 
+         if (!this.field_72543_h.equals(StringUtils.func_76338_a(this.field_72543_h)))
+@@ -129,17 +140,16 @@
+     {
+         if (p_72458_1_.field_73447_a == 0)
+         {
+-            if (this.field_92079_k)
+-            {
+-                this.func_72527_a("Duplicate login");
+-                return;
+-            }
+-
+-            this.field_92079_k = true;
+-
+             if (this.field_72534_f.func_71266_T())
+             {
+-                (new ThreadLoginVerifier(this)).start();
++                if (this.field_92079_k)
++                {
++                    this.func_72527_a("Duplicate login");
++                    return;
++                }
++
++                this.field_92079_k = true;
++                (new ThreadLoginVerifier(this, field_72534_f.server)).start(); // CraftBukkit - add CraftServer
+             }
+             else
+             {
+@@ -152,19 +162,21 @@
+ 
+     public void func_72529_d()
+     {
+-        String s = this.field_72534_f.func_71203_ab().func_72399_a(this.field_72538_b.func_74430_c(), this.field_72543_h);
+-
+-        if (s != null)
+-        {
+-            this.func_72527_a(s);
++        // CraftBukkit start
++        EntityPlayerMP s = this.field_72534_f.func_71203_ab().attemptLogin(this, this.field_72543_h, this.hostname);
++
++        if (s == null)
++        {
++            return;
++            // CraftBukkit end
+         }
+         else
+         {
+-            EntityPlayerMP entityplayermp = this.field_72534_f.func_71203_ab().func_72366_a(this.field_72543_h);
++            EntityPlayerMP entityplayermp = this.field_72534_f.func_71203_ab().processLogin(s); // CraftBukkit - this.h -> s
+ 
+             if (entityplayermp != null)
+             {
+-                this.field_72534_f.func_71203_ab().func_72355_a(this.field_72538_b, entityplayermp);
++                this.field_72534_f.func_71203_ab().func_72355_a((INetworkManager) this.field_72538_b, entityplayermp);
+             }
+         }
+ 
+@@ -179,33 +191,43 @@
+ 
+     public void func_72467_a(Packet254ServerPing p_72467_1_)
+     {
++        if (this.field_72538_b.func_74452_g() == null)
++        {
++            return;    // CraftBukkit - fix NPE when a client queries a server that is unable to handle it.
++        }
++
+         try
+         {
+             ServerConfigurationManager serverconfigurationmanager = this.field_72534_f.func_71203_ab();
+             String s = null;
++            // CraftBukkit
++            org.bukkit.event.server.ServerListPingEvent pingEvent = org.bukkit.craftbukkit.event.CraftEventFactory.callServerListPingEvent(this.field_72534_f.server, getSocket().getInetAddress(), this.field_72534_f.func_71273_Y(), serverconfigurationmanager.func_72394_k(), serverconfigurationmanager.func_72352_l());
+ 
+             if (p_72467_1_.field_82559_a == 1)
+             {
+-                List list = Arrays.asList(new Serializable[] {Integer.valueOf(1), Integer.valueOf(60), this.field_72534_f.func_71249_w(), this.field_72534_f.func_71273_Y(), Integer.valueOf(serverconfigurationmanager.func_72394_k()), Integer.valueOf(serverconfigurationmanager.func_72352_l())});
+-                Object object;
+-
+-                for (Iterator iterator = list.iterator(); iterator.hasNext(); s = s + object.toString().replaceAll("\u0000", ""))
+-                {
+-                    object = iterator.next();
+-
++                // CraftBukkit start - fix decompile issues, don't create a list from an array
++                Object[] list = new Object[] { 1, 60, this.field_72534_f.func_71249_w(), pingEvent.getMotd(), serverconfigurationmanager.func_72394_k(), pingEvent.getMaxPlayers() };
++
++                for (Object object : list)
++                {
+                     if (s == null)
+                     {
+-                        s = "\u00a7";
++                        s = "\u00A7";
+                     }
+                     else
+                     {
+-                        s = s + "\u0000";
++                        s = s + "\0";
+                     }
+-                }
++
++                    s += org.apache.commons.lang.StringUtils.replace(object.toString(), "\0", "");
++                }
++
++                // CraftBukkit end
+             }
+             else
+             {
+-                s = this.field_72534_f.func_71273_Y() + "\u00a7" + serverconfigurationmanager.func_72394_k() + "\u00a7" + serverconfigurationmanager.func_72352_l();
++                // CraftBukkit
++                s = pingEvent.getMotd() + "\u00A7" + serverconfigurationmanager.func_72394_k() + "\u00A7" + pingEvent.getMaxPlayers();
+             }
+ 
+             InetAddress inetaddress = null;
+@@ -266,7 +288,7 @@
+         return p_72533_0_.field_72543_h;
+     }
+ 
+-    public static boolean func_72531_a(NetLoginHandler p_72531_0_, boolean p_72531_1_)
++    static boolean func_72531_a(NetLoginHandler p_72531_0_, boolean p_72531_1_)
+     {
+         return p_72531_0_.field_72544_i = p_72531_1_;
+     }

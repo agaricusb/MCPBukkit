@@ -1,0 +1,129 @@
+--- ../net/minecraft/block/BlockPumpkin.java
++++ ../net/minecraft/block/BlockPumpkin.java
+@@ -1,5 +1,9 @@
+ package net.minecraft.block;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.util.BlockStateListPopulator;
++import org.bukkit.event.block.BlockRedstoneEvent;
++import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+ import net.minecraft.block.material.Material;
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.EntityLiving;
+@@ -8,6 +12,7 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
++// CraftBukkit end
+ 
+ public class BlockPumpkin extends BlockDirectional
+ {
+@@ -29,15 +34,20 @@
+         {
+             if (!p_71861_1_.field_72995_K)
+             {
+-                p_71861_1_.func_72832_d(p_71861_2_, p_71861_3_, p_71861_4_, 0, 0, 2);
+-                p_71861_1_.func_72832_d(p_71861_2_, p_71861_3_ - 1, p_71861_4_, 0, 0, 2);
+-                p_71861_1_.func_72832_d(p_71861_2_, p_71861_3_ - 2, p_71861_4_, 0, 0, 2);
++                // CraftBukkit start - use BlockStateListPopulator
++                BlockStateListPopulator blockList = new BlockStateListPopulator(p_71861_1_.getWorld());
++                blockList.setTypeId(p_71861_2_, p_71861_3_, p_71861_4_, 0);
++                blockList.setTypeId(p_71861_2_, p_71861_3_ - 1, p_71861_4_, 0);
++                blockList.setTypeId(p_71861_2_, p_71861_3_ - 2, p_71861_4_, 0);
+                 EntitySnowman entitysnowman = new EntitySnowman(p_71861_1_);
+                 entitysnowman.func_70012_b((double)p_71861_2_ + 0.5D, (double)p_71861_3_ - 1.95D, (double)p_71861_4_ + 0.5D, 0.0F, 0.0F);
+-                p_71861_1_.func_72838_d(entitysnowman);
+-                p_71861_1_.func_72851_f(p_71861_2_, p_71861_3_, p_71861_4_, 0);
+-                p_71861_1_.func_72851_f(p_71861_2_, p_71861_3_ - 1, p_71861_4_, 0);
+-                p_71861_1_.func_72851_f(p_71861_2_, p_71861_3_ - 2, p_71861_4_, 0);
++
++                if (p_71861_1_.addEntity(entitysnowman, SpawnReason.BUILD_SNOWMAN))
++                {
++                    blockList.updateList();
++                }
++
++                // CraftBukkit end
+             }
+ 
+             for (int l = 0; l < 120; ++l)
+@@ -52,45 +62,38 @@
+ 
+             if (flag || flag1)
+             {
+-                p_71861_1_.func_72832_d(p_71861_2_, p_71861_3_, p_71861_4_, 0, 0, 2);
+-                p_71861_1_.func_72832_d(p_71861_2_, p_71861_3_ - 1, p_71861_4_, 0, 0, 2);
+-                p_71861_1_.func_72832_d(p_71861_2_, p_71861_3_ - 2, p_71861_4_, 0, 0, 2);
++                // CraftBukkit start - use BlockStateListPopulator
++                BlockStateListPopulator blockList = new BlockStateListPopulator(p_71861_1_.getWorld());
++                blockList.setTypeId(p_71861_2_, p_71861_3_, p_71861_4_, 0);
++                blockList.setTypeId(p_71861_2_, p_71861_3_ - 1, p_71861_4_, 0);
++                blockList.setTypeId(p_71861_2_, p_71861_3_ - 2, p_71861_4_, 0);
+ 
+                 if (flag)
+                 {
+-                    p_71861_1_.func_72832_d(p_71861_2_ - 1, p_71861_3_ - 1, p_71861_4_, 0, 0, 2);
+-                    p_71861_1_.func_72832_d(p_71861_2_ + 1, p_71861_3_ - 1, p_71861_4_, 0, 0, 2);
++                    blockList.setTypeId(p_71861_2_ - 1, p_71861_3_ - 1, p_71861_4_, 0);
++                    blockList.setTypeId(p_71861_2_ + 1, p_71861_3_ - 1, p_71861_4_, 0);
+                 }
+                 else
+                 {
+-                    p_71861_1_.func_72832_d(p_71861_2_, p_71861_3_ - 1, p_71861_4_ - 1, 0, 0, 2);
+-                    p_71861_1_.func_72832_d(p_71861_2_, p_71861_3_ - 1, p_71861_4_ + 1, 0, 0, 2);
++                    blockList.setTypeId(p_71861_2_, p_71861_3_ - 1, p_71861_4_ - 1, 0);
++                    blockList.setTypeId(p_71861_2_, p_71861_3_ - 1, p_71861_4_ + 1, 0);
+                 }
+ 
+                 EntityIronGolem entityirongolem = new EntityIronGolem(p_71861_1_);
+                 entityirongolem.func_70849_f(true);
+                 entityirongolem.func_70012_b((double)p_71861_2_ + 0.5D, (double)p_71861_3_ - 1.95D, (double)p_71861_4_ + 0.5D, 0.0F, 0.0F);
+-                p_71861_1_.func_72838_d(entityirongolem);
+ 
+-                for (int i1 = 0; i1 < 120; ++i1)
++                if (p_71861_1_.addEntity(entityirongolem, SpawnReason.BUILD_IRONGOLEM))
+                 {
+-                    p_71861_1_.func_72869_a("snowballpoof", (double)p_71861_2_ + p_71861_1_.field_73012_v.nextDouble(), (double)(p_71861_3_ - 2) + p_71861_1_.field_73012_v.nextDouble() * 3.9D, (double)p_71861_4_ + p_71861_1_.field_73012_v.nextDouble(), 0.0D, 0.0D, 0.0D);
++                    for (int i1 = 0; i1 < 120; ++i1)
++                    {
++                        p_71861_1_.func_72869_a("snowballpoof", (double) p_71861_2_ + p_71861_1_.field_73012_v.nextDouble(), (double)(p_71861_3_ - 2) + p_71861_1_.field_73012_v.nextDouble() * 3.9D, (double) p_71861_4_ + p_71861_1_.field_73012_v.nextDouble(), 0.0D, 0.0D, 0.0D);
++                    }
++
++                    blockList.updateList();
+                 }
+ 
+-                p_71861_1_.func_72851_f(p_71861_2_, p_71861_3_, p_71861_4_, 0);
+-                p_71861_1_.func_72851_f(p_71861_2_, p_71861_3_ - 1, p_71861_4_, 0);
+-                p_71861_1_.func_72851_f(p_71861_2_, p_71861_3_ - 2, p_71861_4_, 0);
+-
+-                if (flag)
+-                {
+-                    p_71861_1_.func_72851_f(p_71861_2_ - 1, p_71861_3_ - 1, p_71861_4_, 0);
+-                    p_71861_1_.func_72851_f(p_71861_2_ + 1, p_71861_3_ - 1, p_71861_4_, 0);
+-                }
+-                else
+-                {
+-                    p_71861_1_.func_72851_f(p_71861_2_, p_71861_3_ - 1, p_71861_4_ - 1, 0);
+-                    p_71861_1_.func_72851_f(p_71861_2_, p_71861_3_ - 1, p_71861_4_ + 1, 0);
+-                }
++                // CraftBukkit end
+             }
+         }
+     }
+@@ -106,4 +109,17 @@
+         int l = MathHelper.func_76128_c((double)(p_71860_5_.field_70177_z * 4.0F / 360.0F) + 2.5D) & 3;
+         p_71860_1_.func_72921_c(p_71860_2_, p_71860_3_, p_71860_4_, l, 2);
+     }
++
++    // CraftBukkit start
++    public void func_71863_a(World world, int i, int j, int k, int l)
++    {
++        if (Block.field_71973_m[l] != null && Block.field_71973_m[l].func_71853_i())
++        {
++            org.bukkit.block.Block block = world.getWorld().getBlockAt(i, j, k);
++            int power = block.getBlockPower();
++            BlockRedstoneEvent eventRedstone = new BlockRedstoneEvent(block, power, power);
++            world.getServer().getPluginManager().callEvent(eventRedstone);
++        }
++    }
++    // CraftBukkit end
+ }

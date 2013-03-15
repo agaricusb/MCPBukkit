@@ -1,0 +1,193 @@
+--- ../net/minecraft/world/Explosion.java
++++ ../net/minecraft/world/Explosion.java
+@@ -18,6 +18,15 @@
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.util.Vec3;
+ 
++// CraftBukkit start
++import org.bukkit.Bukkit;
++import org.bukkit.event.entity.EntityDamageByBlockEvent;
++import org.bukkit.event.entity.EntityDamageByEntityEvent;
++import org.bukkit.event.entity.EntityDamageEvent;
++import org.bukkit.event.entity.EntityExplodeEvent;
++import org.bukkit.Location;
++// CraftBukkit end
++
+ public class Explosion
+ {
+     public boolean field_77286_a = false;
+@@ -32,12 +41,13 @@
+     public float field_77280_f;
+     public List field_77281_g = new ArrayList();
+     private Map field_77288_k = new HashMap();
++    public boolean wasCanceled = false; // CraftBukkit
+ 
+     public Explosion(World p_i3727_1_, Entity p_i3727_2_, double p_i3727_3_, double p_i3727_5_, double p_i3727_7_, float p_i3727_9_)
+     {
+         this.field_77287_j = p_i3727_1_;
+         this.field_77283_e = p_i3727_2_;
+-        this.field_77280_f = p_i3727_9_;
++        this.field_77280_f = (float) Math.max(p_i3727_9_, 0.0); // CraftBukkit - clamp bad values
+         this.field_77284_b = p_i3727_3_;
+         this.field_77285_c = p_i3727_5_;
+         this.field_77282_d = p_i3727_7_;
+@@ -45,6 +55,13 @@
+ 
+     public void func_77278_a()
+     {
++        // CraftBukkit start
++        if (this.field_77280_f < 0.1F)
++        {
++            return;
++        }
++
++        // CraftBukkit end
+         float f = this.field_77280_f;
+         HashSet hashset = new HashSet();
+         int i;
+@@ -88,7 +105,7 @@
+                                 f1 -= (f3 + 0.3F) * f2;
+                             }
+ 
+-                            if (f1 > 0.0F && (this.field_77283_e == null || this.field_77283_e.func_96091_a(this, this.field_77287_j, l, i1, j1, k1, f1)))
++                            if (f1 > 0.0F && (this.field_77283_e == null || this.field_77283_e.func_96091_a(this, this.field_77287_j, l, i1, j1, k1, f1)) && i1 < 256 && i1 >= 0)   // CraftBukkit - don't wrap explosions
+                             {
+                                 hashset.add(new ChunkPosition(l, i1, j1));
+                             }
+@@ -132,16 +149,67 @@
+                     d2 /= d8;
+                     double d9 = (double)this.field_77287_j.func_72842_a(vec3, entity.field_70121_D);
+                     double d10 = (1.0D - d7) * d9;
+-                    entity.func_70097_a(DamageSource.func_94539_a(this), (int)((d10 * d10 + d10) / 2.0D * 8.0D * (double)this.field_77280_f + 1.0D));
+-                    double d11 = EnchantmentProtection.func_92092_a(entity, d10);
+-                    entity.field_70159_w += d0 * d11;
+-                    entity.field_70181_x += d1 * d11;
+-                    entity.field_70179_y += d2 * d11;
+-
+-                    if (entity instanceof EntityPlayer)
+-                    {
+-                        this.field_77288_k.put((EntityPlayer)entity, this.field_77287_j.func_82732_R().func_72345_a(d0 * d10, d1 * d10, d2 * d10));
+-                    }
++                    // CraftBukkit start - explosion damage hook
++                    org.bukkit.entity.Entity damagee = (entity == null) ? null : entity.getBukkitEntity();
++                    int damageDone = (int)((d10 * d10 + d10) / 2.0D * 8.0D * (double) this.field_77280_f + 1.0D);
++
++                    if (damagee == null)
++                    {
++                        // nothing was hurt
++                    }
++                    else if (this.field_77283_e == null)     // Block explosion (without an entity source; bed etc.)
++                    {
++                        EntityDamageByBlockEvent event = new EntityDamageByBlockEvent(null, damagee, EntityDamageEvent.DamageCause.BLOCK_EXPLOSION, damageDone);
++                        Bukkit.getPluginManager().callEvent(event);
++
++                        if (!event.isCancelled())
++                        {
++                            damagee.setLastDamageCause(event);
++                            entity.func_70097_a(DamageSource.func_94539_a(this), event.getDamage());
++                            double d11 = EnchantmentProtection.func_92092_a(entity, d10);
++                            entity.field_70159_w += d0 * d11;
++                            entity.field_70181_x += d1 * d11;
++                            entity.field_70179_y += d2 * d11;
++
++                            if (entity instanceof EntityPlayer)
++                            {
++                                this.field_77288_k.put((EntityPlayer) entity, this.field_77287_j.func_82732_R().func_72345_a(d0 * d10, d1 * d10, d2 * d10));
++                            }
++                        }
++                    }
++                    else
++                    {
++                        final org.bukkit.entity.Entity damager = this.field_77283_e.getBukkitEntity();
++                        final EntityDamageEvent.DamageCause damageCause;
++
++                        if (damager instanceof org.bukkit.entity.TNTPrimed)
++                        {
++                            damageCause = EntityDamageEvent.DamageCause.BLOCK_EXPLOSION;
++                        }
++                        else
++                        {
++                            damageCause = EntityDamageEvent.DamageCause.ENTITY_EXPLOSION;
++                        }
++
++                        EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(damager, damagee, damageCause, damageDone);
++                        Bukkit.getPluginManager().callEvent(event);
++
++                        if (!event.isCancelled())
++                        {
++                            entity.getBukkitEntity().setLastDamageCause(event);
++                            entity.func_70097_a(DamageSource.func_94539_a(this), event.getDamage());
++                            entity.field_70159_w += d0 * d10;
++                            entity.field_70181_x += d1 * d10;
++                            entity.field_70179_y += d2 * d10;
++
++                            if (entity instanceof EntityPlayer)
++                            {
++                                this.field_77288_k.put((EntityPlayer) entity, this.field_77287_j.func_82732_R().func_72345_a(d0 * d10, d1 * d10, d2 * d10));
++                            }
++                        }
++                    }
++
++                    // CraftBukkit end
+                 }
+             }
+         }
+@@ -171,6 +239,40 @@
+ 
+         if (this.field_82755_b)
+         {
++            // CraftBukkit start
++            org.bukkit.World bworld = this.field_77287_j.getWorld();
++            org.bukkit.entity.Entity explode = this.field_77283_e == null ? null : this.field_77283_e.getBukkitEntity();
++            Location location = new Location(bworld, this.field_77284_b, this.field_77285_c, this.field_77282_d);
++            List<org.bukkit.block.Block> blockList = new ArrayList<org.bukkit.block.Block>();
++
++            for (int i1 = this.field_77281_g.size() - 1; i1 >= 0; i1--)
++            {
++                ChunkPosition cpos = (ChunkPosition) this.field_77281_g.get(i1);
++                org.bukkit.block.Block block = bworld.getBlockAt(cpos.field_76930_a, cpos.field_76928_b, cpos.field_76929_c);
++
++                if (block.getType() != org.bukkit.Material.AIR)
++                {
++                    blockList.add(block);
++                }
++            }
++
++            EntityExplodeEvent event = new EntityExplodeEvent(explode, location, blockList, 0.3F);
++            this.field_77287_j.getServer().getPluginManager().callEvent(event);
++            this.field_77281_g.clear();
++
++            for (org.bukkit.block.Block block : event.blockList())
++            {
++                ChunkPosition coords = new ChunkPosition(block.getX(), block.getY(), block.getZ());
++                field_77281_g.add(coords);
++            }
++
++            if (event.isCancelled())
++            {
++                this.wasCanceled = true;
++                return;
++            }
++
++            // CraftBukkit end
+             iterator = this.field_77281_g.iterator();
+ 
+             while (iterator.hasNext())
+@@ -202,13 +304,15 @@
+                     this.field_77287_j.func_72869_a("smoke", d0, d1, d2, d3, d4, d5);
+                 }
+ 
+-                if (l > 0)
++                // CraftBukkit - stop explosions from putting out fire
++                if (l > 0 && l != Block.field_72067_ar.field_71990_ca)
+                 {
+                     Block block = Block.field_71973_m[l];
+ 
+                     if (block.func_85103_a(this))
+                     {
+-                        block.func_71914_a(this.field_77287_j, i, j, k, this.field_77287_j.func_72805_g(i, j, k), 1.0F / this.field_77280_f, 0);
++                        // CraftBukkit
++                        block.func_71914_a(this.field_77287_j, i, j, k, this.field_77287_j.func_72805_g(i, j, k), event.getYield(), 0);
+                     }
+ 
+                     this.field_77287_j.func_72832_d(i, j, k, 0, 0, 3);

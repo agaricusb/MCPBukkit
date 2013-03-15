@@ -1,0 +1,27 @@
+--- ../net/minecraft/block/BlockCocoa.java
++++ ../net/minecraft/block/BlockCocoa.java
+@@ -36,7 +36,7 @@
+             if (i1 < 2)
+             {
+                 ++i1;
+-                p_71847_1_.func_72921_c(p_71847_2_, p_71847_3_, p_71847_4_, i1 << 2 | func_72217_d(l), 2);
++                org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockGrowEvent(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, this.field_71990_ca, i1 << 2 | func_72217_d(l)); // CraftBukkit
+             }
+         }
+     }
+@@ -85,12 +85,15 @@
+             case 0:
+                 this.func_71905_a((8.0F - f) / 16.0F, (12.0F - (float)l1) / 16.0F, (15.0F - (float)k1) / 16.0F, (8.0F + f) / 16.0F, 0.75F, 0.9375F);
+                 break;
++
+             case 1:
+                 this.func_71905_a(0.0625F, (12.0F - (float)l1) / 16.0F, (8.0F - f) / 16.0F, (1.0F + (float)k1) / 16.0F, 0.75F, (8.0F + f) / 16.0F);
+                 break;
++
+             case 2:
+                 this.func_71905_a((8.0F - f) / 16.0F, (12.0F - (float)l1) / 16.0F, 0.0625F, (8.0F + f) / 16.0F, 0.75F, (1.0F + (float)k1) / 16.0F);
+                 break;
++
+             case 3:
+                 this.func_71905_a((15.0F - (float)k1) / 16.0F, (12.0F - (float)l1) / 16.0F, (8.0F - f) / 16.0F, 0.9375F, 0.75F, (8.0F + f) / 16.0F);
+         }

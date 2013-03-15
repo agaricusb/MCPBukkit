@@ -1,0 +1,58 @@
+--- ../net/minecraft/item/ItemSlab.java
++++ ../net/minecraft/item/ItemSlab.java
+@@ -3,7 +3,6 @@
+ import net.minecraft.block.BlockHalfSlab;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.world.World;
+-
+ public class ItemSlab extends ItemBlock
+ {
+     private final boolean field_77891_a;
+@@ -32,6 +31,8 @@
+ 
+     public boolean func_77648_a(ItemStack p_77648_1_, EntityPlayer p_77648_2_, World p_77648_3_, int p_77648_4_, int p_77648_5_, int p_77648_6_, int p_77648_7_, float p_77648_8_, float p_77648_9_, float p_77648_10_)
+     {
++        final int clickedX = p_77648_4_, clickedY = p_77648_5_, clickedZ = p_77648_6_; // CraftBukkit
++
+         if (this.field_77891_a)
+         {
+             return super.func_77648_a(p_77648_1_, p_77648_2_, p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_, p_77648_7_, p_77648_8_, p_77648_9_, p_77648_10_);
+@@ -53,9 +54,12 @@
+ 
+             if ((p_77648_7_ == 1 && !flag || p_77648_7_ == 0 && flag) && i1 == this.field_77889_b.field_71990_ca && k1 == p_77648_1_.func_77960_j())
+             {
+-                if (p_77648_3_.func_72855_b(this.field_77890_c.func_71872_e(p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_)) && p_77648_3_.func_72832_d(p_77648_4_, p_77648_5_, p_77648_6_, this.field_77890_c.field_71990_ca, k1, 3))
++                // CraftBukkit start - world.setTypeIdAndData -> processBlockPlace()
++                // if (world.b(this.c.b(world, i, j, k)) && world.setTypeIdAndData(i, j, k, this.c.id, k1, 3)) {
++                if (p_77648_3_.func_72855_b(this.field_77890_c.func_71872_e(p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_)) && processBlockPlace(p_77648_3_, p_77648_2_, null, p_77648_4_, p_77648_5_, p_77648_6_, this.field_77890_c.field_71990_ca, k1, clickedX, clickedY, clickedZ))
+                 {
+-                    p_77648_3_.func_72908_a((double)((float)p_77648_4_ + 0.5F), (double)((float)p_77648_5_ + 0.5F), (double)((float)p_77648_6_ + 0.5F), this.field_77890_c.field_72020_cn.func_82593_b(), (this.field_77890_c.field_72020_cn.func_72677_b() + 1.0F) / 2.0F, this.field_77890_c.field_72020_cn.func_72678_c() * 0.8F);
++                    // world.makeSound((double) ((float) i + 0.5F), (double) ((float) j + 0.5F), (double) ((float) k + 0.5F), this.c.stepSound.getPlaceSound(), (this.c.stepSound.getVolume1() + 1.0F) / 2.0F, this.c.stepSound.getVolume2() * 0.8F);
++                    // CraftBukkit end
+                     --p_77648_1_.field_77994_a;
+                 }
+ 
+@@ -70,6 +74,8 @@
+ 
+     private boolean func_77888_a(ItemStack p_77888_1_, EntityPlayer p_77888_2_, World p_77888_3_, int p_77888_4_, int p_77888_5_, int p_77888_6_, int p_77888_7_)
+     {
++        final int clickedX = p_77888_4_, clickedY = p_77888_5_, clickedZ = p_77888_6_; // CraftBukkit
++
+         if (p_77888_7_ == 0)
+         {
+             --p_77888_5_;
+@@ -106,9 +112,12 @@
+ 
+         if (i1 == this.field_77889_b.field_71990_ca && k1 == p_77888_1_.func_77960_j())
+         {
+-            if (p_77888_3_.func_72855_b(this.field_77890_c.func_71872_e(p_77888_3_, p_77888_4_, p_77888_5_, p_77888_6_)) && p_77888_3_.func_72832_d(p_77888_4_, p_77888_5_, p_77888_6_, this.field_77890_c.field_71990_ca, k1, 3))
++            // CraftBukkit start - world.setTypeIdAndData -> processBlockPlace()
++            // if (world.b(this.c.b(world, i, j, k)) && world.setTypeIdAndData(i, j, k, this.c.id, k1, 3)) {
++            if (p_77888_3_.func_72855_b(this.field_77890_c.func_71872_e(p_77888_3_, p_77888_4_, p_77888_5_, p_77888_6_)) && processBlockPlace(p_77888_3_, p_77888_2_, null, p_77888_4_, p_77888_5_, p_77888_6_, this.field_77890_c.field_71990_ca, k1, clickedX, clickedY, clickedZ))
+             {
+-                p_77888_3_.func_72908_a((double)((float)p_77888_4_ + 0.5F), (double)((float)p_77888_5_ + 0.5F), (double)((float)p_77888_6_ + 0.5F), this.field_77890_c.field_72020_cn.func_82593_b(), (this.field_77890_c.field_72020_cn.func_72677_b() + 1.0F) / 2.0F, this.field_77890_c.field_72020_cn.func_72678_c() * 0.8F);
++                // world.makeSound((double) ((float) i + 0.5F), (double) ((float) j + 0.5F), (double) ((float) k + 0.5F, this.c.stepSound.getPlaceSound(), (this.c.stepSound.getVolume1() + 1.0F) / 2.0F, this.c.stepSound.getVolume2() * 0.8F);
++                // CraftBukkit end
+                 --p_77888_1_.field_77994_a;
+             }
+ 

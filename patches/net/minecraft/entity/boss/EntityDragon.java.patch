@@ -1,0 +1,355 @@
+--- ../net/minecraft/entity/boss/EntityDragon.java
++++ ../net/minecraft/entity/boss/EntityDragon.java
+@@ -10,12 +10,24 @@
+ import net.minecraft.entity.item.EntityEnderCrystal;
+ import net.minecraft.entity.item.EntityXPOrb;
+ import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.entity.player.EntityPlayerMP;
++import net.minecraft.network.packet.Packet53BlockChange;
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.util.Vec3;
+ import net.minecraft.world.Explosion;
+ import net.minecraft.world.World;
++
++// CraftBukkit start
++import org.bukkit.block.BlockState;
++import org.bukkit.craftbukkit.util.BlockStateListPopulator;
++import org.bukkit.event.entity.EntityCreatePortalEvent;
++import org.bukkit.event.entity.EntityDamageByEntityEvent;
++import org.bukkit.event.entity.EntityExplodeEvent;
++import org.bukkit.event.entity.EntityRegainHealthEvent;
++import org.bukkit.Bukkit;
++// CraftBukkit end
+ 
+ public class EntityDragon extends EntityLiving implements IEntityMultiPart
+ {
+@@ -92,7 +104,7 @@
+ 
+         if (!this.field_70170_p.field_72995_K)
+         {
+-            this.field_70180_af.func_75692_b(16, Integer.valueOf(this.field_70734_aK));
++            this.field_70180_af.func_75692_b(16, Integer.valueOf(this.getScaledHealth())); // CraftBukkit - this.health -> this.getScaledHealth()
+         }
+         else
+         {
+@@ -134,10 +146,10 @@
+ 
+             if (this.field_70976_f < 0)
+             {
+-                for (int i = 0; i < this.field_70979_e.length; ++i)
+-                {
+-                    this.field_70979_e[i][0] = (double)this.field_70177_z;
+-                    this.field_70979_e[i][1] = this.field_70163_u;
++                for (int d05 = 0; d05 < this.field_70979_e.length; ++d05)
++                {
++                    this.field_70979_e[d05][0] = (double) this.field_70177_z;
++                    this.field_70979_e[d05][1] = this.field_70163_u;
+                 }
+             }
+ 
+@@ -158,23 +170,23 @@
+             {
+                 if (this.field_70716_bi > 0)
+                 {
+-                    d3 = this.field_70165_t + (this.field_70709_bj - this.field_70165_t) / (double)this.field_70716_bi;
+-                    d0 = this.field_70163_u + (this.field_70710_bk - this.field_70163_u) / (double)this.field_70716_bi;
+-                    d1 = this.field_70161_v + (this.field_70711_bl - this.field_70161_v) / (double)this.field_70716_bi;
+-                    d2 = MathHelper.func_76138_g(this.field_70712_bm - (double)this.field_70177_z);
+-                    this.field_70177_z = (float)((double)this.field_70177_z + d2 / (double)this.field_70716_bi);
++                    d0 = this.field_70165_t + (this.field_70709_bj - this.field_70165_t) / (double) this.field_70716_bi;
++                    d1 = this.field_70163_u + (this.field_70710_bk - this.field_70163_u) / (double) this.field_70716_bi;
++                    d2 = this.field_70161_v + (this.field_70711_bl - this.field_70161_v) / (double) this.field_70716_bi;
++                    d3 = MathHelper.func_76138_g(this.field_70712_bm - (double) this.field_70177_z);
++                    this.field_70177_z = (float)((double) this.field_70177_z + d3 / (double) this.field_70716_bi);
+                     this.field_70125_A = (float)((double)this.field_70125_A + (this.field_70705_bn - (double)this.field_70125_A) / (double)this.field_70716_bi);
+                     --this.field_70716_bi;
+-                    this.func_70107_b(d3, d0, d1);
++                    this.func_70107_b(d0, d1, d2);
+                     this.func_70101_b(this.field_70177_z, this.field_70125_A);
+                 }
+             }
+             else
+             {
+-                d3 = this.field_70980_b - this.field_70165_t;
+-                d0 = this.field_70981_c - this.field_70163_u;
+-                d1 = this.field_70978_d - this.field_70161_v;
+-                d2 = d3 * d3 + d0 * d0 + d1 * d1;
++                d0 = this.field_70980_b - this.field_70165_t;
++                d1 = this.field_70981_c - this.field_70163_u;
++                d2 = this.field_70978_d - this.field_70161_v;
++                d3 = d0 * d0 + d1 * d1 + d2 * d2;
+ 
+                 if (this.field_70993_bI != null)
+                 {
+@@ -198,27 +210,27 @@
+                     this.field_70978_d += this.field_70146_Z.nextGaussian() * 2.0D;
+                 }
+ 
+-                if (this.field_70989_bE || d2 < 100.0D || d2 > 22500.0D || this.field_70123_F || this.field_70124_G)
++                if (this.field_70989_bE || d3 < 100.0D || d3 > 22500.0D || this.field_70123_F || this.field_70124_G)
+                 {
+                     this.func_70967_k();
+                 }
+ 
+-                d0 /= (double)MathHelper.func_76133_a(d3 * d3 + d1 * d1);
++                d1 /= (double) MathHelper.func_76133_a(d0 * d0 + d2 * d2);
+                 f3 = 0.6F;
+ 
+-                if (d0 < (double)(-f3))
+-                {
+-                    d0 = (double)(-f3);
+-                }
+-
+-                if (d0 > (double)f3)
+-                {
+-                    d0 = (double)f3;
+-                }
+-
+-                this.field_70181_x += d0 * 0.10000000149011612D;
++                if (d1 < (double)(-f3))
++                {
++                    d1 = (double)(-f3);
++                }
++
++                if (d1 > (double) f3)
++                {
++                    d1 = (double) f3;
++                }
++
++                this.field_70181_x += d1 * 0.10000000149011612D;
+                 this.field_70177_z = MathHelper.func_76142_g(this.field_70177_z);
+-                double d8 = 180.0D - Math.atan2(d3, d1) * 180.0D / Math.PI;
++                double d8 = 180.0D - Math.atan2(d0, d2) * 180.0D / Math.PI;
+                 double d9 = MathHelper.func_76138_g(d8 - (double)this.field_70177_z);
+ 
+                 if (d9 > 50.0D)
+@@ -359,9 +371,18 @@
+ 
+                 this.field_70992_bH = null;
+             }
+-            else if (this.field_70173_aa % 10 == 0 && this.func_70630_aN() < this.func_70667_aM())
+-            {
+-                this.func_70606_j(this.func_70630_aN() + 1);
++            else if (this.field_70173_aa % 10 == 0 && this.field_70734_aK < this.maxHealth)     // CraftBukkit - this.getMaxHealth() -> this.maxHealth
++            {
++                // CraftBukkit start
++                EntityRegainHealthEvent event = new EntityRegainHealthEvent(this.getBukkitEntity(), 1, EntityRegainHealthEvent.RegainReason.ENDER_CRYSTAL);
++                this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++                if (!event.isCancelled())
++                {
++                    this.func_70606_j(this.func_70630_aN() + event.getAmount());
++                }
++
++                // CraftBukkit end
+             }
+         }
+ 
+@@ -417,7 +438,25 @@
+ 
+             if (entity instanceof EntityLiving)
+             {
+-                entity.func_70097_a(DamageSource.func_76358_a(this), 10);
++                // CraftBukkit start - throw damage events when the dragon attacks
++                // The EntityHuman case is handled in EntityHuman, so don't throw it here
++                if (!(entity instanceof EntityPlayer))
++                {
++                    EntityDamageByEntityEvent damageEvent = new EntityDamageByEntityEvent(this.getBukkitEntity(), entity.getBukkitEntity(), org.bukkit.event.entity.EntityDamageEvent.DamageCause.ENTITY_ATTACK, 10);
++                    Bukkit.getPluginManager().callEvent(damageEvent);
++
++                    if (!damageEvent.isCancelled())
++                    {
++                        entity.getBukkitEntity().setLastDamageCause(damageEvent);
++                        entity.func_70097_a(DamageSource.func_76358_a(this), damageEvent.getDamage());
++                    }
++                }
++                else
++                {
++                    entity.func_70097_a(DamageSource.func_76358_a(this), 10);
++                }
++
++                // CraftBukkit end
+             }
+         }
+     }
+@@ -467,6 +506,10 @@
+         int j1 = MathHelper.func_76128_c(p_70972_1_.field_72334_f);
+         boolean flag = false;
+         boolean flag1 = false;
++        // CraftBukkit start - create a list to hold all the destroyed blocks
++        List<org.bukkit.block.Block> destroyedBlocks = new java.util.ArrayList<org.bukkit.block.Block>();
++        org.bukkit.craftbukkit.CraftWorld craftWorld = this.field_70170_p.getWorld();
++        // CraftBukkit end
+ 
+         for (int k1 = i; k1 <= l; ++k1)
+         {
+@@ -480,7 +523,11 @@
+                     {
+                         if (j2 != Block.field_72089_ap.field_71990_ca && j2 != Block.field_72082_bJ.field_71990_ca && j2 != Block.field_71986_z.field_71990_ca)
+                         {
+-                            flag1 = this.field_70170_p.func_94571_i(k1, l1, i2) || flag1;
++                            // CraftBukkit start - add blocks to list rather than destroying them
++                            // flag1 = this.world.setAir(k1, l1, i2) || flag1;
++                            flag1 = true;
++                            destroyedBlocks.add(craftWorld.getBlockAt(k1, l1, i2));
++                            // CraftBukkit end
+                         }
+                         else
+                         {
+@@ -493,6 +540,26 @@
+ 
+         if (flag1)
+         {
++            // CraftBukkit start - set off an EntityExplodeEvent for the dragon exploding all these blocks
++            org.bukkit.entity.Entity bukkitEntity = this.getBukkitEntity();
++            EntityExplodeEvent event = new EntityExplodeEvent(bukkitEntity, bukkitEntity.getLocation(), destroyedBlocks, 0F);
++            Bukkit.getPluginManager().callEvent(event);
++
++            if (event.isCancelled())
++            {
++                // this flag literally means 'Dragon hit something hard' (Obsidian, White Stone or Bedrock) and will cause the dragon to slow down.
++                // We should consider adding an event extension for it, or perhaps returning true if the event is cancelled.
++                return flag;
++            }
++            else
++            {
++                for (org.bukkit.block.Block block : event.blockList())
++                {
++                    craftWorld.explodeBlock(block, event.getYield());
++                }
++            }
++
++            // CraftBukkit end
+             double d0 = p_70972_1_.field_72340_a + (p_70972_1_.field_72336_d - p_70972_1_.field_72340_a) * (double)this.field_70146_Z.nextFloat();
+             double d1 = p_70972_1_.field_72338_b + (p_70972_1_.field_72337_e - p_70972_1_.field_72338_b) * (double)this.field_70146_Z.nextFloat();
+             double d2 = p_70972_1_.field_72339_c + (p_70972_1_.field_72334_f - p_70972_1_.field_72339_c) * (double)this.field_70146_Z.nextFloat();
+@@ -530,7 +597,7 @@
+         return false;
+     }
+ 
+-    protected boolean func_82195_e(DamageSource p_82195_1_, int p_82195_2_)
++    public boolean func_82195_e(DamageSource p_82195_1_, int p_82195_2_)   // CraftBukkit - protected -> public
+     {
+         return super.func_70097_a(p_82195_1_, p_82195_2_);
+     }
+@@ -554,7 +621,7 @@
+         {
+             if (this.field_70995_bG > 150 && this.field_70995_bG % 5 == 0)
+             {
+-                i = 1000;
++                i = expToDrop / 12; // CraftBukkit - drop experience as dragon falls from sky. use experience drop from death event. This is now set in getExpReward()
+ 
+                 while (i > 0)
+                 {
+@@ -575,7 +642,7 @@
+ 
+         if (this.field_70995_bG == 200 && !this.field_70170_p.field_72995_K)
+         {
+-            i = 2000;
++            i = expToDrop - 10 * (expToDrop / 12); // CraftBukkit - drop the remaining experience
+ 
+             while (i > 0)
+             {
+@@ -594,6 +661,8 @@
+         byte b0 = 64;
+         BlockEndPortal.field_72275_a = true;
+         byte b1 = 4;
++        // CraftBukkit start - Replace any "this.world" in the following with just "world"!
++        BlockStateListPopulator world = new BlockStateListPopulator(this.field_70170_p.getWorld());
+ 
+         for (int k = b0 - 1; k <= b0 + 32; ++k)
+         {
+@@ -611,35 +680,64 @@
+                         {
+                             if (d2 <= ((double)(b1 - 1) - 0.5D) * ((double)(b1 - 1) - 0.5D))
+                             {
+-                                this.field_70170_p.func_94575_c(l, k, i1, Block.field_71986_z.field_71990_ca);
++                                world.setTypeId(l, k, i1, Block.field_71986_z.field_71990_ca);
+                             }
+                         }
+                         else if (k > b0)
+                         {
+-                            this.field_70170_p.func_94575_c(l, k, i1, 0);
++                            world.setTypeId(l, k, i1, 0);
+                         }
+                         else if (d2 > ((double)(b1 - 1) - 0.5D) * ((double)(b1 - 1) - 0.5D))
+                         {
+-                            this.field_70170_p.func_94575_c(l, k, i1, Block.field_71986_z.field_71990_ca);
++                            world.setTypeId(l, k, i1, Block.field_71986_z.field_71990_ca);
+                         }
+                         else
+                         {
+-                            this.field_70170_p.func_94575_c(l, k, i1, Block.field_72102_bH.field_71990_ca);
++                            world.setTypeId(l, k, i1, Block.field_72102_bH.field_71990_ca);
+                         }
+                     }
+                 }
+             }
+         }
+ 
+-        this.field_70170_p.func_94575_c(p_70975_1_, b0 + 0, p_70975_2_, Block.field_71986_z.field_71990_ca);
+-        this.field_70170_p.func_94575_c(p_70975_1_, b0 + 1, p_70975_2_, Block.field_71986_z.field_71990_ca);
+-        this.field_70170_p.func_94575_c(p_70975_1_, b0 + 2, p_70975_2_, Block.field_71986_z.field_71990_ca);
+-        this.field_70170_p.func_94575_c(p_70975_1_ - 1, b0 + 2, p_70975_2_, Block.field_72069_aq.field_71990_ca);
+-        this.field_70170_p.func_94575_c(p_70975_1_ + 1, b0 + 2, p_70975_2_, Block.field_72069_aq.field_71990_ca);
+-        this.field_70170_p.func_94575_c(p_70975_1_, b0 + 2, p_70975_2_ - 1, Block.field_72069_aq.field_71990_ca);
+-        this.field_70170_p.func_94575_c(p_70975_1_, b0 + 2, p_70975_2_ + 1, Block.field_72069_aq.field_71990_ca);
+-        this.field_70170_p.func_94575_c(p_70975_1_, b0 + 3, p_70975_2_, Block.field_71986_z.field_71990_ca);
+-        this.field_70170_p.func_94575_c(p_70975_1_, b0 + 4, p_70975_2_, Block.field_72084_bK.field_71990_ca);
++        world.setTypeId(p_70975_1_, b0 + 0, p_70975_2_, Block.field_71986_z.field_71990_ca);
++        world.setTypeId(p_70975_1_, b0 + 1, p_70975_2_, Block.field_71986_z.field_71990_ca);
++        world.setTypeId(p_70975_1_, b0 + 2, p_70975_2_, Block.field_71986_z.field_71990_ca);
++        world.setTypeId(p_70975_1_ - 1, b0 + 2, p_70975_2_, Block.field_72069_aq.field_71990_ca);
++        world.setTypeId(p_70975_1_ + 1, b0 + 2, p_70975_2_, Block.field_72069_aq.field_71990_ca);
++        world.setTypeId(p_70975_1_, b0 + 2, p_70975_2_ - 1, Block.field_72069_aq.field_71990_ca);
++        world.setTypeId(p_70975_1_, b0 + 2, p_70975_2_ + 1, Block.field_72069_aq.field_71990_ca);
++        world.setTypeId(p_70975_1_, b0 + 3, p_70975_2_, Block.field_71986_z.field_71990_ca);
++        world.setTypeId(p_70975_1_, b0 + 4, p_70975_2_, Block.field_72084_bK.field_71990_ca);
++        EntityCreatePortalEvent event = new EntityCreatePortalEvent((org.bukkit.entity.LivingEntity) this.getBukkitEntity(), java.util.Collections.unmodifiableList(world.getList()), org.bukkit.PortalType.ENDER);
++        this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++        if (!event.isCancelled())
++        {
++            for (BlockState state : event.getBlocks())
++            {
++                state.update(true);
++            }
++        }
++        else
++        {
++            for (BlockState state : event.getBlocks())
++            {
++                Packet53BlockChange packet = new Packet53BlockChange(state.getX(), state.getY(), state.getZ(), this.field_70170_p);
++
++                for (Iterator it = this.field_70170_p.field_73010_i.iterator(); it.hasNext();)
++                {
++                    EntityPlayer entity = (EntityPlayer) it.next();
++
++                    if (entity instanceof EntityPlayerMP)
++                    {
++                        ((EntityPlayerMP) entity).field_71135_a.func_72567_b(packet);
++                    }
++                }
++            }
++        }
++
++        // CraftBukkit end
+         BlockEndPortal.field_72275_a = false;
+     }
+ 
+@@ -674,4 +772,13 @@
+     {
+         return 5.0F;
+     }
++
++    // CraftBukkit start
++    public int getExpReward()
++    {
++        // This value is equal to the amount of experience dropped while falling from the sky (10 * 1000)
++        // plus what is dropped when the dragon hits the ground (2000)
++        return 12000;
++    }
++    // CraftBukkit end
+ }

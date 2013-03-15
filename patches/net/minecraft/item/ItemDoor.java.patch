@@ -1,0 +1,85 @@
+--- ../net/minecraft/item/ItemDoor.java
++++ ../net/minecraft/item/ItemDoor.java
+@@ -4,9 +4,10 @@
+ import net.minecraft.block.material.Material;
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.entity.player.EntityPlayerMP;
++import net.minecraft.network.packet.Packet53BlockChange;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
+-
+ public class ItemDoor extends Item
+ {
+     private Material field_77870_a;
+@@ -21,6 +22,8 @@
+ 
+     public boolean func_77648_a(ItemStack p_77648_1_, EntityPlayer p_77648_2_, World p_77648_3_, int p_77648_4_, int p_77648_5_, int p_77648_6_, int p_77648_7_, float p_77648_8_, float p_77648_9_, float p_77648_10_)
+     {
++        final int clickedX = p_77648_4_, clickedY = p_77648_5_, clickedZ = p_77648_6_; // CraftBukkit
++
+         if (p_77648_7_ != 1)
+         {
+             return false;
+@@ -48,7 +51,14 @@
+                 else
+                 {
+                     int i1 = MathHelper.func_76128_c((double)((p_77648_2_.field_70177_z + 180.0F) * 4.0F / 360.0F) - 0.5D) & 3;
+-                    func_77869_a(p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_, i1, block);
++
++                    // CraftBukkit start
++                    if (!place(p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_, i1, block, p_77648_2_, clickedX, clickedY, clickedZ))
++                    {
++                        return false;
++                    }
++
++                    // CraftBukkit end
+                     --p_77648_1_.field_77994_a;
+                     return true;
+                 }
+@@ -62,6 +72,13 @@
+ 
+     public static void func_77869_a(World p_77869_0_, int p_77869_1_, int p_77869_2_, int p_77869_3_, int p_77869_4_, Block p_77869_5_)
+     {
++        // CraftBukkit start
++        place(p_77869_0_, p_77869_1_, p_77869_2_, p_77869_3_, p_77869_4_, p_77869_5_, null, p_77869_1_, p_77869_2_, p_77869_3_);
++    }
++
++    public static boolean place(World p_77869_0_, int p_77869_1_, int p_77869_2_, int p_77869_3_, int p_77869_4_, Block p_77869_5_, EntityPlayer entityplayer, int clickedX, int clickedY, int clickedZ)
++    {
++        // CraftBukkit end
+         byte b0 = 0;
+         byte b1 = 0;
+ 
+@@ -100,9 +117,30 @@
+             flag2 = true;
+         }
+ 
+-        p_77869_0_.func_72832_d(p_77869_1_, p_77869_2_, p_77869_3_, p_77869_5_.field_71990_ca, p_77869_4_, 2);
++        // CraftBukkit start
++        if (entityplayer != null)
++        {
++            if (!ItemBlock.processBlockPlace(p_77869_0_, entityplayer, null, p_77869_1_, p_77869_2_, p_77869_3_, p_77869_5_.field_71990_ca, p_77869_4_, clickedX, clickedY, clickedZ))
++            {
++                ((EntityPlayerMP) entityplayer).field_71135_a.func_72567_b(new Packet53BlockChange(p_77869_1_, p_77869_2_ + 1, p_77869_3_, p_77869_0_));
++                return false;
++            }
++
++            if (p_77869_0_.func_72798_a(p_77869_1_, p_77869_2_, p_77869_3_) != p_77869_5_.field_71990_ca)
++            {
++                ((EntityPlayerMP) entityplayer).field_71135_a.func_72567_b(new Packet53BlockChange(p_77869_1_, p_77869_2_ + 1, p_77869_3_, p_77869_0_));
++                return true;
++            }
++        }
++        else
++        {
++            p_77869_0_.func_72832_d(p_77869_1_, p_77869_2_, p_77869_3_, p_77869_5_.field_71990_ca, p_77869_4_, 2);
++        }
++
++        // CraftBukkit end
+         p_77869_0_.func_72832_d(p_77869_1_, p_77869_2_ + 1, p_77869_3_, p_77869_5_.field_71990_ca, 8 | (flag2 ? 1 : 0), 2);
+         p_77869_0_.func_72898_h(p_77869_1_, p_77869_2_, p_77869_3_, p_77869_5_.field_71990_ca);
+         p_77869_0_.func_72898_h(p_77869_1_, p_77869_2_ + 1, p_77869_3_, p_77869_5_.field_71990_ca);
++        return true; // CraftBukkit
+     }
+ }

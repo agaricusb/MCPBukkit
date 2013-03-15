@@ -1,0 +1,56 @@
+--- ../net/minecraft/entity/EntityAgeable.java
++++ ../net/minecraft/entity/EntityAgeable.java
+@@ -5,11 +5,11 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.world.World;
+-
+ public abstract class EntityAgeable extends EntityCreature
+ {
+     private float field_98056_d = -1.0F;
+     private float field_98057_e;
++    public boolean ageLocked = false; // CraftBukkit
+ 
+     public EntityAgeable(World p_i3436_1_)
+     {
+@@ -34,7 +34,7 @@
+                 {
+                     entityageable.func_70873_a(-24000);
+                     entityageable.func_70012_b(this.field_70165_t, this.field_70163_u, this.field_70161_v, 0.0F, 0.0F);
+-                    this.field_70170_p.func_72838_d(entityageable);
++                    this.field_70170_p.addEntity(entityageable, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.SPAWNER_EGG); // CraftBukkit
+ 
+                     if (itemstack.func_82837_s())
+                     {
+@@ -45,7 +45,7 @@
+                     {
+                         --itemstack.field_77994_a;
+ 
+-                        if (itemstack.field_77994_a <= 0)
++                        if (itemstack.field_77994_a == 0)   // CraftBukkit - allow less than 0 stacks as "infinite"
+                         {
+                             p_70085_1_.field_71071_by.func_70299_a(p_70085_1_.field_71071_by.field_70461_c, (ItemStack)null);
+                         }
+@@ -78,19 +78,21 @@
+     {
+         super.func_70014_b(p_70014_1_);
+         p_70014_1_.func_74768_a("Age", this.func_70874_b());
++        p_70014_1_.func_74757_a("AgeLocked", this.ageLocked); // CraftBukkit
+     }
+ 
+     public void func_70037_a(NBTTagCompound p_70037_1_)
+     {
+         super.func_70037_a(p_70037_1_);
+         this.func_70873_a(p_70037_1_.func_74762_e("Age"));
++        this.ageLocked = p_70037_1_.func_74767_n("AgeLocked"); // CraftBukkit
+     }
+ 
+     public void func_70636_d()
+     {
+         super.func_70636_d();
+ 
+-        if (this.field_70170_p.field_72995_K)
++        if (this.field_70170_p.field_72995_K || this.ageLocked)   // CraftBukkit
+         {
+             this.func_98054_a(this.func_70631_g_());
+         }

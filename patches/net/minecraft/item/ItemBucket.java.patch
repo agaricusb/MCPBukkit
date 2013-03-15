@@ -1,0 +1,159 @@
+--- ../net/minecraft/item/ItemBucket.java
++++ ../net/minecraft/item/ItemBucket.java
+@@ -1,5 +1,10 @@
+ package net.minecraft.item;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.event.player.PlayerBucketEmptyEvent;
++import org.bukkit.event.player.PlayerBucketFillEvent;
+ import net.minecraft.block.Block;
+ import net.minecraft.block.material.Material;
+ import net.minecraft.creativetab.CreativeTabs;
+@@ -8,6 +13,7 @@
+ import net.minecraft.util.EnumMovingObjectType;
+ import net.minecraft.util.MovingObjectPosition;
+ import net.minecraft.world.World;
++// CraftBukkit end
+ 
+ public class ItemBucket extends Item
+ {
+@@ -56,6 +62,15 @@
+ 
+                     if (p_77659_2_.func_72803_f(i, j, k) == Material.field_76244_g && p_77659_2_.func_72805_g(i, j, k) == 0)
+                     {
++                        // CraftBukkit start
++                        PlayerBucketFillEvent event = CraftEventFactory.callPlayerBucketFillEvent(p_77659_3_, i, j, k, -1, p_77659_1_, Item.field_77786_ax);
++
++                        if (event.isCancelled())
++                        {
++                            return p_77659_1_;
++                        }
++
++                        // CraftBukkit end
+                         p_77659_2_.func_94571_i(i, j, k);
+ 
+                         if (p_77659_3_.field_71075_bZ.field_75098_d)
+@@ -63,14 +78,16 @@
+                             return p_77659_1_;
+                         }
+ 
++                        ItemStack result = CraftItemStack.asNMSCopy(event.getItemStack()); // CraftBukkit - TODO: Check this stuff later... Not sure how this behavior should work
++
+                         if (--p_77659_1_.field_77994_a <= 0)
+                         {
+-                            return new ItemStack(Item.field_77786_ax);
+-                        }
+-
+-                        if (!p_77659_3_.field_71071_by.func_70441_a(new ItemStack(Item.field_77786_ax)))
+-                        {
+-                            p_77659_3_.func_71021_b(new ItemStack(Item.field_77786_ax.field_77779_bT, 1, 0));
++                            return result; // CraftBukkit
++                        }
++
++                        if (!p_77659_3_.field_71071_by.func_70441_a(result))   // CraftBukkit
++                        {
++                            p_77659_3_.func_71021_b(CraftItemStack.asNMSCopy(event.getItemStack())); // CraftBukkit
+                         }
+ 
+                         return p_77659_1_;
+@@ -78,6 +95,15 @@
+ 
+                     if (p_77659_2_.func_72803_f(i, j, k) == Material.field_76256_h && p_77659_2_.func_72805_g(i, j, k) == 0)
+                     {
++                        // CraftBukkit start
++                        PlayerBucketFillEvent event = CraftEventFactory.callPlayerBucketFillEvent(p_77659_3_, i, j, k, -1, p_77659_1_, Item.field_77775_ay);
++
++                        if (event.isCancelled())
++                        {
++                            return p_77659_1_;
++                        }
++
++                        // CraftBukkit end
+                         p_77659_2_.func_94571_i(i, j, k);
+ 
+                         if (p_77659_3_.field_71075_bZ.field_75098_d)
+@@ -85,14 +111,16 @@
+                             return p_77659_1_;
+                         }
+ 
++                        ItemStack result = CraftItemStack.asNMSCopy(event.getItemStack()); // CraftBukkit - TODO: Check this stuff later... Not sure how this behavior should work
++
+                         if (--p_77659_1_.field_77994_a <= 0)
+                         {
+-                            return new ItemStack(Item.field_77775_ay);
+-                        }
+-
+-                        if (!p_77659_3_.field_71071_by.func_70441_a(new ItemStack(Item.field_77775_ay)))
+-                        {
+-                            p_77659_3_.func_71021_b(new ItemStack(Item.field_77775_ay.field_77779_bT, 1, 0));
++                            return result; // CraftBukkit
++                        }
++
++                        if (!p_77659_3_.field_71071_by.func_70441_a(result))   // CraftBukkit
++                        {
++                            p_77659_3_.func_71021_b(CraftItemStack.asNMSCopy(event.getItemStack())); // CraftBukkit
+                         }
+ 
+                         return p_77659_1_;
+@@ -102,8 +130,19 @@
+                 {
+                     if (this.field_77876_a < 0)
+                     {
+-                        return new ItemStack(Item.field_77788_aw);
+-                    }
++                        // CraftBukkit start
++                        PlayerBucketEmptyEvent event = CraftEventFactory.callPlayerBucketEmptyEvent(p_77659_3_, i, j, k, movingobjectposition.field_72310_e, p_77659_1_);
++
++                        if (event.isCancelled())
++                        {
++                            return p_77659_1_;
++                        }
++
++                        return CraftItemStack.asNMSCopy(event.getItemStack());
++                    }
++
++                    int clickedX = i, clickedY = j, clickedZ = k;
++                    // CraftBukkit end
+ 
+                     if (movingobjectposition.field_72310_e == 0)
+                     {
+@@ -140,15 +179,35 @@
+                         return p_77659_1_;
+                     }
+ 
++                    // CraftBukkit start
++                    PlayerBucketEmptyEvent event = CraftEventFactory.callPlayerBucketEmptyEvent(p_77659_3_, clickedX, clickedY, clickedZ, movingobjectposition.field_72310_e, p_77659_1_);
++
++                    if (event.isCancelled())
++                    {
++                        return p_77659_1_;
++                    }
++
++                    // CraftBukkit end
++
+                     if (this.func_77875_a(p_77659_2_, d0, d1, d2, i, j, k) && !p_77659_3_.field_71075_bZ.field_75098_d)
+                     {
+-                        return new ItemStack(Item.field_77788_aw);
++                        return CraftItemStack.asNMSCopy(event.getItemStack()); // CraftBukkit
+                     }
+                 }
+             }
+             else if (this.field_77876_a == 0 && movingobjectposition.field_72308_g instanceof EntityCow)
+             {
+-                return new ItemStack(Item.field_77771_aG);
++                // CraftBukkit start - This codepath seems to be *NEVER* called
++                org.bukkit.Location loc = movingobjectposition.field_72308_g.getBukkitEntity().getLocation();
++                PlayerBucketFillEvent event = CraftEventFactory.callPlayerBucketFillEvent(p_77659_3_, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), -1, p_77659_1_, Item.field_77771_aG);
++
++                if (event.isCancelled())
++                {
++                    return p_77659_1_;
++                }
++
++                return CraftItemStack.asNMSCopy(event.getItemStack());
++                // CraftBukkit end
+             }
+ 
+             return p_77659_1_;

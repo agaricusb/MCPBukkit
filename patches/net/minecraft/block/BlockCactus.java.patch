@@ -1,0 +1,49 @@
+--- ../net/minecraft/block/BlockCactus.java
++++ ../net/minecraft/block/BlockCactus.java
+@@ -4,9 +4,12 @@
+ import net.minecraft.block.material.Material;
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.Entity;
++import net.minecraft.entity.EntityLiving;
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.world.World;
++
++import org.bukkit.event.entity.EntityDamageByBlockEvent; // CraftBukkit
+ 
+ public class BlockCactus extends Block
+ {
+@@ -34,7 +37,7 @@
+ 
+                 if (i1 == 15)
+                 {
+-                    p_71847_1_.func_94575_c(p_71847_2_, p_71847_3_ + 1, p_71847_4_, this.field_71990_ca);
++                    org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockGrowEvent(p_71847_1_, p_71847_2_, p_71847_3_ + 1, p_71847_4_, this.field_71990_ca, 0); // CraftBukkit
+                     p_71847_1_.func_72921_c(p_71847_2_, p_71847_3_, p_71847_4_, 0, 4);
+                     this.func_71863_a(p_71847_1_, p_71847_2_, p_71847_3_ + 1, p_71847_4_, this.field_71990_ca);
+                 }
+@@ -107,6 +110,24 @@
+ 
+     public void func_71869_a(World p_71869_1_, int p_71869_2_, int p_71869_3_, int p_71869_4_, Entity p_71869_5_)
+     {
++        // CraftBukkit start - EntityDamageByBlock event
++        if (p_71869_5_ instanceof EntityLiving)
++        {
++            org.bukkit.block.Block damager = p_71869_1_.getWorld().getBlockAt(p_71869_2_, p_71869_3_, p_71869_4_);
++            org.bukkit.entity.Entity damagee = (p_71869_5_ == null) ? null : p_71869_5_.getBukkitEntity();
++            EntityDamageByBlockEvent event = new EntityDamageByBlockEvent(damager, damagee, org.bukkit.event.entity.EntityDamageEvent.DamageCause.CONTACT, 1);
++            p_71869_1_.getServer().getPluginManager().callEvent(event);
++
++            if (!event.isCancelled())
++            {
++                damagee.setLastDamageCause(event);
++                p_71869_5_.func_70097_a(DamageSource.field_76367_g, event.getDamage());
++            }
++
++            return;
++        }
++
++        // CraftBukkit end
+         p_71869_5_.func_70097_a(DamageSource.field_76367_g, 1);
+     }
+ }

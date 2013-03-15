@@ -1,0 +1,53 @@
+--- ../net/minecraft/entity/item/EntityEnderPearl.java
++++ ../net/minecraft/entity/item/EntityEnderPearl.java
+@@ -1,11 +1,16 @@
+ package net.minecraft.entity.item;
+ 
++// CraftBukkit start
++import org.bukkit.Bukkit;
++import org.bukkit.event.entity.EntityDamageByEntityEvent;
++import org.bukkit.event.player.PlayerTeleportEvent;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.entity.projectile.EntityThrowable;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.MovingObjectPosition;
+ import net.minecraft.world.World;
++// CraftBukkit end
+ 
+ public class EntityEnderPearl extends EntityThrowable
+ {
+@@ -39,9 +44,30 @@
+ 
+                 if (!entityplayermp.field_71135_a.field_72576_c && entityplayermp.field_70170_p == this.field_70170_p)
+                 {
+-                    this.func_85052_h().func_70634_a(this.field_70165_t, this.field_70163_u, this.field_70161_v);
+-                    this.func_85052_h().field_70143_R = 0.0F;
+-                    this.func_85052_h().func_70097_a(DamageSource.field_76379_h, 5);
++                    // CraftBukkit start
++                    org.bukkit.craftbukkit.entity.CraftPlayer player = entityplayermp.getBukkitEntity();
++                    org.bukkit.Location location = getBukkitEntity().getLocation();
++                    location.setPitch(player.getLocation().getPitch());
++                    location.setYaw(player.getLocation().getYaw());
++                    PlayerTeleportEvent teleEvent = new PlayerTeleportEvent(player, player.getLocation(), location, PlayerTeleportEvent.TeleportCause.ENDER_PEARL);
++                    Bukkit.getPluginManager().callEvent(teleEvent);
++
++                    if (!teleEvent.isCancelled() && !entityplayermp.field_71135_a.field_72576_c)
++                    {
++                        entityplayermp.field_71135_a.teleport(teleEvent.getTo());
++                        this.func_85052_h().field_70143_R = 0.0F;
++                        EntityDamageByEntityEvent damageEvent = new EntityDamageByEntityEvent(this.getBukkitEntity(), player, EntityDamageByEntityEvent.DamageCause.FALL, 5);
++                        Bukkit.getPluginManager().callEvent(damageEvent);
++
++                        if (!damageEvent.isCancelled() && !entityplayermp.field_71135_a.field_72576_c)
++                        {
++                            entityplayermp.field_71145_cl = -1; // Remove spawning invulnerability
++                            player.setLastDamageCause(damageEvent);
++                            entityplayermp.func_70097_a(DamageSource.field_76379_h, damageEvent.getDamage());
++                        }
++                    }
++
++                    // CraftBukkit end
+                 }
+             }
+ 

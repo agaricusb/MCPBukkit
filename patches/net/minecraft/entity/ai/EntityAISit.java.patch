@@ -1,0 +1,19 @@
+--- ../net/minecraft/entity/ai/EntityAISit.java
++++ ../net/minecraft/entity/ai/EntityAISit.java
+@@ -2,7 +2,6 @@
+ 
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.entity.passive.EntityTameable;
+-
+ public class EntityAISit extends EntityAIBase
+ {
+     private EntityTameable field_75272_a;
+@@ -18,7 +17,7 @@
+     {
+         if (!this.field_75272_a.func_70909_n())
+         {
+-            return false;
++            return this.field_75271_b && this.field_75272_a.func_70638_az() == null; // CraftBukkit - Allow sitting for wild animals
+         }
+         else if (this.field_75272_a.func_70090_H())
+         {

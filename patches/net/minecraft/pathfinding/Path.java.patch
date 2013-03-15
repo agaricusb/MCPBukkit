@@ -1,0 +1,14 @@
+--- ../net/minecraft/pathfinding/Path.java
++++ ../net/minecraft/pathfinding/Path.java
+@@ -2,8 +2,10 @@
+ 
+ public class Path
+ {
+-    private PathPoint[] field_75852_a = new PathPoint[1024];
++    private PathPoint[] field_75852_a = new PathPoint[128]; // CraftBukkit - reduce default size
+     private int field_75851_b = 0;
++
++    public Path() {}
+ 
+     public PathPoint func_75849_a(PathPoint p_75849_1_)
+     {

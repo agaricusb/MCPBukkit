@@ -1,0 +1,171 @@
+--- ../net/minecraft/entity/monster/EntitySkeleton.java
++++ ../net/minecraft/entity/monster/EntitySkeleton.java
+@@ -10,6 +10,7 @@
+ import net.minecraft.entity.IRangedAttackMob;
+ import net.minecraft.entity.ai.EntityAIArrowAttack;
+ import net.minecraft.entity.ai.EntityAIAttackOnCollide;
++import net.minecraft.entity.ai.EntityAIBase;
+ import net.minecraft.entity.ai.EntityAIFleeSun;
+ import net.minecraft.entity.ai.EntityAIHurtByTarget;
+ import net.minecraft.entity.ai.EntityAILookIdle;
+@@ -26,14 +27,17 @@
+ import net.minecraft.potion.Potion;
+ import net.minecraft.potion.PotionEffect;
+ import net.minecraft.stats.AchievementList;
++import net.minecraft.stats.StatBase;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
+ import net.minecraft.world.WorldProviderHell;
+ 
++import org.bukkit.event.entity.EntityCombustEvent; // CraftBukkit
++
+ public class EntitySkeleton extends EntityMob implements IRangedAttackMob
+ {
+-    private EntityAIArrowAttack field_85037_d = new EntityAIArrowAttack(this, 0.25F, 20, 60, 15.0F);
++    private EntityAIArrowAttack field_85037_d = new EntityAIArrowAttack(this, 0.25F, 60, 10.0F);
+     private EntityAIAttackOnCollide field_85038_e = new EntityAIAttackOnCollide(this, EntityPlayer.class, 0.31F, false);
+ 
+     public EntitySkeleton(World p_i3555_1_)
+@@ -118,7 +122,7 @@
+ 
+             if (itemstack != null)
+             {
+-                i += itemstack.func_77971_a(this);
++                i += itemstack.func_77971_a((Entity) this);
+             }
+ 
+             return i;
+@@ -163,7 +167,16 @@
+ 
+                 if (flag)
+                 {
+-                    this.func_70015_d(8);
++                    // CraftBukkit start
++                    EntityCombustEvent event = new EntityCombustEvent(this.getBukkitEntity(), 8);
++                    this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++                    if (!event.isCancelled())
++                    {
++                        this.func_70015_d(event.getDuration());
++                    }
++
++                    // CraftBukkit end
+                 }
+             }
+         }
+@@ -188,7 +201,7 @@
+ 
+             if (d0 * d0 + d1 * d1 >= 2500.0D)
+             {
+-                entityplayer.func_71029_a(AchievementList.field_76020_v);
++                entityplayer.func_71029_a((StatBase) AchievementList.field_76020_v);
+             }
+         }
+     }
+@@ -200,42 +213,64 @@
+ 
+     protected void func_70628_a(boolean p_70628_1_, int p_70628_2_)
+     {
+-        int j;
+-        int k;
++        // CraftBukkit start - whole method
++        java.util.List<org.bukkit.inventory.ItemStack> loot = new java.util.ArrayList<org.bukkit.inventory.ItemStack>();
+ 
+         if (this.func_82202_m() == 1)
+         {
+-            j = this.field_70146_Z.nextInt(3 + p_70628_2_) - 1;
+-
+-            for (k = 0; k < j; ++k)
+-            {
+-                this.func_70025_b(Item.field_77705_m.field_77779_bT, 1);
+-            }
+-        }
+-        else
+-        {
+-            j = this.field_70146_Z.nextInt(3 + p_70628_2_);
+-
+-            for (k = 0; k < j; ++k)
+-            {
+-                this.func_70025_b(Item.field_77704_l.field_77779_bT, 1);
+-            }
+-        }
+-
+-        j = this.field_70146_Z.nextInt(3 + p_70628_2_);
+-
+-        for (k = 0; k < j; ++k)
+-        {
+-            this.func_70025_b(Item.field_77755_aX.field_77779_bT, 1);
+-        }
+-    }
+-
+-    protected void func_70600_l(int p_70600_1_)
++            int count = this.field_70146_Z.nextInt(3 + p_70628_2_) - 1;
++
++            if (count > 0)
++            {
++                loot.add(new org.bukkit.inventory.ItemStack(org.bukkit.Material.COAL, count));
++            }
++        }
++        else
++        {
++            int count = this.field_70146_Z.nextInt(3 + p_70628_2_);
++
++            if (count > 0)
++            {
++                loot.add(new org.bukkit.inventory.ItemStack(org.bukkit.Material.ARROW, count));
++            }
++        }
++
++        int count = this.field_70146_Z.nextInt(3 + p_70628_2_);
++
++        if (count > 0)
++        {
++            loot.add(new org.bukkit.inventory.ItemStack(org.bukkit.Material.BONE, count));
++        }
++
++        // Determine rare item drops and add them to the loot
++        if (this.field_70718_bc > 0)
++        {
++            int k = this.field_70146_Z.nextInt(200) - p_70628_2_;
++
++            if (k < 5)
++            {
++                ItemStack itemstack = this.func_70600_l(k <= 0 ? 1 : 0);
++
++                if (itemstack != null)
++                {
++                    loot.add(org.bukkit.craftbukkit.inventory.CraftItemStack.asCraftMirror(itemstack));
++                }
++            }
++        }
++
++        org.bukkit.craftbukkit.event.CraftEventFactory.callEntityDeathEvent(this, loot);
++        // CraftBukkit end
++    }
++
++    // CraftBukkit - return rare dropped item instead of dropping it
++    protected ItemStack func_70600_l(int i)
+     {
+         if (this.func_82202_m() == 1)
+         {
+-            this.func_70099_a(new ItemStack(Item.field_82799_bQ.field_77779_bT, 1, 1), 0.0F);
+-        }
++            return new ItemStack(Item.field_82799_bQ.field_77779_bT, 1, 1); // CraftBukkit
++        }
++
++        return null;
+     }
+ 
+     protected void func_82164_bB()
+@@ -275,8 +310,8 @@
+ 
+     public void func_85036_m()
+     {
+-        this.field_70714_bg.func_85156_a(this.field_85038_e);
+-        this.field_70714_bg.func_85156_a(this.field_85037_d);
++        this.field_70714_bg.func_85156_a((EntityAIBase) this.field_85038_e);
++        this.field_70714_bg.func_85156_a((EntityAIBase) this.field_85037_d);
+         ItemStack itemstack = this.func_70694_bm();
+ 
+         if (itemstack != null && itemstack.field_77993_c == Item.field_77707_k.field_77779_bT)

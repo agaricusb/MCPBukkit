@@ -1,0 +1,48 @@
+--- ../net/minecraft/item/ItemReed.java
++++ ../net/minecraft/item/ItemReed.java
+@@ -4,7 +4,6 @@
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.world.World;
+-
+ public class ItemReed extends Item
+ {
+     private int field_77830_a;
+@@ -17,6 +16,7 @@
+ 
+     public boolean func_77648_a(ItemStack p_77648_1_, EntityPlayer p_77648_2_, World p_77648_3_, int p_77648_4_, int p_77648_5_, int p_77648_6_, int p_77648_7_, float p_77648_8_, float p_77648_9_, float p_77648_10_)
+     {
++        final int clickedX = p_77648_4_, clickedY = p_77648_5_, clickedZ = p_77648_6_; // CraftBukkit
+         int i1 = p_77648_3_.func_72798_a(p_77648_4_, p_77648_5_, p_77648_6_);
+ 
+         if (i1 == Block.field_72037_aS.field_71990_ca && (p_77648_3_.func_72805_g(p_77648_4_, p_77648_5_, p_77648_6_) & 7) < 1)
+@@ -70,18 +70,20 @@
+             {
+                 Block block = Block.field_71973_m[this.field_77830_a];
+                 int j1 = block.func_85104_a(p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_, p_77648_7_, p_77648_8_, p_77648_9_, p_77648_10_, 0);
+-
+-                if (p_77648_3_.func_72832_d(p_77648_4_, p_77648_5_, p_77648_6_, this.field_77830_a, j1, 3))
+-                {
+-                    if (p_77648_3_.func_72798_a(p_77648_4_, p_77648_5_, p_77648_6_) == this.field_77830_a)
+-                    {
+-                        Block.field_71973_m[this.field_77830_a].func_71860_a(p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_, p_77648_2_, p_77648_1_);
+-                        Block.field_71973_m[this.field_77830_a].func_85105_g(p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_, j1);
++                // CraftBukkit start - redirect to common handler
++                ItemBlock.processBlockPlace(p_77648_3_, p_77648_2_, p_77648_1_, p_77648_4_, p_77648_5_, p_77648_6_, this.field_77830_a, j1, clickedX, clickedY, clickedZ);
++                /*
++                if (world.setTypeIdAndData(i, j, k, this.id, j1, 3)) {
++                    if (world.getTypeId(i, j, k) == this.id) {
++                        Block.byId[this.id].postPlace(world, i, j, k, entityhuman, itemstack);
++                        Block.byId[this.id].postPlace(world, i, j, k, j1);
+                     }
+ 
+-                    p_77648_3_.func_72908_a((double)((float)p_77648_4_ + 0.5F), (double)((float)p_77648_5_ + 0.5F), (double)((float)p_77648_6_ + 0.5F), block.field_72020_cn.func_82593_b(), (block.field_72020_cn.func_72677_b() + 1.0F) / 2.0F, block.field_72020_cn.func_72678_c() * 0.8F);
+-                    --p_77648_1_.field_77994_a;
++                    world.makeSound((double) ((float) i + 0.5F), (double) ((float) j + 0.5F), (double) ((float) k + 0.5F), block.stepSound.getPlaceSound(), (block.stepSound.getVolume1() + 1.0F) / 2.0F, block.stepSound.getVolume2() * 0.8F);
++                    --itemstack.count;
+                 }
++                */
++                // CraftBukkit end
+             }
+ 
+             return true;

@@ -1,0 +1,47 @@
+--- ../net/minecraft/entity/projectile/EntityThrowable.java
++++ ../net/minecraft/entity/projectile/EntityThrowable.java
+@@ -14,6 +14,8 @@
+ import net.minecraft.util.Vec3;
+ import net.minecraft.world.World;
+ 
++import org.bukkit.event.entity.ProjectileHitEvent; // CraftBukkit
++
+ public abstract class EntityThrowable extends Entity implements IProjectile
+ {
+     private int field_70189_d = -1;
+@@ -22,8 +24,8 @@
+     private int field_70188_g = 0;
+     protected boolean field_70193_a = false;
+     public int field_70191_b = 0;
+-    private EntityLiving field_70192_c;
+-    private String field_85053_h = null;
++    public EntityLiving field_70192_c; // CraftBukkit - private -> public
++    public String field_85053_h = null; // CraftBukkit - private -> public
+     private int field_70194_h;
+     private int field_70195_i = 0;
+ 
+@@ -163,7 +165,7 @@
+ 
+                     if (movingobjectposition1 != null)
+                     {
+-                        double d1 = vec3.func_72438_d(movingobjectposition1.field_72307_f);
++                        double d1 = vec3.func_72436_e(movingobjectposition1.field_72307_f); // CraftBukkit - distance efficiency
+ 
+                         if (d1 < d0 || d0 == 0.0D)
+                         {
+@@ -189,6 +191,15 @@
+             else
+             {
+                 this.func_70184_a(movingobjectposition);
++
++                // CraftBukkit start
++                if (this.field_70128_L)
++                {
++                    ProjectileHitEvent hitEvent = new ProjectileHitEvent((org.bukkit.entity.Projectile) this.getBukkitEntity());
++                    org.bukkit.Bukkit.getPluginManager().callEvent(hitEvent);
++                }
++
++                // CraftBukkit end
+             }
+         }
+ 

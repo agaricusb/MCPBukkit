@@ -1,0 +1,70 @@
+--- ../net/minecraft/tileentity/TileEntityBeacon.java
++++ ../net/minecraft/tileentity/TileEntityBeacon.java
+@@ -14,6 +14,11 @@
+ import net.minecraft.potion.PotionEffect;
+ import net.minecraft.util.AxisAlignedBB;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
++// CraftBukkit end
++
+ public class TileEntityBeacon extends TileEntity implements IInventory
+ {
+     public static final Potion[][] field_82139_a = new Potion[][] {{Potion.field_76424_c, Potion.field_76422_e}, {Potion.field_76429_m, Potion.field_76430_j}, {Potion.field_76420_g}, {Potion.field_76428_l}};
+@@ -23,6 +28,37 @@
+     private int field_82134_g;
+     private ItemStack field_82140_h;
+     private String field_94048_i;
++    // CraftBukkit start
++    public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
++    private int maxStack = MAX_STACK;
++
++    public ItemStack[] getContents()
++    {
++        return null;
++    }
++
++    public void onOpen(CraftHumanEntity who)
++    {
++        transaction.add(who);
++    }
++
++    public void onClose(CraftHumanEntity who)
++    {
++        transaction.remove(who);
++    }
++
++    public List<HumanEntity> getViewers()
++    {
++        return transaction;
++    }
++
++    public void setMaxStackSize(int size)
++    {
++        maxStack = size;
++    }
++    // CraftBukkit end
++
++    public TileEntityBeacon() {}
+ 
+     public void func_70316_g()
+     {
+@@ -86,7 +122,7 @@
+             {
+                 int j = this.field_70330_m - i;
+ 
+-                if (j < 0)
++                if (j < 1)
+                 {
+                     break;
+                 }
+@@ -276,7 +312,7 @@
+ 
+     public int func_70297_j_()
+     {
+-        return 1;
++        return maxStack; // CraftBukkit
+     }
+ 
+     public boolean func_70300_a(EntityPlayer p_70300_1_)

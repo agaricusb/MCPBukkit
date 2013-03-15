@@ -1,0 +1,164 @@
+--- ../net/minecraft/world/storage/SaveHandler.java
++++ ../net/minecraft/world/storage/SaveHandler.java
+@@ -6,13 +6,23 @@
+ import java.io.FileInputStream;
+ import java.io.FileOutputStream;
+ import java.io.IOException;
++import java.io.InputStream;
++import java.io.OutputStream;
++import java.util.logging.Logger;
+ import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.nbt.CompressedStreamTools;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.world.MinecraftException;
+ import net.minecraft.world.WorldProvider;
+ import net.minecraft.world.chunk.storage.IChunkLoader;
++
++// CraftBukkit start
++import java.util.UUID;
++
++import org.bukkit.craftbukkit.entity.CraftPlayer;
++// CraftBukkit end
+ 
+ public class SaveHandler implements ISaveHandler, IPlayerFileData
+ {
+@@ -21,6 +31,7 @@
+     private final File field_75768_d;
+     private final long field_75769_e = System.currentTimeMillis();
+     private final String field_75767_f;
++    private UUID uuid = null; // CraftBukkit
+ 
+     public SaveHandler(File p_i3912_1_, String p_i3912_2_, boolean p_i3912_3_)
+     {
+@@ -62,12 +73,12 @@
+         }
+     }
+ 
+-    protected File func_75765_b()
++    public File func_75765_b()   // CraftBukkit - protected to public
+     {
+         return this.field_75770_b;
+     }
+ 
+-    public void func_75762_c() throws MinecraftException
++    public void func_75762_c() throws MinecraftException   // CraftBukkit - throws ExceptionWorldConflict
+     {
+         try
+         {
+@@ -107,7 +118,7 @@
+         {
+             try
+             {
+-                nbttagcompound = CompressedStreamTools.func_74796_a(new FileInputStream(file1));
++                nbttagcompound = CompressedStreamTools.func_74796_a((InputStream)(new FileInputStream(file1)));
+                 nbttagcompound1 = nbttagcompound.func_74775_l("Data");
+                 return new WorldInfo(nbttagcompound1);
+             }
+@@ -123,7 +134,7 @@
+         {
+             try
+             {
+-                nbttagcompound = CompressedStreamTools.func_74796_a(new FileInputStream(file1));
++                nbttagcompound = CompressedStreamTools.func_74796_a((InputStream)(new FileInputStream(file1)));
+                 nbttagcompound1 = nbttagcompound.func_74775_l("Data");
+                 return new WorldInfo(nbttagcompound1);
+             }
+@@ -147,7 +158,7 @@
+             File file1 = new File(this.field_75770_b, "level.dat_new");
+             File file2 = new File(this.field_75770_b, "level.dat_old");
+             File file3 = new File(this.field_75770_b, "level.dat");
+-            CompressedStreamTools.func_74799_a(nbttagcompound2, new FileOutputStream(file1));
++            CompressedStreamTools.func_74799_a(nbttagcompound2, (OutputStream)(new FileOutputStream(file1)));
+ 
+             if (file2.exists())
+             {
+@@ -185,7 +196,7 @@
+             File file1 = new File(this.field_75770_b, "level.dat_new");
+             File file2 = new File(this.field_75770_b, "level.dat_old");
+             File file3 = new File(this.field_75770_b, "level.dat");
+-            CompressedStreamTools.func_74799_a(nbttagcompound1, new FileOutputStream(file1));
++            CompressedStreamTools.func_74799_a(nbttagcompound1, (OutputStream)(new FileOutputStream(file1)));
+ 
+             if (file2.exists())
+             {
+@@ -220,7 +231,7 @@
+             p_75753_1_.func_70109_d(nbttagcompound);
+             File file1 = new File(this.field_75771_c, p_75753_1_.field_71092_bJ + ".dat.tmp");
+             File file2 = new File(this.field_75771_c, p_75753_1_.field_71092_bJ + ".dat");
+-            CompressedStreamTools.func_74799_a(nbttagcompound, new FileOutputStream(file1));
++            CompressedStreamTools.func_74799_a(nbttagcompound, (OutputStream)(new FileOutputStream(file1)));
+ 
+             if (file2.exists())
+             {
+@@ -241,6 +252,14 @@
+ 
+         if (nbttagcompound != null)
+         {
++            // CraftBukkit start
++            if (p_75752_1_ instanceof EntityPlayerMP)
++            {
++                CraftPlayer player = (CraftPlayer) p_75752_1_.bukkitEntity;
++                player.setFirstPlayed(new File(field_75771_c, p_75752_1_.field_71092_bJ + ".dat").lastModified());
++            }
++
++            // CraftBukkit end
+             p_75752_1_.func_70020_e(nbttagcompound);
+         }
+ 
+@@ -255,7 +274,7 @@
+ 
+             if (file1.exists())
+             {
+-                return CompressedStreamTools.func_74796_a(new FileInputStream(file1));
++                return CompressedStreamTools.func_74796_a((InputStream)(new FileInputStream(file1)));
+             }
+         }
+         catch (Exception exception)
+@@ -297,4 +316,45 @@
+     {
+         return this.field_75767_f;
+     }
++
++    // CraftBukkit start
++    public UUID getUUID()
++    {
++        if (uuid != null)
++        {
++            return uuid;
++        }
++
++        try
++        {
++            File file1 = new File(this.field_75770_b, "uid.dat");
++
++            if (!file1.exists())
++            {
++                DataOutputStream dos = new DataOutputStream(new FileOutputStream(file1));
++                uuid = UUID.randomUUID();
++                dos.writeLong(uuid.getMostSignificantBits());
++                dos.writeLong(uuid.getLeastSignificantBits());
++                dos.close();
++            }
++            else
++            {
++                DataInputStream dis = new DataInputStream(new FileInputStream(file1));
++                uuid = new UUID(dis.readLong(), dis.readLong());
++                dis.close();
++            }
++
++            return uuid;
++        }
++        catch (IOException ex)
++        {
++            return null;
++        }
++    }
++
++    public File getPlayerDir()
++    {
++        return field_75771_c;
++    }
++    // CraftBukkit end
+ }

@@ -1,0 +1,49 @@
+--- ../net/minecraft/world/storage/MapInfo.java
++++ ../net/minecraft/world/storage/MapInfo.java
+@@ -48,22 +48,31 @@
+         {
+             int i;
+             int j;
++            org.bukkit.craftbukkit.map.RenderData render = this.field_76207_d.mapView.render((org.bukkit.craftbukkit.entity.CraftPlayer) field_76211_a.getBukkitEntity()); // CraftBukkit
+ 
+             if (--this.field_76205_f < 0)
+             {
+                 this.field_76205_f = 4;
+-                abyte = new byte[this.field_76207_d.field_76203_h.size() * 3 + 1];
++                abyte = new byte[render.cursors.size() * 3 + 1]; // CraftBukkit
+                 abyte[0] = 1;
+                 i = 0;
+ 
+-                for (Iterator iterator = this.field_76207_d.field_76203_h.values().iterator(); iterator.hasNext(); ++i)
++                // CraftBukkit start
++                for (i = 0; i < render.cursors.size(); ++i)
+                 {
+-                    MapCoord mapcoord = (MapCoord)iterator.next();
+-                    abyte[i * 3 + 1] = (byte)(mapcoord.field_76216_a << 4 | mapcoord.field_76212_d & 15);
+-                    abyte[i * 3 + 2] = mapcoord.field_76214_b;
+-                    abyte[i * 3 + 3] = mapcoord.field_76215_c;
++                    org.bukkit.map.MapCursor cursor = render.cursors.get(i);
++
++                    if (!cursor.isVisible())
++                    {
++                        continue;
++                    }
++
++                    abyte[i * 3 + 1] = (byte)(cursor.getRawType() << 4 | cursor.getDirection() & 15);
++                    abyte[i * 3 + 2] = (byte) cursor.getX();
++                    abyte[i * 3 + 3] = (byte) cursor.getY();
+                 }
+ 
++                // CraftBukkit end
+                 boolean flag = !p_76204_1_.func_82839_y();
+ 
+                 if (this.field_76206_g != null && this.field_76206_g.length == abyte.length)
+@@ -104,7 +113,7 @@
+ 
+                     for (int i1 = 0; i1 < abyte1.length - 3; ++i1)
+                     {
+-                        abyte1[i1 + 3] = this.field_76207_d.field_76198_e[(i1 + j) * 128 + i];
++                        abyte1[i1 + 3] = render.buffer[(i1 + j) * 128 + i]; // CraftBukkit
+                     }
+ 
+                     this.field_76210_c[i] = -1;

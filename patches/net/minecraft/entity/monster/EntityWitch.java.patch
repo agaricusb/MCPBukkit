@@ -1,0 +1,37 @@
+--- ../net/minecraft/entity/monster/EntityWitch.java
++++ ../net/minecraft/entity/monster/EntityWitch.java
+@@ -118,7 +118,7 @@
+                 {
+                     short1 = 16307;
+                 }
+-                else if (this.field_70146_Z.nextFloat() < 0.05F && this.field_70734_aK < this.func_70667_aM())
++                else if (this.field_70146_Z.nextFloat() < 0.05F && this.field_70734_aK < this.maxHealth)     // CraftBukkit - this.getMaxHealth -> this.maxHealth
+                 {
+                     short1 = 16341;
+                 }
+@@ -179,6 +179,8 @@
+ 
+     protected void func_70628_a(boolean p_70628_1_, int p_70628_2_)
+     {
++        // CraftBukkit start
++        java.util.List<org.bukkit.inventory.ItemStack> loot = new java.util.ArrayList<org.bukkit.inventory.ItemStack>();
+         int j = this.field_70146_Z.nextInt(3) + 1;
+ 
+         for (int k = 0; k < j; ++k)
+@@ -191,11 +193,11 @@
+                 l += this.field_70146_Z.nextInt(p_70628_2_ + 1);
+             }
+ 
+-            for (int j1 = 0; j1 < l; ++j1)
+-            {
+-                this.func_70025_b(i1, 1);
+-            }
+-        }
++            loot.add(new org.bukkit.inventory.ItemStack(i1, l));
++        }
++
++        org.bukkit.craftbukkit.event.CraftEventFactory.callEntityDeathEvent(this, loot);
++        // CraftBukkit end
+     }
+ 
+     public void func_82196_d(EntityLiving p_82196_1_, float p_82196_2_)

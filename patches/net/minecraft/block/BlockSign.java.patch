@@ -1,0 +1,28 @@
+--- ../net/minecraft/block/BlockSign.java
++++ ../net/minecraft/block/BlockSign.java
+@@ -7,6 +7,8 @@
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
++
++import org.bukkit.event.block.BlockRedstoneEvent; // CraftBukkit
+ 
+ public class BlockSign extends BlockContainer
+ {
+@@ -143,5 +145,16 @@
+         }
+ 
+         super.func_71863_a(p_71863_1_, p_71863_2_, p_71863_3_, p_71863_4_, p_71863_5_);
++
++        // CraftBukkit start
++        if (Block.field_71973_m[p_71863_5_] != null && Block.field_71973_m[p_71863_5_].func_71853_i())
++        {
++            org.bukkit.block.Block block = p_71863_1_.getWorld().getBlockAt(p_71863_2_, p_71863_3_, p_71863_4_);
++            int power = block.getBlockPower();
++            BlockRedstoneEvent eventRedstone = new BlockRedstoneEvent(block, power, power);
++            p_71863_1_.getServer().getPluginManager().callEvent(eventRedstone);
++        }
++
++        // CraftBukkit end
+     }
+ }

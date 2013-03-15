@@ -1,0 +1,49 @@
+--- ../net/minecraft/entity/monster/EntityMob.java
++++ ../net/minecraft/entity/monster/EntityMob.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.entity.monster;
+ 
++import org.bukkit.event.entity.EntityTargetEvent; // CraftBukkit
+ import net.minecraft.enchantment.EnchantmentHelper;
+ import net.minecraft.enchantment.EnchantmentThorns;
+ import net.minecraft.entity.Entity;
+@@ -63,7 +64,29 @@
+             {
+                 if (entity != this)
+                 {
+-                    this.field_70789_a = entity;
++                    // CraftBukkit start - we still need to call events for entities without goals
++                    if (entity != this.field_70789_a && (this instanceof EntityBlaze || this instanceof EntityEnderman || this instanceof EntitySpider || this instanceof EntityGiantZombie || this instanceof EntitySilverfish))
++                    {
++                        EntityTargetEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callEntityTargetEvent(this, entity, EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY);
++
++                        if (!event.isCancelled())
++                        {
++                            if (event.getTarget() == null)
++                            {
++                                this.field_70789_a = null;
++                            }
++                            else
++                            {
++                                this.field_70789_a = ((org.bukkit.craftbukkit.entity.CraftEntity) event.getTarget()).getHandle();
++                            }
++                        }
++                    }
++                    else
++                    {
++                        this.field_70789_a = entity;
++                    }
++
++                    // CraftBukkit end
+                 }
+ 
+                 return true;
+@@ -97,7 +120,7 @@
+ 
+         if (p_70652_1_ instanceof EntityLiving)
+         {
+-            i += EnchantmentHelper.func_77512_a(this, (EntityLiving)p_70652_1_);
++            i += EnchantmentHelper.func_77512_a((EntityLiving) this, (EntityLiving) p_70652_1_);
+             j += EnchantmentHelper.func_77507_b(this, (EntityLiving)p_70652_1_);
+         }
+ 

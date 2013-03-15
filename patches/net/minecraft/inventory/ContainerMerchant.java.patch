@@ -1,0 +1,42 @@
+--- ../net/minecraft/inventory/ContainerMerchant.java
++++ ../net/minecraft/inventory/ContainerMerchant.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.inventory;
+ 
++import org.bukkit.craftbukkit.inventory.CraftInventoryView; // CraftBukkit
+ import net.minecraft.entity.IMerchant;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.entity.player.InventoryPlayer;
+@@ -12,6 +13,22 @@
+     private InventoryMerchant field_75176_f;
+     private final World field_75177_g;
+ 
++    // CraftBukkit start
++    private CraftInventoryView bukkitEntity = null;
++    private InventoryPlayer player;
++
++    @Override
++    public CraftInventoryView getBukkitView()
++    {
++        if (bukkitEntity == null)
++        {
++            bukkitEntity = new CraftInventoryView(this.player.field_70458_d.getBukkitEntity(), new org.bukkit.craftbukkit.inventory.CraftInventoryMerchant(this.func_75174_d()), this);
++        }
++
++        return bukkitEntity;
++    }
++    // CraftBukkit end
++
+     public ContainerMerchant(InventoryPlayer p_i3613_1_, IMerchant p_i3613_2_, World p_i3613_3_)
+     {
+         this.field_75178_e = p_i3613_2_;
+@@ -19,7 +36,8 @@
+         this.field_75176_f = new InventoryMerchant(p_i3613_1_.field_70458_d, p_i3613_2_);
+         this.func_75146_a(new Slot(this.field_75176_f, 0, 36, 53));
+         this.func_75146_a(new Slot(this.field_75176_f, 1, 62, 53));
+-        this.func_75146_a(new SlotMerchantResult(p_i3613_1_.field_70458_d, p_i3613_2_, this.field_75176_f, 2, 120, 53));
++        this.func_75146_a((Slot)(new SlotMerchantResult(p_i3613_1_.field_70458_d, p_i3613_2_, this.field_75176_f, 2, 120, 53)));
++        this.player = p_i3613_1_; // CraftBukkit - save player
+         int i;
+ 
+         for (i = 0; i < 3; ++i)

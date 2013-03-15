@@ -1,0 +1,28 @@
+--- ../net/minecraft/entity/ai/EntityAIMate.java
++++ ../net/minecraft/entity/ai/EntityAIMate.java
+@@ -4,6 +4,7 @@
+ import java.util.List;
+ import java.util.Random;
+ import net.minecraft.entity.EntityAgeable;
++import net.minecraft.entity.EntityLiving;
+ import net.minecraft.entity.item.EntityXPOrb;
+ import net.minecraft.entity.passive.EntityAnimal;
+ import net.minecraft.world.World;
+@@ -51,7 +52,7 @@
+     public void func_75246_d()
+     {
+         this.field_75390_d.func_70671_ap().func_75651_a(this.field_75391_e, 10.0F, (float)this.field_75390_d.func_70646_bf());
+-        this.field_75390_d.func_70661_as().func_75497_a(this.field_75391_e, this.field_75393_c);
++        this.field_75390_d.func_70661_as().func_75497_a((EntityLiving) this.field_75391_e, this.field_75393_c);
+         ++this.field_75392_b;
+ 
+         if (this.field_75392_b >= 60 && this.field_75390_d.func_70068_e(this.field_75391_e) < 9.0D)
+@@ -94,7 +95,7 @@
+             this.field_75391_e.func_70875_t();
+             entityageable.func_70873_a(-24000);
+             entityageable.func_70012_b(this.field_75390_d.field_70165_t, this.field_75390_d.field_70163_u, this.field_75390_d.field_70161_v, 0.0F, 0.0F);
+-            this.field_75394_a.func_72838_d(entityageable);
++            this.field_75394_a.addEntity(entityageable, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.BREEDING); // CraftBukkit - added SpawnReason
+             Random random = this.field_75390_d.func_70681_au();
+ 
+             for (int i = 0; i < 7; ++i)

@@ -1,0 +1,127 @@
+--- ../net/minecraft/block/BlockFlowing.java
++++ ../net/minecraft/block/BlockFlowing.java
+@@ -4,6 +4,11 @@
+ import net.minecraft.block.material.Material;
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
++
++// CraftBukkit start
++import org.bukkit.block.BlockFace;
++import org.bukkit.event.block.BlockFromToEvent;
++// CraftBukkit end
+ 
+ public class BlockFlowing extends BlockFluid
+ {
+@@ -29,6 +34,11 @@
+ 
+     public void func_71847_b(World p_71847_1_, int p_71847_2_, int p_71847_3_, int p_71847_4_, Random p_71847_5_)
+     {
++        // CraftBukkit start
++        org.bukkit.World bworld = p_71847_1_.getWorld();
++        org.bukkit.Server server = p_71847_1_.getServer();
++        org.bukkit.block.Block source = bworld == null ? null : bworld.getBlockAt(p_71847_2_, p_71847_3_, p_71847_4_);
++        // CraftBukkit end
+         int l = this.func_72198_f_(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_);
+         byte b0 = 1;
+ 
+@@ -117,21 +127,34 @@
+ 
+         if (this.func_72207_p(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_))
+         {
+-            if (this.field_72018_cp == Material.field_76256_h && p_71847_1_.func_72803_f(p_71847_2_, p_71847_3_ - 1, p_71847_4_) == Material.field_76244_g)
+-            {
+-                p_71847_1_.func_94575_c(p_71847_2_, p_71847_3_ - 1, p_71847_4_, Block.field_71981_t.field_71990_ca);
+-                this.func_72201_j(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_);
+-                return;
+-            }
+-
+-            if (l >= 8)
+-            {
+-                this.func_72210_i(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_, l);
+-            }
+-            else
+-            {
+-                this.func_72210_i(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_, l + 8);
+-            }
++            // CraftBukkit start - send "down" to the server
++            BlockFromToEvent event = new BlockFromToEvent(source, BlockFace.DOWN);
++
++            if (server != null)
++            {
++                server.getPluginManager().callEvent(event);
++            }
++
++            if (!event.isCancelled())
++            {
++                if (this.field_72018_cp == Material.field_76256_h && p_71847_1_.func_72803_f(p_71847_2_, p_71847_3_ - 1, p_71847_4_) == Material.field_76244_g)
++                {
++                    p_71847_1_.func_94575_c(p_71847_2_, p_71847_3_ - 1, p_71847_4_, Block.field_71981_t.field_71990_ca);
++                    this.func_72201_j(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_);
++                    return;
++                }
++
++                if (l >= 8)
++                {
++                    this.func_72210_i(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_, l);
++                }
++                else
++                {
++                    this.func_72210_i(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_, l + 8);
++                }
++            }
++
++            // CraftBukkit end
+         }
+         else if (l >= 0 && (l == 0 || this.func_72208_o(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_)))
+         {
+@@ -148,25 +171,31 @@
+                 return;
+             }
+ 
+-            if (aboolean[0])
+-            {
+-                this.func_72210_i(p_71847_1_, p_71847_2_ - 1, p_71847_3_, p_71847_4_, i1);
+-            }
+-
+-            if (aboolean[1])
+-            {
+-                this.func_72210_i(p_71847_1_, p_71847_2_ + 1, p_71847_3_, p_71847_4_, i1);
+-            }
+-
+-            if (aboolean[2])
+-            {
+-                this.func_72210_i(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_ - 1, i1);
+-            }
+-
+-            if (aboolean[3])
+-            {
+-                this.func_72210_i(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_ + 1, i1);
+-            }
++            // CraftBukkit start - all four cardinal directions. Do not change the order!
++            BlockFace[] faces = new BlockFace[] { BlockFace.WEST, BlockFace.EAST, BlockFace.NORTH, BlockFace.SOUTH };
++            int index = 0;
++
++            for (BlockFace currentFace : faces)
++            {
++                if (aboolean[index])
++                {
++                    BlockFromToEvent event = new BlockFromToEvent(source, currentFace);
++
++                    if (server != null)
++                    {
++                        server.getPluginManager().callEvent(event);
++                    }
++
++                    if (!event.isCancelled())
++                    {
++                        this.func_72210_i(p_71847_1_, p_71847_2_ + currentFace.getModX(), p_71847_3_, p_71847_4_ + currentFace.getModZ(), i1);
++                    }
++                }
++
++                index++;
++            }
++
++            // CraftBukkit end
+         }
+     }
+ 

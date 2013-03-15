@@ -1,0 +1,202 @@
+--- ../net/minecraft/inventory/ContainerEnchantment.java
++++ ../net/minecraft/inventory/ContainerEnchantment.java
+@@ -3,6 +3,7 @@
+ import java.util.List;
+ import java.util.Random;
+ import net.minecraft.block.Block;
++import net.minecraft.enchantment.Enchantment;
+ import net.minecraft.enchantment.EnchantmentData;
+ import net.minecraft.enchantment.EnchantmentHelper;
+ import net.minecraft.entity.player.EntityPlayer;
+@@ -11,9 +12,21 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.world.World;
+ 
++// CraftBukkit start
++import java.util.Map;
++
++import org.bukkit.craftbukkit.inventory.CraftInventoryEnchanting;
++import org.bukkit.craftbukkit.inventory.CraftInventoryView;
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.event.enchantment.EnchantItemEvent;
++import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
++import org.bukkit.entity.Player;
++// CraftBukkit end
++
+ public class ContainerEnchantment extends Container
+ {
+-    public IInventory field_75168_e = new SlotEnchantmentTable(this, "Enchant", true, 1);
++    // CraftBukkit - make type specific (changed from IInventory)
++    public SlotEnchantmentTable field_75168_e = new SlotEnchantmentTable(this, "Enchant", true, 1);
+     private World field_75172_h;
+     private int field_75173_i;
+     private int field_75170_j;
+@@ -21,6 +34,10 @@
+     private Random field_75169_l = new Random();
+     public long field_75166_f;
+     public int[] field_75167_g = new int[3];
++    // CraftBukkit start
++    private CraftInventoryView bukkitEntity = null;
++    private Player player;
++    // CraftBukkit end
+ 
+     public ContainerEnchantment(InventoryPlayer p_i3606_1_, World p_i3606_2_, int p_i3606_3_, int p_i3606_4_, int p_i3606_5_)
+     {
+@@ -28,7 +45,7 @@
+         this.field_75173_i = p_i3606_3_;
+         this.field_75170_j = p_i3606_4_;
+         this.field_75171_k = p_i3606_5_;
+-        this.func_75146_a(new SlotEnchantment(this, this.field_75168_e, 0, 25, 47));
++        this.func_75146_a((Slot)(new SlotEnchantment(this, this.field_75168_e, 0, 25, 47)));
+         int l;
+ 
+         for (l = 0; l < 3; ++l)
+@@ -43,6 +60,11 @@
+         {
+             this.func_75146_a(new Slot(p_i3606_1_, l, 8 + l * 18, 142));
+         }
++
++        // CraftBukkit start
++        player = (Player) p_i3606_1_.field_70458_d.getBukkitEntity();
++        field_75168_e.player = player;
++        // CraftBukkit end
+     }
+ 
+     public void func_75132_a(ICrafting p_75132_1_)
+@@ -129,6 +151,22 @@
+                         this.field_75167_g[j] = EnchantmentHelper.func_77514_a(this.field_75169_l, j, i, itemstack);
+                     }
+ 
++                    // CraftBukkit start
++                    CraftItemStack item = CraftItemStack.asCraftMirror(itemstack);
++                    PrepareItemEnchantEvent event = new PrepareItemEnchantEvent(player, this.getBukkitView(), this.field_75172_h.getWorld().getBlockAt(this.field_75173_i, this.field_75170_j, this.field_75171_k), item, this.field_75167_g, i);
++                    this.field_75172_h.getServer().getPluginManager().callEvent(event);
++
++                    if (event.isCancelled())
++                    {
++                        for (i = 0; i < 3; ++i)
++                        {
++                            this.field_75167_g[i] = 0;
++                        }
++
++                        return;
++                    }
++
++                    // CraftBukkit end
+                     this.func_75142_b();
+                 }
+             }
+@@ -155,32 +193,64 @@
+ 
+                 if (list != null)
+                 {
+-                    p_75140_1_.func_82242_a(-this.field_75167_g[p_75140_2_]);
+-
+-                    if (flag)
+-                    {
+-                        itemstack.field_77993_c = Item.field_92105_bW.field_77779_bT;
+-                    }
+-
+-                    int j = flag ? this.field_75169_l.nextInt(list.size()) : -1;
+-
+-                    for (int k = 0; k < list.size(); ++k)
+-                    {
+-                        EnchantmentData enchantmentdata = (EnchantmentData)list.get(k);
+-
+-                        if (!flag || k == j)
++                    // CraftBukkit start
++                    Map<org.bukkit.enchantments.Enchantment, Integer> enchants = new java.util.HashMap<org.bukkit.enchantments.Enchantment, Integer>();
++
++                    for (Object obj : list)
++                    {
++                        EnchantmentData instance = (EnchantmentData) obj;
++                        enchants.put(org.bukkit.enchantments.Enchantment.getById(instance.field_76302_b.field_77352_x), instance.field_76303_c);
++                    }
++
++                    CraftItemStack item = CraftItemStack.asCraftMirror(itemstack);
++                    EnchantItemEvent event = new EnchantItemEvent((Player) p_75140_1_.getBukkitEntity(), this.getBukkitView(), this.field_75172_h.getWorld().getBlockAt(this.field_75173_i, this.field_75170_j, this.field_75171_k), item, this.field_75167_g[p_75140_2_], enchants, p_75140_2_);
++                    this.field_75172_h.getServer().getPluginManager().callEvent(event);
++                    int level = event.getExpLevelCost();
++
++                    if (event.isCancelled() || (level > p_75140_1_.field_71068_ca && !p_75140_1_.field_71075_bZ.field_75098_d) || enchants.isEmpty())
++                    {
++                        return false;
++                    }
++
++                    boolean applied = !flag;
++
++                    for (Map.Entry<org.bukkit.enchantments.Enchantment, Integer> entry : event.getEnchantsToAdd().entrySet())
++                    {
++                        try
+                         {
+                             if (flag)
+                             {
+-                                Item.field_92105_bW.func_92115_a(itemstack, enchantmentdata);
++                                int enchantId = entry.getKey().getId();
++
++                                if (Enchantment.field_77331_b[enchantId] == null)
++                                {
++                                    continue;
++                                }
++
++                                EnchantmentData enchantment = new EnchantmentData(enchantId, entry.getValue());
++                                Item.field_92105_bW.func_92115_a(itemstack, enchantment);
++                                applied = true;
++                                itemstack.field_77993_c = Item.field_92105_bW.field_77779_bT;
++                                break;
+                             }
+                             else
+                             {
+-                                itemstack.func_77966_a(enchantmentdata.field_76302_b, enchantmentdata.field_76303_c);
++                                item.addEnchantment(entry.getKey(), entry.getValue());
+                             }
+                         }
+-                    }
+-
++                        catch (IllegalArgumentException e)
++                        {
++                            /* Just swallow invalid enchantments */
++                        }
++                    }
++
++                    // Only down level if we've applied the enchantments
++                    if (applied)
++                    {
++                        p_75140_1_.func_82242_a(-level);
++                    }
++
++                    // CraftBukkit end
+                     this.func_75130_a(this.field_75168_e);
+                 }
+             }
+@@ -210,6 +280,11 @@
+ 
+     public boolean func_75145_c(EntityPlayer p_75145_1_)
+     {
++        if (!this.checkReachable)
++        {
++            return true;    // CraftBukkit
++        }
++
+         return this.field_75172_h.func_72798_a(this.field_75173_i, this.field_75170_j, this.field_75171_k) != Block.field_72096_bE.field_71990_ca ? false : p_75145_1_.func_70092_e((double)this.field_75173_i + 0.5D, (double)this.field_75170_j + 0.5D, (double)this.field_75171_k + 0.5D) <= 64.0D;
+     }
+ 
+@@ -268,4 +343,18 @@
+ 
+         return itemstack;
+     }
++
++    // CraftBukkit start
++    public CraftInventoryView getBukkitView()
++    {
++        if (bukkitEntity != null)
++        {
++            return bukkitEntity;
++        }
++
++        CraftInventoryEnchanting inventory = new CraftInventoryEnchanting(this.field_75168_e);
++        bukkitEntity = new CraftInventoryView(this.player, inventory, this);
++        return bukkitEntity;
++    }
++    // CraftBukkit end
+ }

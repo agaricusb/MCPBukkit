@@ -1,0 +1,37 @@
+--- ../net/minecraft/entity/monster/EntitySilverfish.java
++++ ../net/minecraft/entity/monster/EntitySilverfish.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.entity.monster;
+ 
++import org.bukkit.craftbukkit.event.CraftEventFactory; // CraftBukkit
+ import net.minecraft.block.Block;
+ import net.minecraft.block.BlockSilverfish;
+ import net.minecraft.entity.Entity;
+@@ -128,6 +129,13 @@
+ 
+                                 if (k1 == Block.field_72006_bl.field_71990_ca)
+                                 {
++                                    // CraftBukkit start
++                                    if (CraftEventFactory.callEntityChangeBlockEvent(this, i + i1, j + l, k + j1, 0, 0).isCancelled())
++                                    {
++                                        continue;
++                                    }
++
++                                    // CraftBukkit end
+                                     this.field_70170_p.func_94578_a(i + i1, j + l, k + j1, false);
+                                     Block.field_72006_bl.func_71898_d(this.field_70170_p, i + i1, j + l, k + j1, 0);
+ 
+@@ -153,6 +161,13 @@
+ 
+                 if (BlockSilverfish.func_72154_e(l))
+                 {
++                    // CraftBukkit start
++                    if (CraftEventFactory.callEntityChangeBlockEvent(this, i + Facing.field_71586_b[l1], j + Facing.field_71587_c[l1], k + Facing.field_71585_d[l1], Block.field_72006_bl.field_71990_ca, BlockSilverfish.func_72153_f(l)).isCancelled())
++                    {
++                        return;
++                    }
++
++                    // CraftBukkit end
+                     this.field_70170_p.func_72832_d(i + Facing.field_71586_b[l1], j + Facing.field_71587_c[l1], k + Facing.field_71585_d[l1], Block.field_72006_bl.field_71990_ca, BlockSilverfish.func_72153_f(l), 3);
+                     this.func_70656_aK();
+                     this.func_70106_y();

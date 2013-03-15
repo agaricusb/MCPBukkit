@@ -1,0 +1,105 @@
+--- ../net/minecraft/world/storage/MapData.java
++++ ../net/minecraft/world/storage/MapData.java
+@@ -11,6 +11,14 @@
+ import net.minecraft.world.World;
+ import net.minecraft.world.WorldSavedData;
+ 
++// CraftBukkit start
++import java.util.UUID;
++
++import org.bukkit.craftbukkit.CraftServer;
++import org.bukkit.craftbukkit.CraftWorld;
++import org.bukkit.craftbukkit.map.CraftMapView;
++// CraftBukkit end
++
+ public class MapData extends WorldSavedData
+ {
+     public int field_76201_a;
+@@ -22,14 +30,52 @@
+     private Map field_76202_j = new HashMap();
+     public Map field_76203_h = new LinkedHashMap();
+ 
++    // CraftBukkit start
++    public final CraftMapView mapView;
++    private CraftServer server;
++    private UUID uniqueId = null;
++    // CraftBukkit end
++
+     public MapData(String p_i3906_1_)
+     {
+         super(p_i3906_1_);
++        // CraftBukkit start
++        mapView = new CraftMapView(this);
++        server = (CraftServer) org.bukkit.Bukkit.getServer();
++        // CraftBukkit end
+     }
+ 
+     public void func_76184_a(NBTTagCompound p_76184_1_)
+     {
+-        this.field_76200_c = p_76184_1_.func_74771_c("dimension");
++        // CraftBukkit start
++        byte dimension = p_76184_1_.func_74771_c("dimension");
++
++        if (dimension >= 10)
++        {
++            long least = p_76184_1_.func_74763_f("UUIDLeast");
++            long most = p_76184_1_.func_74763_f("UUIDMost");
++
++            if (least != 0L && most != 0L)
++            {
++                this.uniqueId = new UUID(most, least);
++                CraftWorld world = (CraftWorld) server.getWorld(this.uniqueId);
++
++                // Check if the stored world details are correct.
++                if (world == null)
++                {
++                    /* All Maps which do not have their valid world loaded are set to a dimension which hopefully won't be reached.
++                       This is to prevent them being corrupted with the wrong map data. */
++                    dimension = 127;
++                }
++                else
++                {
++                    dimension = (byte) world.getHandle().dimension;
++                }
++            }
++        }
++
++        this.field_76200_c = dimension;
++        // CraftBukkit end
+         this.field_76201_a = p_76184_1_.func_74762_e("xCenter");
+         this.field_76199_b = p_76184_1_.func_74762_e("zCenter");
+         this.field_76197_d = p_76184_1_.func_74771_c("scale");
+@@ -80,6 +126,33 @@
+ 
+     public void func_76187_b(NBTTagCompound p_76187_1_)
+     {
++        // CraftBukkit start
++        if (this.field_76200_c >= 10)
++        {
++            if (this.uniqueId == null)
++            {
++                for (org.bukkit.World world : server.getWorlds())
++                {
++                    CraftWorld cWorld = (CraftWorld) world;
++
++                    if (cWorld.getHandle().dimension == this.field_76200_c)
++                    {
++                        this.uniqueId = cWorld.getUID();
++                        break;
++                    }
++                }
++            }
++
++            /* Perform a second check to see if a matching world was found, this is a necessary
++               change incase Maps are forcefully unlinked from a World and lack a UID.*/
++            if (this.uniqueId != null)
++            {
++                p_76187_1_.func_74772_a("UUIDLeast", this.uniqueId.getLeastSignificantBits());
++                p_76187_1_.func_74772_a("UUIDMost", this.uniqueId.getMostSignificantBits());
++            }
++        }
++
++        // CraftBukkit end
+         p_76187_1_.func_74774_a("dimension", this.field_76200_c);
+         p_76187_1_.func_74768_a("xCenter", this.field_76201_a);
+         p_76187_1_.func_74768_a("zCenter", this.field_76199_b);

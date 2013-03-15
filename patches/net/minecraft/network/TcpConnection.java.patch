@@ -1,0 +1,96 @@
+--- ../net/minecraft/network/TcpConnection.java
++++ ../net/minecraft/network/TcpConnection.java
+@@ -3,7 +3,6 @@
+ import java.io.BufferedOutputStream;
+ import java.io.DataInputStream;
+ import java.io.DataOutputStream;
+-import java.io.IOException;
+ import java.io.InputStream;
+ import java.net.Socket;
+ import java.net.SocketAddress;
+@@ -21,19 +20,21 @@
+ import net.minecraft.network.packet.Packet252SharedKey;
+ import net.minecraft.util.CryptManager;
+ 
++import java.io.IOException; // CraftBukkit
++
+ public class TcpConnection implements INetworkManager
+ {
+     public static AtomicInteger field_74471_a = new AtomicInteger();
+     public static AtomicInteger field_74469_b = new AtomicInteger();
+     private final Object field_74478_h = new Object();
+     private final ILogAgent field_98215_i;
+-    private Socket field_74479_i;
++    public Socket field_74479_i; // CraftBukkit - private -> public
+     private final SocketAddress field_74476_j;
+     private volatile DataInputStream field_74477_k;
+     private volatile DataOutputStream field_74474_l;
+     private volatile boolean field_74475_m = true;
+     private volatile boolean field_74472_n = false;
+-    private List field_74473_o = Collections.synchronizedList(new ArrayList());
++    private java.util.Queue field_74473_o = new java.util.concurrent.ConcurrentLinkedQueue(); // CraftBukkit - Concurrent linked queue
+     private List field_74487_p = Collections.synchronizedList(new ArrayList());
+     private List field_74486_q = Collections.synchronizedList(new ArrayList());
+     private NetHandler field_74485_r;
+@@ -53,7 +54,7 @@
+     private PrivateKey field_74463_A = null;
+     private int field_74464_B = 50;
+ 
+-    public TcpConnection(ILogAgent p_i11027_1_, Socket p_i11027_2_, String p_i11027_3_, NetHandler p_i11027_4_, PrivateKey p_i11027_5_) throws IOException
++    public TcpConnection(ILogAgent p_i11027_1_, Socket p_i11027_2_, String p_i11027_3_, NetHandler p_i11027_4_, PrivateKey p_i11027_5_) throws IOException   // CraftBukkit - throws IOException
+     {
+         this.field_74463_A = p_i11027_5_;
+         this.field_74479_i = p_i11027_2_;
+@@ -133,7 +134,8 @@
+                 }
+             }
+ 
+-            if (this.field_74464_B-- <= 0 && (this.field_74468_e == 0 || !this.field_74486_q.isEmpty() && System.currentTimeMillis() - ((Packet)this.field_74486_q.get(0)).field_73295_m >= (long)this.field_74468_e))
++            // CraftBukkit - don't allow low priority packet to be sent unless it was placed in the queue before the first packet on the high priority queue TODO: is this still right?
++            if ((flag || this.field_74464_B-- <= 0) && !this.field_74486_q.isEmpty() && (this.field_74487_p.isEmpty() || ((Packet) this.field_74487_p.get(0)).field_73295_m > ((Packet) this.field_74486_q.get(0)).field_73295_m))
+             {
+                 packet = this.func_74460_a(true);
+ 
+@@ -283,7 +285,7 @@
+ 
+     private void func_74455_a(Exception p_74455_1_)
+     {
+-        p_74455_1_.printStackTrace();
++        // exception.printStackTrace(); // CraftBukkit - Remove console spam
+         this.func_74424_a("disconnect.genericReason", new Object[] {"Internal exception: " + p_74455_1_.toString()});
+     }
+ 
+@@ -353,7 +355,15 @@
+ 
+         while (!this.field_74473_o.isEmpty() && i-- >= 0)
+         {
+-            Packet packet = (Packet)this.field_74473_o.remove(0);
++            Packet packet = (Packet) this.field_74473_o.poll(); // CraftBukkit - remove -> poll
++
++            // CraftBukkit start
++            if (this.field_74485_r instanceof NetLoginHandler ? ((NetLoginHandler) this.field_74485_r).field_72539_c : ((NetServerHandler) this.field_74485_r).field_72576_c)
++            {
++                continue;
++            }
++
++            // CraftBukkit end
+             packet.func_73279_a(this.field_74485_r);
+         }
+ 
+@@ -381,14 +391,14 @@
+         }
+     }
+ 
+-    private void func_74448_j() throws IOException
++    private void func_74448_j() throws IOException   // CraftBukkit - throws IOException
+     {
+         this.field_74465_f = true;
+         InputStream inputstream = this.field_74479_i.getInputStream();
+         this.field_74477_k = new DataInputStream(CryptManager.func_75888_a(this.field_74488_z, inputstream));
+     }
+ 
+-    private void func_74446_k() throws IOException
++    private void func_74446_k() throws IOException   // CraftBukkit - throws IOException
+     {
+         this.field_74474_l.flush();
+         this.field_74466_g = true;

@@ -1,0 +1,147 @@
+--- ../net/minecraft/tileentity/TileEntityChest.java
++++ ../net/minecraft/tileentity/TileEntityChest.java
+@@ -13,9 +13,14 @@
+ import net.minecraft.nbt.NBTTagList;
+ import net.minecraft.util.AxisAlignedBB;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
++// CraftBukkit end
++
+ public class TileEntityChest extends TileEntity implements IInventory
+ {
+-    private ItemStack[] field_70428_i = new ItemStack[36];
++    private ItemStack[] field_70428_i = new ItemStack[27]; // CraftBukkit - 36 -> 27
+     public boolean field_70425_a = false;
+     public TileEntityChest field_70423_b;
+     public TileEntityChest field_70424_c;
+@@ -28,6 +33,38 @@
+     private int field_94046_i = -1;
+     private String field_94045_s;
+ 
++    public TileEntityChest() {}
++
++    // CraftBukkit start
++    public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
++    private int maxStack = MAX_STACK;
++
++    public ItemStack[] getContents()
++    {
++        return this.field_70428_i;
++    }
++
++    public void onOpen(CraftHumanEntity who)
++    {
++        transaction.add(who);
++    }
++
++    public void onClose(CraftHumanEntity who)
++    {
++        transaction.remove(who);
++    }
++
++    public List<HumanEntity> getViewers()
++    {
++        return transaction;
++    }
++
++    public void setMaxStackSize(int size)
++    {
++        maxStack = size;
++    }
++    // CraftBukkit end
++
+     public int func_70302_i_()
+     {
+         return 27;
+@@ -160,11 +197,16 @@
+ 
+     public int func_70297_j_()
+     {
+-        return 64;
++        return maxStack; // CraftBukkit
+     }
+ 
+     public boolean func_70300_a(EntityPlayer p_70300_1_)
+     {
++        if (this.field_70331_k == null)
++        {
++            return true;    // CraftBukkit
++        }
++
+         return this.field_70331_k.func_72796_p(this.field_70329_l, this.field_70330_m, this.field_70327_n) != this ? false : p_70300_1_.func_70092_e((double)this.field_70329_l + 0.5D, (double)this.field_70330_m + 0.5D, (double)this.field_70327_n + 0.5D) <= 64.0D;
+     }
+ 
+@@ -191,6 +233,7 @@
+                     }
+ 
+                     break;
++
+                 case 1:
+                     if (this.field_70421_d != p_90009_1_)
+                     {
+@@ -198,6 +241,7 @@
+                     }
+ 
+                     break;
++
+                 case 2:
+                     if (this.field_70423_b != p_90009_1_)
+                     {
+@@ -205,6 +249,7 @@
+                     }
+ 
+                     break;
++
+                 case 3:
+                     if (this.field_70424_c != p_90009_1_)
+                     {
+@@ -275,6 +320,12 @@
+     public void func_70316_g()
+     {
+         super.func_70316_g();
++
++        if (this.field_70331_k == null)
++        {
++            return;    // CraftBukkit
++        }
++
+         this.func_70418_i();
+         ++this.field_70426_j;
+         float f;
+@@ -294,7 +345,7 @@
+                 {
+                     IInventory iinventory = ((ContainerChest)entityplayer.field_71070_bA).func_85151_d();
+ 
+-                    if (iinventory == this || iinventory instanceof InventoryLargeChest && ((InventoryLargeChest)iinventory).func_90010_a(this))
++                    if (iinventory == this || iinventory instanceof InventoryLargeChest && ((InventoryLargeChest) iinventory).func_90010_a((IInventory) this))
+                     {
+                         ++this.field_70427_h;
+                     }
+@@ -390,6 +441,12 @@
+         }
+ 
+         ++this.field_70427_h;
++
++        if (this.field_70331_k == null)
++        {
++            return;    // CraftBukkit
++        }
++
+         this.field_70331_k.func_72965_b(this.field_70329_l, this.field_70330_m, this.field_70327_n, this.func_70311_o().field_71990_ca, 1, this.field_70427_h);
+         this.field_70331_k.func_72898_h(this.field_70329_l, this.field_70330_m, this.field_70327_n, this.func_70311_o().field_71990_ca);
+         this.field_70331_k.func_72898_h(this.field_70329_l, this.field_70330_m - 1, this.field_70327_n, this.func_70311_o().field_71990_ca);
+@@ -400,6 +457,12 @@
+         if (this.func_70311_o() != null && this.func_70311_o() instanceof BlockChest)
+         {
+             --this.field_70427_h;
++
++            if (this.field_70331_k == null)
++            {
++                return;    // CraftBukkit
++            }
++
+             this.field_70331_k.func_72965_b(this.field_70329_l, this.field_70330_m, this.field_70327_n, this.func_70311_o().field_71990_ca, 1, this.field_70427_h);
+             this.field_70331_k.func_72898_h(this.field_70329_l, this.field_70330_m, this.field_70327_n, this.func_70311_o().field_71990_ca);
+             this.field_70331_k.func_72898_h(this.field_70329_l, this.field_70330_m - 1, this.field_70327_n, this.func_70311_o().field_71990_ca);

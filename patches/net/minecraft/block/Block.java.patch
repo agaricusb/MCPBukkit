@@ -1,0 +1,43 @@
+--- ../net/minecraft/block/Block.java
++++ ../net/minecraft/block/Block.java
+@@ -427,7 +427,8 @@
+ 
+             for (int k1 = 0; k1 < j1; ++k1)
+             {
+-                if (p_71914_1_.field_73012_v.nextFloat() <= p_71914_6_)
++                // CraftBukkit - <= to < to allow for plugins to completely disable block drops from explosions
++                if (p_71914_1_.field_73012_v.nextFloat() < p_71914_6_)
+                 {
+                     int l1 = this.func_71885_a(p_71914_5_, p_71914_1_.field_73012_v, p_71914_7_);
+ 
+@@ -854,6 +855,11 @@
+         Item.field_77698_e[field_71956_V.field_71990_ca] = new ItemPiston(field_71956_V.field_71990_ca - 256);
+         Item.field_77698_e[field_82515_ce.field_71990_ca] = (new ItemMultiTextureTile(field_82515_ce.field_71990_ca - 256, field_82515_ce, BlockWall.field_82539_a)).func_77655_b("cobbleWall");
+         Item.field_77698_e[field_82510_ck.field_71990_ca] = (new ItemAnvilBlock(field_82510_ck)).func_77655_b("anvil");
++        // CraftBukkit start
++        Item.field_77698_e[field_72000_bn.field_71990_ca] = new ItemColored(field_72000_bn.field_71990_ca - 256, true);
++        Item.field_77698_e[field_72001_bo.field_71990_ca] = new ItemColored(field_72001_bo.field_71990_ca - 256, true);
++        Item.field_77698_e[field_72065_as.field_71990_ca] = new ItemColored(field_72065_as.field_71990_ca - 256, true);
++        // CraftBukkit end
+ 
+         for (int i = 0; i < 256; ++i)
+         {
+@@ -899,4 +905,17 @@
+         field_71985_p[0] = true;
+         StatList.func_75922_b();
+     }
+-}
++
++    // CraftBukkit start
++    public int getExpDrop(World world, int data, int enchantmentLevel)
++    {
++        return 0;
++    }
++    // CraftBukkit end
++    public boolean func_71906_q_CodeFix_Public(){
++        return func_71906_q_();
++    }
++    public void func_71923_g_CodeFix_Public(net.minecraft.world.World a, int b, int c, int d, int e){
++        func_71923_g(a, b, c, d, e);
++    }
++}

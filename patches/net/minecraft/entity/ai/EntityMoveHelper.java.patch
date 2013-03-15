@@ -1,0 +1,20 @@
+--- ../net/minecraft/entity/ai/EntityMoveHelper.java
++++ ../net/minecraft/entity/ai/EntityMoveHelper.java
+@@ -2,7 +2,6 @@
+ 
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.util.MathHelper;
+-
+ public class EntityMoveHelper
+ {
+     private EntityLiving field_75648_a;
+@@ -54,7 +53,8 @@
+ 
+             if (d3 >= 2.500000277905201E-7D)
+             {
+-                float f = (float)(Math.atan2(d1, d0) * 180.0D / Math.PI) - 90.0F;
++                // CraftBukkit - Math -> TrigMath
++                float f = (float)(org.bukkit.craftbukkit.TrigMath.atan2(d1, d0) * 180.0D / Math.PI) - 90.0F;
+                 this.field_75648_a.field_70177_z = this.func_75639_a(this.field_75648_a.field_70177_z, f, 30.0F);
+                 this.field_75648_a.func_70659_e(this.field_75645_e * this.field_75648_a.func_70616_bs());
+ 

@@ -1,0 +1,225 @@
+--- ../net/minecraft/entity/EntityTrackerEntry.java
++++ ../net/minecraft/entity/EntityTrackerEntry.java
+@@ -53,6 +53,11 @@
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.storage.MapData;
+ 
++// CraftBukkit start
++import org.bukkit.entity.Player;
++import org.bukkit.event.player.PlayerVelocityEvent;
++// CraftBukkit end
++
+ public class EntityTrackerEntry
+ {
+     public Entity field_73132_a;
+@@ -125,37 +130,37 @@
+ 
+         if (this.field_73132_a instanceof EntityItemFrame && this.field_73136_m % 10 == 0)
+         {
+-            EntityItemFrame entityitemframe = (EntityItemFrame)this.field_73132_a;
+-            ItemStack itemstack = entityitemframe.func_82335_i();
+-
+-            if (itemstack != null && itemstack.func_77973_b() instanceof ItemMap)
+-            {
+-                MapData mapdata = Item.field_77744_bd.func_77873_a(itemstack, this.field_73132_a.field_70170_p);
+-                Iterator iterator = p_73122_1_.iterator();
+-
+-                while (iterator.hasNext())
+-                {
+-                    EntityPlayer entityplayer = (EntityPlayer)iterator.next();
+-                    EntityPlayerMP entityplayermp = (EntityPlayerMP)entityplayer;
+-                    mapdata.func_76191_a(entityplayermp, itemstack);
+-
+-                    if (entityplayermp.field_71135_a.func_72568_e() <= 5)
+-                    {
+-                        Packet packet = Item.field_77744_bd.func_77871_c(itemstack, this.field_73132_a.field_70170_p, entityplayermp);
+-
+-                        if (packet != null)
++            EntityItemFrame i4 = (EntityItemFrame) this.field_73132_a;
++            ItemStack i5 = i4.func_82335_i();
++
++            if (i5 != null && i5.func_77973_b() instanceof ItemMap)
++            {
++                MapData i7 = Item.field_77744_bd.func_77873_a(i5, this.field_73132_a.field_70170_p);
++                Iterator j0 = p_73122_1_.iterator();
++
++                while (j0.hasNext())
++                {
++                    EntityPlayer j1 = (EntityPlayer) j0.next();
++                    EntityPlayerMP j2 = (EntityPlayerMP) j1;
++                    i7.func_76191_a(j2, i5);
++
++                    if (j2.field_71135_a.func_72568_e() <= 5)
++                    {
++                        Packet j3 = Item.field_77744_bd.func_77871_c(i5, this.field_73132_a.field_70170_p, j2);
++
++                        if (j3 != null)
+                         {
+-                            entityplayermp.field_71135_a.func_72567_b(packet);
++                            j2.field_71135_a.func_72567_b(j3);
+                         }
+                     }
+                 }
+             }
+ 
+-            DataWatcher datawatcher = this.field_73132_a.func_70096_w();
+-
+-            if (datawatcher.func_75684_a())
+-            {
+-                this.func_73116_b(new Packet40EntityMetadata(this.field_73132_a.field_70157_k, datawatcher, false));
++            DataWatcher i9 = this.field_73132_a.func_70096_w();
++
++            if (i9.func_75684_a())
++            {
++                this.func_73116_b(new Packet40EntityMetadata(this.field_73132_a.field_70157_k, i9, false));
+             }
+         }
+         else if (this.field_73136_m % this.field_73131_c == 0 || this.field_73132_a.field_70160_al || this.field_73132_a.func_70096_w().func_75684_a())
+@@ -178,6 +183,22 @@
+                 boolean flag = Math.abs(j1) >= 4 || Math.abs(k1) >= 4 || Math.abs(l1) >= 4 || this.field_73136_m % 60 == 0;
+                 boolean flag1 = Math.abs(l - this.field_73127_g) >= 4 || Math.abs(i1 - this.field_73139_h) >= 4;
+ 
++                // CraftBukkit start - code moved from below
++                if (flag)
++                {
++                    this.field_73128_d = i;
++                    this.field_73129_e = j;
++                    this.field_73126_f = k;
++                }
++
++                if (flag1)
++                {
++                    this.field_73127_g = l;
++                    this.field_73139_h = i1;
++                }
++
++                // CraftBukkit end
++
+                 if (j1 >= -128 && j1 < 128 && k1 >= -128 && k1 < 128 && l1 >= -128 && l1 < 128 && this.field_73142_u <= 400 && !this.field_73141_v)
+                 {
+                     if (flag && flag1)
+@@ -196,6 +217,14 @@
+                 else
+                 {
+                     this.field_73142_u = 0;
++
++                    // CraftBukkit start - refresh list of who can see a player before sending teleport packet
++                    if (this.field_73132_a instanceof EntityPlayerMP)
++                    {
++                        this.func_73125_b(new java.util.ArrayList(this.field_73134_o));
++                    }
++
++                    // CraftBukkit end
+                     object = new Packet34EntityTeleport(this.field_73132_a.field_70157_k, i, j, k, (byte)l, (byte)i1);
+                 }
+ 
+@@ -228,19 +257,18 @@
+                     this.func_73116_b(new Packet40EntityMetadata(this.field_73132_a.field_70157_k, datawatcher1, false));
+                 }
+ 
+-                if (flag)
+-                {
+-                    this.field_73128_d = i;
+-                    this.field_73129_e = j;
+-                    this.field_73126_f = k;
+-                }
+-
+-                if (flag1)
+-                {
+-                    this.field_73127_g = l;
+-                    this.field_73139_h = i1;
+-                }
+-
++                /* CraftBukkit start - code moved up
++                if (flag) {
++                    this.xLoc = i;
++                    this.yLoc = j;
++                    this.zLoc = k;
++                }
++
++                if (flag1) {
++                    this.yRot = l;
++                    this.xRot = i1;
++                }
++                // CraftBukkit end */
+                 this.field_73141_v = false;
+             }
+             else
+@@ -284,7 +312,32 @@
+ 
+         if (this.field_73132_a.field_70133_I)
+         {
+-            this.func_73116_b(new Packet28EntityVelocity(this.field_73132_a));
++            // CraftBukkit start - create PlayerVelocity event
++            boolean cancelled = false;
++
++            if (this.field_73132_a instanceof EntityPlayerMP)
++            {
++                Player player = (Player) this.field_73132_a.getBukkitEntity();
++                org.bukkit.util.Vector velocity = player.getVelocity();
++                PlayerVelocityEvent event = new PlayerVelocityEvent(player, velocity);
++                this.field_73132_a.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++                if (event.isCancelled())
++                {
++                    cancelled = true;
++                }
++                else if (!velocity.equals(event.getVelocity()))
++                {
++                    player.setVelocity(velocity);
++                }
++            }
++
++            if (!cancelled)
++            {
++                this.func_73116_b((Packet)(new Packet28EntityVelocity(this.field_73132_a)));
++            }
++
++            // CraftBukkit end
+             this.field_73132_a.field_70133_I = false;
+         }
+     }
+@@ -341,6 +394,19 @@
+             {
+                 if (!this.field_73134_o.contains(p_73117_1_) && (this.func_73121_d(p_73117_1_) || this.field_73132_a.field_98038_p))
+                 {
++                    // CraftBukkit start
++                    if (this.field_73132_a instanceof EntityPlayerMP)
++                    {
++                        Player player = ((EntityPlayerMP) this.field_73132_a).getBukkitEntity();
++
++                        if (!p_73117_1_.getBukkitEntity().canSee(player))
++                        {
++                            return;
++                        }
++                    }
++
++                    p_73117_1_.field_71130_g.remove(Integer.valueOf(this.field_73132_a.field_70157_k));
++                    // CraftBukkit end
+                     this.field_73134_o.add(p_73117_1_);
+                     Packet packet = this.func_73124_b();
+                     p_73117_1_.field_71135_a.func_72567_b(packet);
+@@ -387,6 +453,11 @@
+                         }
+                     }
+ 
++                    // CraftBukkit start - Fix for nonsensical head yaw
++                    this.field_73140_i = MathHelper.func_76141_d(this.field_73132_a.func_70079_am() * 256.0F / 360.0F); // tracker.ao() should be getHeadRotation
++                    this.func_73120_a(new Packet35EntityHeadRotation(this.field_73132_a.field_70157_k, (byte) field_73140_i));
++                    // CraftBukkit end
++
+                     if (this.field_73132_a instanceof EntityLiving)
+                     {
+                         EntityLiving entityliving = (EntityLiving)this.field_73132_a;
+@@ -425,7 +496,10 @@
+     {
+         if (this.field_73132_a.field_70128_L)
+         {
+-            this.field_73132_a.field_70170_p.func_98180_V().func_98236_b("Fetching addPacket for removed entity");
++            // CraftBukkit start - remove useless error spam, just return
++            // this.tracker.world.getLogger().warning("Fetching addPacket for removed entity");
++            return null;
++            // CraftBukkit end
+         }
+ 
+         if (this.field_73132_a instanceof EntityItem)

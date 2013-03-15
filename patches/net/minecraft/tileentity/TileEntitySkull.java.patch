@@ -1,0 +1,31 @@
+--- ../net/minecraft/tileentity/TileEntitySkull.java
++++ ../net/minecraft/tileentity/TileEntitySkull.java
+@@ -3,12 +3,13 @@
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.network.packet.Packet;
+ import net.minecraft.network.packet.Packet132TileEntityData;
+-
+ public class TileEntitySkull extends TileEntity
+ {
+     private int field_82123_a;
+     private int field_82121_b;
+     private String field_82122_c = "";
++
++    public TileEntitySkull() {}
+ 
+     public void func_70310_b(NBTTagCompound p_70310_1_)
+     {
+@@ -53,6 +54,13 @@
+         this.field_82121_b = p_82116_1_;
+     }
+ 
++    // CraftBukkit start
++    public int getRotation()
++    {
++        return this.field_82121_b;
++    }
++    // CraftBukkit end
++
+     public String func_82120_c()
+     {
+         return this.field_82122_c;

@@ -1,0 +1,33 @@
+--- ../net/minecraft/item/ItemFood.java
++++ ../net/minecraft/item/ItemFood.java
+@@ -2,9 +2,10 @@
+ 
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.entity.player.EntityPlayerMP;
++import net.minecraft.network.packet.Packet8UpdateHealth;
+ import net.minecraft.potion.PotionEffect;
+ import net.minecraft.world.World;
+-
+ public class ItemFood extends Item
+ {
+     public final int field_77855_a;
+@@ -35,7 +36,17 @@
+     public ItemStack func_77654_b(ItemStack p_77654_1_, World p_77654_2_, EntityPlayer p_77654_3_)
+     {
+         --p_77654_1_.field_77994_a;
+-        p_77654_3_.func_71024_bL().func_75111_a(this);
++        // CraftBukkit start
++        int oldFoodLevel = p_77654_3_.func_71024_bL().field_75127_a;
++        org.bukkit.event.entity.FoodLevelChangeEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callFoodLevelChangeEvent(p_77654_3_, this.func_77847_f() + oldFoodLevel);
++
++        if (!event.isCancelled())
++        {
++            p_77654_3_.func_71024_bL().func_75122_a(event.getFoodLevel() - oldFoodLevel, this.func_77846_g());
++        }
++
++        ((EntityPlayerMP) p_77654_3_).field_71135_a.func_72567_b(new Packet8UpdateHealth(p_77654_3_.func_70630_aN(), p_77654_3_.func_71024_bL().field_75127_a, p_77654_3_.func_71024_bL().field_75125_b));
++        // CraftBukkit end
+         p_77654_2_.func_72956_a(p_77654_3_, "random.burp", 0.5F, p_77654_2_.field_73012_v.nextFloat() * 0.1F + 0.9F);
+         this.func_77849_c(p_77654_1_, p_77654_2_, p_77654_3_);
+         return p_77654_1_;

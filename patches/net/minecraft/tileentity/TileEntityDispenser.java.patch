@@ -1,0 +1,75 @@
+--- ../net/minecraft/tileentity/TileEntityDispenser.java
++++ ../net/minecraft/tileentity/TileEntityDispenser.java
+@@ -7,12 +7,51 @@
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.nbt.NBTTagList;
+ 
++// CraftBukkit start
++import java.util.List;
++
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
++// CraftBukkit end
++
+ public class TileEntityDispenser extends TileEntity implements IInventory
+ {
+     private ItemStack[] field_70363_a = new ItemStack[9];
+     private Random field_70362_b = new Random();
+     protected String field_94050_c;
+ 
++    // CraftBukkit start
++    public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
++    private int maxStack = MAX_STACK;
++
++    public ItemStack[] getContents()
++    {
++        return this.field_70363_a;
++    }
++
++    public void onOpen(CraftHumanEntity who)
++    {
++        transaction.add(who);
++    }
++
++    public void onClose(CraftHumanEntity who)
++    {
++        transaction.remove(who);
++    }
++
++    public List<HumanEntity> getViewers()
++    {
++        return transaction;
++    }
++
++    public void setMaxStackSize(int size)
++    {
++        maxStack = size;
++    }
++    // CraftBukkit end
++
++    public TileEntityDispenser() {}
++
+     public int func_70302_i_()
+     {
+         return 9;
+@@ -78,6 +117,11 @@
+         {
+             if (this.field_70363_a[k] != null && this.field_70362_b.nextInt(j++) == 0)
+             {
++                if (this.field_70363_a[k].field_77994_a == 0)
++                {
++                    continue;    // CraftBukkit
++                }
++
+                 i = k;
+             }
+         }
+@@ -175,7 +219,7 @@
+ 
+     public int func_70297_j_()
+     {
+-        return 64;
++        return maxStack; // CraftBukkit
+     }
+ 
+     public boolean func_70300_a(EntityPlayer p_70300_1_)

@@ -1,0 +1,21 @@
+--- ../net/minecraft/entity/ai/EntityAIArrowAttack.java
++++ ../net/minecraft/entity/ai/EntityAIArrowAttack.java
+@@ -1,5 +1,7 @@
+ package net.minecraft.entity.ai;
+ 
++import org.bukkit.event.entity.EntityTargetEvent; // CraftBukkit
++import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.entity.IRangedAttackMob;
+ import net.minecraft.util.MathHelper;
+@@ -66,6 +68,10 @@
+ 
+     public void func_75251_c()
+     {
++        // CraftBukkit start
++        EntityTargetEvent.TargetReason reason = this.field_75323_c.func_70089_S() ? EntityTargetEvent.TargetReason.FORGOT_TARGET : EntityTargetEvent.TargetReason.TARGET_DIED;
++        org.bukkit.craftbukkit.event.CraftEventFactory.callEntityTargetEvent((Entity) field_82641_b, null, reason);
++        // CraftBukkit end
+         this.field_75323_c = null;
+         this.field_75318_f = 0;
+         this.field_75320_d = -1;

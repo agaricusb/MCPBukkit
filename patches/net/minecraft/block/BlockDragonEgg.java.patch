@@ -1,0 +1,44 @@
+--- ../net/minecraft/block/BlockDragonEgg.java
++++ ../net/minecraft/block/BlockDragonEgg.java
+@@ -5,6 +5,8 @@
+ import net.minecraft.entity.item.EntityFallingSand;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.world.World;
++
++import org.bukkit.event.block.BlockFromToEvent; // CraftBukkit
+ 
+ public class BlockDragonEgg extends Block
+ {
+@@ -37,7 +39,8 @@
+ 
+             if (!BlockSand.field_72192_a && p_72236_1_.func_72904_c(p_72236_2_ - b0, p_72236_3_ - b0, p_72236_4_ - b0, p_72236_2_ + b0, p_72236_3_ + b0, p_72236_4_ + b0))
+             {
+-                EntityFallingSand entityfallingsand = new EntityFallingSand(p_72236_1_, (double)((float)p_72236_2_ + 0.5F), (double)((float)p_72236_3_ + 0.5F), (double)((float)p_72236_4_ + 0.5F), this.field_71990_ca);
++                // CraftBukkit - added data
++                EntityFallingSand entityfallingsand = new EntityFallingSand(p_72236_1_, (double)((float) p_72236_2_ + 0.5F), (double)((float) p_72236_3_ + 0.5F), (double)((float) p_72236_4_ + 0.5F), this.field_71990_ca, p_72236_1_.func_72805_g(p_72236_2_, p_72236_3_, p_72236_4_));
+                 p_72236_1_.func_72838_d(entityfallingsand);
+             }
+             else
+@@ -80,6 +83,22 @@
+ 
+                 if (p_72237_1_.func_72798_a(i1, j1, k1) == 0)
+                 {
++                    // CraftBukkit start
++                    org.bukkit.block.Block from = p_72237_1_.getWorld().getBlockAt(p_72237_2_, p_72237_3_, p_72237_4_);
++                    org.bukkit.block.Block to = p_72237_1_.getWorld().getBlockAt(i1, j1, k1);
++                    BlockFromToEvent event = new BlockFromToEvent(from, to);
++                    org.bukkit.Bukkit.getPluginManager().callEvent(event);
++
++                    if (event.isCancelled())
++                    {
++                        return;
++                    }
++
++                    i1 = event.getToBlock().getX();
++                    j1 = event.getToBlock().getY();
++                    k1 = event.getToBlock().getZ();
++                    // CraftBukkit end
++
+                     if (!p_72237_1_.field_72995_K)
+                     {
+                         p_72237_1_.func_72832_d(i1, j1, k1, this.field_71990_ca, p_72237_1_.func_72805_g(p_72237_2_, p_72237_3_, p_72237_4_), 2);

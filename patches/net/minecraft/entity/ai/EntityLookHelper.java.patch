@@ -1,0 +1,29 @@
+--- ../net/minecraft/entity/ai/EntityLookHelper.java
++++ ../net/minecraft/entity/ai/EntityLookHelper.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.entity.ai;
+ 
++import org.bukkit.craftbukkit.TrigMath; // CraftBukkit
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.util.MathHelper;
+@@ -59,14 +60,16 @@
+             double d1 = this.field_75653_f - (this.field_75659_a.field_70163_u + (double)this.field_75659_a.func_70047_e());
+             double d2 = this.field_75654_g - this.field_75659_a.field_70161_v;
+             double d3 = (double)MathHelper.func_76133_a(d0 * d0 + d2 * d2);
+-            float f = (float)(Math.atan2(d2, d0) * 180.0D / Math.PI) - 90.0F;
+-            float f1 = (float)(-(Math.atan2(d1, d3) * 180.0D / Math.PI));
++            // CraftBukkit start - Math -> TrigMath
++            float f = (float)(TrigMath.atan2(d2, d0) * 180.0D / Math.PI) - 90.0F;
++            float f1 = (float)(-(TrigMath.atan2(d1, d3) * 180.0D / Math.PI));
++            // CraftBukkit end
+             this.field_75659_a.field_70125_A = this.func_75652_a(this.field_75659_a.field_70125_A, f1, this.field_75658_c);
+             this.field_75659_a.field_70759_as = this.func_75652_a(this.field_75659_a.field_70759_as, f, this.field_75657_b);
+         }
+         else
+         {
+-            this.field_75659_a.field_70759_as = this.func_75652_a(this.field_75659_a.field_70759_as, this.field_75659_a.field_70761_aq, 10.0F);
++            this.field_75659_a.field_70759_as = this.func_75652_a(this.field_75659_a.field_70759_as, this.field_75659_a.field_70770_ap, 10.0F);
+         }
+ 
+         float f2 = MathHelper.func_76142_g(this.field_75659_a.field_70759_as - this.field_75659_a.field_70761_aq);

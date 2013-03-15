@@ -1,0 +1,20 @@
+--- ../net/minecraft/item/crafting/FurnaceRecipes.java
++++ ../net/minecraft/item/crafting/FurnaceRecipes.java
+@@ -9,7 +9,7 @@
+ public class FurnaceRecipes
+ {
+     private static final FurnaceRecipes field_77606_a = new FurnaceRecipes();
+-    private Map field_77604_b = new HashMap();
++    public Map field_77604_b = new HashMap(); // CraftBukkit - private -> public
+     private Map field_77605_c = new HashMap();
+ 
+     public static final FurnaceRecipes func_77602_a()
+@@ -17,7 +17,7 @@
+         return field_77606_a;
+     }
+ 
+-    private FurnaceRecipes()
++    public FurnaceRecipes()   // CraftBukkit - private -> public
+     {
+         this.func_77600_a(Block.field_71949_H.field_71990_ca, new ItemStack(Item.field_77703_o), 0.7F);
+         this.func_77600_a(Block.field_71941_G.field_71990_ca, new ItemStack(Item.field_77717_p), 1.0F);

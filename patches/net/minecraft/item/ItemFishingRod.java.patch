@@ -1,0 +1,26 @@
+--- ../net/minecraft/item/ItemFishingRod.java
++++ ../net/minecraft/item/ItemFishingRod.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.item;
+ 
++import org.bukkit.event.player.PlayerFishEvent; // CraftBukkit
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.entity.projectile.EntityFishHook;
+@@ -25,6 +26,16 @@
+         }
+         else
+         {
++            // CraftBukkit start
++            PlayerFishEvent playerFishEvent = new PlayerFishEvent((org.bukkit.entity.Player) p_77659_3_.getBukkitEntity(), null, PlayerFishEvent.State.FISHING);
++            p_77659_2_.getServer().getPluginManager().callEvent(playerFishEvent);
++
++            if (playerFishEvent.isCancelled())
++            {
++                return p_77659_1_;
++            }
++
++            // CraftBukkit end
+             p_77659_2_.func_72956_a(p_77659_3_, "random.bow", 0.5F, 0.4F / (field_77697_d.nextFloat() * 0.4F + 0.8F));
+ 
+             if (!p_77659_2_.field_72995_K)

@@ -1,0 +1,30 @@
+--- ../net/minecraft/block/BlockStem.java
++++ ../net/minecraft/block/BlockStem.java
+@@ -8,6 +8,8 @@
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
+ 
++import org.bukkit.craftbukkit.event.CraftEventFactory; // CraftBukkit
++
+ public class BlockStem extends BlockFlower
+ {
+     private final Block field_72267_a;
+@@ -41,8 +43,7 @@
+ 
+                 if (l < 7)
+                 {
+-                    ++l;
+-                    p_71847_1_.func_72921_c(p_71847_2_, p_71847_3_, p_71847_4_, l, 2);
++                    CraftEventFactory.handleBlockGrowEvent(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, this.field_71990_ca, ++l); // CraftBukkit
+                 }
+                 else
+                 {
+@@ -94,7 +95,7 @@
+ 
+                     if (p_71847_1_.func_72798_a(j1, p_71847_3_, k1) == 0 && (l1 == Block.field_72050_aA.field_71990_ca || l1 == Block.field_71979_v.field_71990_ca || l1 == Block.field_71980_u.field_71990_ca))
+                     {
+-                        p_71847_1_.func_94575_c(j1, p_71847_3_, k1, this.field_72267_a.field_71990_ca);
++                        CraftEventFactory.handleBlockGrowEvent(p_71847_1_, j1, p_71847_3_, k1, this.field_72267_a.field_71990_ca, 0); // CraftBukkit
+                     }
+                 }
+             }

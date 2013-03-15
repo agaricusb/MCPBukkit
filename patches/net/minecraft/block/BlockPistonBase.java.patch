@@ -1,0 +1,136 @@
+--- ../net/minecraft/block/BlockPistonBase.java
++++ ../net/minecraft/block/BlockPistonBase.java
+@@ -15,6 +15,12 @@
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.block.CraftBlock;
++import org.bukkit.event.block.BlockPistonRetractEvent;
++import org.bukkit.event.block.BlockPistonExtendEvent;
++// CraftBukkit end
++
+ public class BlockPistonBase extends Block
+ {
+     private final boolean field_72119_a;
+@@ -81,13 +87,37 @@
+ 
+             if (flag && !func_72114_f(l))
+             {
+-                if (func_72112_i(p_72110_1_, p_72110_2_, p_72110_3_, p_72110_4_, i1))
+-                {
++                // CraftBukkit start
++                int length = func_72112_i(p_72110_1_, p_72110_2_, p_72110_3_, p_72110_4_, i1);
++
++                if (length >= 0)
++                {
++                    org.bukkit.block.Block block = p_72110_1_.getWorld().getBlockAt(p_72110_2_, p_72110_3_, p_72110_4_);
++                    BlockPistonExtendEvent event = new BlockPistonExtendEvent(block, length, CraftBlock.notchToBlockFace(i1));
++                    p_72110_1_.getServer().getPluginManager().callEvent(event);
++
++                    if (event.isCancelled())
++                    {
++                        return;
++                    }
++
++                    // CraftBukkit end
+                     p_72110_1_.func_72965_b(p_72110_2_, p_72110_3_, p_72110_4_, this.field_71990_ca, 0, i1);
+                 }
+             }
+             else if (!flag && func_72114_f(l))
+             {
++                // CraftBukkit start
++                org.bukkit.block.Block block = p_72110_1_.getWorld().getBlockAt(p_72110_2_, p_72110_3_, p_72110_4_);
++                BlockPistonRetractEvent event = new BlockPistonRetractEvent(block, CraftBlock.notchToBlockFace(i1));
++                p_72110_1_.getServer().getPluginManager().callEvent(event);
++
++                if (event.isCancelled())
++                {
++                    return;
++                }
++
++                // CraftBukkit end
+                 p_72110_1_.func_72921_c(p_72110_2_, p_72110_3_, p_72110_4_, i1, 2);
+                 p_72110_1_.func_72965_b(p_72110_2_, p_72110_3_, p_72110_4_, this.field_71990_ca, 1, i1);
+             }
+@@ -202,18 +232,23 @@
+                 case 0:
+                     this.func_71905_a(0.0F, 0.25F, 0.0F, 1.0F, 1.0F, 1.0F);
+                     break;
++
+                 case 1:
+                     this.func_71905_a(0.0F, 0.0F, 0.0F, 1.0F, 0.75F, 1.0F);
+                     break;
++
+                 case 2:
+                     this.func_71905_a(0.0F, 0.0F, 0.25F, 1.0F, 1.0F, 1.0F);
+                     break;
++
+                 case 3:
+                     this.func_71905_a(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.75F);
+                     break;
++
+                 case 4:
+                     this.func_71905_a(0.25F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+                     break;
++
+                 case 5:
+                     this.func_71905_a(0.0F, 0.0F, 0.0F, 0.75F, 1.0F, 1.0F);
+             }
+@@ -248,6 +283,11 @@
+ 
+     public static int func_72117_e(int p_72117_0_)
+     {
++        if ((p_72117_0_ & 7) >= Facing.field_71588_a.length)
++        {
++            return 7;    // CraftBukkit - check for AIOOB on piston data
++        }
++
+         return p_72117_0_ & 7;
+     }
+ 
+@@ -316,7 +356,8 @@
+         }
+     }
+ 
+-    private static boolean func_72112_i(World p_72112_0_, int p_72112_1_, int p_72112_2_, int p_72112_3_, int p_72112_4_)
++    // CraftBukkit - boolean -> int return
++    private static int func_72112_i(World p_72112_0_, int p_72112_1_, int p_72112_2_, int p_72112_3_, int p_72112_4_)
+     {
+         int i1 = p_72112_1_ + Facing.field_71586_b[p_72112_4_];
+         int j1 = p_72112_2_ + Facing.field_71587_c[p_72112_4_];
+@@ -329,7 +370,7 @@
+             {
+                 if (j1 <= 0 || j1 >= 255)
+                 {
+-                    return false;
++                    return -1; // CraftBukkit
+                 }
+ 
+                 int i2 = p_72112_0_.func_72798_a(i1, j1, k1);
+@@ -338,14 +379,14 @@
+                 {
+                     if (!func_72111_a(i2, p_72112_0_, i1, j1, k1, true))
+                     {
+-                        return false;
++                        return -1; // CraftBukkit
+                     }
+ 
+                     if (Block.field_71973_m[i2].func_71915_e() != 1)
+                     {
+                         if (l1 == 12)
+                         {
+-                            return false;
++                            return -1; // CraftBukkit
+                         }
+ 
+                         i1 += Facing.field_71586_b[p_72112_4_];
+@@ -357,7 +398,7 @@
+                 }
+             }
+ 
+-            return true;
++            return l1; // CraftBukkit
+         }
+     }
+ 

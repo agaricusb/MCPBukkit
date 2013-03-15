@@ -1,0 +1,32 @@
+--- ../net/minecraft/entity/passive/EntityOcelot.java
++++ ../net/minecraft/entity/passive/EntityOcelot.java
+@@ -21,7 +21,6 @@
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
+-
+ public class EntityOcelot extends EntityTameable
+ {
+     private EntityAITempt field_70914_e;
+@@ -153,7 +152,10 @@
+         }
+     }
+ 
+-    protected void func_70628_a(boolean p_70628_1_, int p_70628_2_) {}
++    protected void func_70628_a(boolean p_70628_1_, int p_70628_2_)
++    {
++        org.bukkit.craftbukkit.event.CraftEventFactory.callEntityDeathEvent(this); // CraftBukkit - Call EntityDeathEvent
++    }
+ 
+     public boolean func_70085_c(EntityPlayer p_70085_1_)
+     {
+@@ -180,7 +182,8 @@
+ 
+             if (!this.field_70170_p.field_72995_K)
+             {
+-                if (this.field_70146_Z.nextInt(3) == 0)
++                // CraftBukkit - added event call and isCancelled check
++                if (this.field_70146_Z.nextInt(3) == 0 && !org.bukkit.craftbukkit.event.CraftEventFactory.callEntityTameEvent(this, p_70085_1_).isCancelled())
+                 {
+                     this.func_70903_f(true);
+                     this.func_70912_b(1 + this.field_70170_p.field_73012_v.nextInt(3));

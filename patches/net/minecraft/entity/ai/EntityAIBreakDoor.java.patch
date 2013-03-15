@@ -1,0 +1,25 @@
+--- ../net/minecraft/entity/ai/EntityAIBreakDoor.java
++++ ../net/minecraft/entity/ai/EntityAIBreakDoor.java
+@@ -1,7 +1,6 @@
+ package net.minecraft.entity.ai;
+ 
+ import net.minecraft.entity.EntityLiving;
+-
+ public class EntityAIBreakDoor extends EntityAIDoorInteract
+ {
+     private int field_75359_i;
+@@ -55,6 +54,14 @@
+ 
+         if (this.field_75359_i == 240 && this.field_75356_a.field_70170_p.field_73013_u == 3)
+         {
++            // CraftBukkit start
++            if (org.bukkit.craftbukkit.event.CraftEventFactory.callEntityBreakDoorEvent(this.field_75356_a, this.field_75354_b, this.field_75355_c, this.field_75352_d).isCancelled())
++            {
++                this.func_75246_d();
++                return;
++            }
++
++            // CraftBukkit end
+             this.field_75356_a.field_70170_p.func_94571_i(this.field_75354_b, this.field_75355_c, this.field_75352_d);
+             this.field_75356_a.field_70170_p.func_72926_e(1012, this.field_75354_b, this.field_75355_c, this.field_75352_d, 0);
+             this.field_75356_a.field_70170_p.func_72926_e(2001, this.field_75354_b, this.field_75355_c, this.field_75352_d, this.field_75353_e.field_71990_ca);

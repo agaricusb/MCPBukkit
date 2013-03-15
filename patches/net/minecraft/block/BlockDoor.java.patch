@@ -1,0 +1,63 @@
+--- ../net/minecraft/block/BlockDoor.java
++++ ../net/minecraft/block/BlockDoor.java
+@@ -10,6 +10,8 @@
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
+ 
++import org.bukkit.event.block.BlockRedstoneEvent; // CraftBukkit
++
+ public class BlockDoor extends Block
+ {
+     private static final String[] field_94467_a = new String[] {"doorWood_lower", "doorWood_upper", "doorIron_lower", "doorIron_upper"};
+@@ -243,15 +245,32 @@
+                 {
+                     this.func_71897_c(p_71863_1_, p_71863_2_, p_71863_3_, p_71863_4_, i1, 0);
+                 }
+-            }
+-            else
+-            {
+-                boolean flag1 = p_71863_1_.func_72864_z(p_71863_2_, p_71863_3_, p_71863_4_) || p_71863_1_.func_72864_z(p_71863_2_, p_71863_3_ + 1, p_71863_4_);
+-
+-                if ((flag1 || p_71863_5_ > 0 && Block.field_71973_m[p_71863_5_].func_71853_i()) && p_71863_5_ != this.field_71990_ca)
+-                {
+-                    this.func_72231_a(p_71863_1_, p_71863_2_, p_71863_3_, p_71863_4_, flag1);
+-                }
++
++                // CraftBukkit start
++            }
++            else if (p_71863_5_ > 0 && Block.field_71973_m[p_71863_5_].func_71853_i())
++            {
++                org.bukkit.World bworld = p_71863_1_.getWorld();
++                org.bukkit.block.Block block = bworld.getBlockAt(p_71863_2_, p_71863_3_, p_71863_4_);
++                org.bukkit.block.Block blockTop = bworld.getBlockAt(p_71863_2_, p_71863_3_ + 1, p_71863_4_);
++                int power = block.getBlockPower();
++                int powerTop = blockTop.getBlockPower();
++
++                if (powerTop > power)
++                {
++                    power = powerTop;
++                }
++
++                int oldPower = (p_71863_1_.func_72805_g(p_71863_2_, p_71863_3_, p_71863_4_) & 4) > 0 ? 15 : 0;
++
++                if (oldPower == 0 ^ power == 0)
++                {
++                    BlockRedstoneEvent eventRedstone = new BlockRedstoneEvent(block, oldPower, power);
++                    p_71863_1_.getServer().getPluginManager().callEvent(eventRedstone);
++                    this.func_72231_a(p_71863_1_, p_71863_2_, p_71863_3_, p_71863_4_, eventRedstone.getNewCurrent() > 0);
++                }
++
++                // CraftBukkit end
+             }
+         }
+         else
+@@ -260,8 +279,7 @@
+             {
+                 p_71863_1_.func_94571_i(p_71863_2_, p_71863_3_, p_71863_4_);
+             }
+-
+-            if (p_71863_5_ > 0 && p_71863_5_ != this.field_71990_ca)
++            else if (p_71863_5_ > 0 && p_71863_5_ != this.field_71990_ca)   // CraftBukkit
+             {
+                 this.func_71863_a(p_71863_1_, p_71863_2_, p_71863_3_ - 1, p_71863_4_, p_71863_5_);
+             }

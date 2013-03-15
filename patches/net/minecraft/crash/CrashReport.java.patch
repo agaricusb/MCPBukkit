@@ -1,0 +1,36 @@
+--- ../net/minecraft/crash/CrashReport.java
++++ ../net/minecraft/crash/CrashReport.java
+@@ -10,6 +10,7 @@
+ import java.util.Date;
+ import java.util.Iterator;
+ import java.util.List;
++import java.util.concurrent.Callable;
+ import net.minecraft.logging.ILogAgent;
+ import net.minecraft.util.ReportedException;
+ 
+@@ -32,15 +33,16 @@
+ 
+     private void func_71504_g()
+     {
+-        this.field_85061_c.func_71500_a("Minecraft Version", new CallableMinecraftVersion(this));
+-        this.field_85061_c.func_71500_a("Operating System", new CallableOSInfo(this));
+-        this.field_85061_c.func_71500_a("Java Version", new CallableJavaInfo(this));
+-        this.field_85061_c.func_71500_a("Java VM Version", new CallableJavaInfo2(this));
+-        this.field_85061_c.func_71500_a("Memory", new CallableMemoryInfo(this));
+-        this.field_85061_c.func_71500_a("JVM Flags", new CallableJVMFlags(this));
+-        this.field_85061_c.func_71500_a("AABB Pool Size", new CallableCrashMemoryReport(this));
+-        this.field_85061_c.func_71500_a("Suspicious classes", new CallableSuspiciousClasses(this));
+-        this.field_85061_c.func_71500_a("IntCache", new CallableIntCache(this));
++        this.field_85061_c.func_71500_a("Minecraft Version", (Callable)(new CallableMinecraftVersion(this)));
++        this.field_85061_c.func_71500_a("Operating System", (Callable)(new CallableOSInfo(this)));
++        this.field_85061_c.func_71500_a("Java Version", (Callable)(new CallableJavaInfo(this)));
++        this.field_85061_c.func_71500_a("Java VM Version", (Callable)(new CallableJavaInfo2(this)));
++        this.field_85061_c.func_71500_a("Memory", (Callable)(new CallableMemoryInfo(this)));
++        this.field_85061_c.func_71500_a("JVM Flags", (Callable)(new CallableJVMFlags(this)));
++        this.field_85061_c.func_71500_a("AABB Pool Size", (Callable)(new CallableCrashMemoryReport(this)));
++        this.field_85061_c.func_71500_a("Suspicious classes", (Callable)(new CallableSuspiciousClasses(this)));
++        this.field_85061_c.func_71500_a("IntCache", (Callable)(new CallableIntCache(this)));
++        this.field_85061_c.func_71500_a("CraftBukkit Information", (Callable)(new org.bukkit.craftbukkit.CraftCrashReport()));  // CraftBukkit
+     }
+ 
+     public String func_71501_a()

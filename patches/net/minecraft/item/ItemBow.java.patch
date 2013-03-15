@@ -1,0 +1,44 @@
+--- ../net/minecraft/item/ItemBow.java
++++ ../net/minecraft/item/ItemBow.java
+@@ -6,7 +6,6 @@
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.entity.projectile.EntityArrow;
+ import net.minecraft.world.World;
+-
+ public class ItemBow extends Item
+ {
+     public static final String[] field_94601_a = new String[] {"bow_pull_0", "bow_pull_1", "bow_pull_2"};
+@@ -65,6 +64,21 @@
+                 entityarrow.func_70015_d(100);
+             }
+ 
++            // CraftBukkit start
++            org.bukkit.event.entity.EntityShootBowEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callEntityShootBowEvent(p_77615_3_, p_77615_1_, entityarrow, f);
++
++            if (event.isCancelled())
++            {
++                event.getProjectile().remove();
++                return;
++            }
++
++            if (event.getProjectile() == entityarrow.getBukkitEntity())
++            {
++                p_77615_2_.func_72838_d(entityarrow);
++            }
++
++            // CraftBukkit end
+             p_77615_1_.func_77972_a(1, p_77615_3_);
+             p_77615_2_.func_72956_a(p_77615_3_, "random.bow", 1.0F, 1.0F / (field_77697_d.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
+ 
+@@ -77,10 +91,7 @@
+                 p_77615_3_.field_71071_by.func_70435_d(Item.field_77704_l.field_77779_bT);
+             }
+ 
+-            if (!p_77615_2_.field_72995_K)
+-            {
+-                p_77615_2_.func_72838_d(entityarrow);
+-            }
++            // CraftBukkit - moved addEntity up
+         }
+     }
+ 

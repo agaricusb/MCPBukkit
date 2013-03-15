@@ -1,0 +1,108 @@
+--- ../net/minecraft/entity/projectile/EntityArrow.java
++++ ../net/minecraft/entity/projectile/EntityArrow.java
+@@ -6,6 +6,7 @@
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.entity.IProjectile;
++import net.minecraft.entity.item.EntityItem;
+ import net.minecraft.entity.monster.EntityEnderman;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.entity.player.EntityPlayerMP;
+@@ -19,6 +20,13 @@
+ import net.minecraft.util.MovingObjectPosition;
+ import net.minecraft.util.Vec3;
+ import net.minecraft.world.World;
++
++// CraftBukkit start
++import org.bukkit.entity.Projectile;
++import org.bukkit.event.entity.EntityCombustByEntityEvent;
++import org.bukkit.event.entity.ProjectileHitEvent;
++import org.bukkit.event.player.PlayerPickupItemEvent;
++// CraftBukkit end
+ 
+ public class EntityArrow extends Entity implements IProjectile
+ {
+@@ -217,7 +225,7 @@
+ 
+                     if (movingobjectposition1 != null)
+                     {
+-                        double d1 = vec3.func_72438_d(movingobjectposition1.field_72307_f);
++                        double d1 = vec3.func_72436_e(movingobjectposition1.field_72307_f); // CraftBukkit - distance efficiency
+ 
+                         if (d1 < d0 || d0 == 0.0D)
+                         {
+@@ -248,6 +256,12 @@
+ 
+             if (movingobjectposition != null)
+             {
++                // CraftBukkit start
++                Projectile projectile = (Projectile) this.getBukkitEntity();
++                ProjectileHitEvent phe = new ProjectileHitEvent(projectile);
++                this.field_70170_p.getServer().getPluginManager().callEvent(phe);
++                // CraftBukkit end
++
+                 if (movingobjectposition.field_72308_g != null)
+                 {
+                     f2 = MathHelper.func_76133_a(this.field_70159_w * this.field_70159_w + this.field_70181_x * this.field_70181_x + this.field_70179_y * this.field_70179_y);
+@@ -269,13 +283,23 @@
+                         damagesource = DamageSource.func_76353_a(this, this.field_70250_c);
+                     }
+ 
+-                    if (this.func_70027_ad() && !(movingobjectposition.field_72308_g instanceof EntityEnderman))
+-                    {
+-                        movingobjectposition.field_72308_g.func_70015_d(5);
+-                    }
+-
++                    // CraftBukkit start - moved damage call
+                     if (movingobjectposition.field_72308_g.func_70097_a(damagesource, i1))
+                     {
++                        if (this.func_70027_ad() && !(movingobjectposition.field_72308_g instanceof EntityEnderman) && (!(movingobjectposition.field_72308_g instanceof EntityPlayerMP) || !(this.field_70250_c instanceof EntityPlayerMP) || this.field_70170_p.pvpMode))   // CraftBukkit - abide by pvp setting if destination is a player
++                        {
++                            EntityCombustByEntityEvent combustEvent = new EntityCombustByEntityEvent(this.getBukkitEntity(), entity.getBukkitEntity(), 5);
++                            org.bukkit.Bukkit.getPluginManager().callEvent(combustEvent);
++
++                            if (!combustEvent.isCancelled())
++                            {
++                                movingobjectposition.field_72308_g.func_70015_d(combustEvent.getDuration());
++                            }
++
++                            // CraftBukkit end
++                        }
++
++                        // if (movingobjectposition.entity.damageEntity(damagesource, i1)) { // CraftBukkit - moved up
+                         if (movingobjectposition.field_72308_g instanceof EntityLiving)
+                         {
+                             EntityLiving entityliving = (EntityLiving)movingobjectposition.field_72308_g;
+@@ -344,7 +368,7 @@
+ 
+                     if (this.field_70246_g != 0)
+                     {
+-                        Block.field_71973_m[this.field_70246_g].func_71869_a(this.field_70170_p, this.field_70247_d, this.field_70248_e, this.field_70245_f, this);
++                        Block.field_71973_m[this.field_70246_g].func_71869_a(this.field_70170_p, this.field_70247_d, this.field_70248_e, this.field_70245_f, (Entity) this);
+                     }
+                 }
+             }
+@@ -450,6 +474,23 @@
+     {
+         if (!this.field_70170_p.field_72995_K && this.field_70254_i && this.field_70249_b <= 0)
+         {
++            // CraftBukkit start
++            ItemStack itemstack = new ItemStack(Item.field_77704_l);
++
++            if (this.field_70251_a == 1 && p_70100_1_.field_71071_by.canHold(itemstack) > 0)
++            {
++                EntityItem item = new EntityItem(this.field_70170_p, this.field_70165_t, this.field_70163_u, this.field_70161_v, itemstack);
++                PlayerPickupItemEvent event = new PlayerPickupItemEvent((org.bukkit.entity.Player) p_70100_1_.getBukkitEntity(), new org.bukkit.craftbukkit.entity.CraftItem(this.field_70170_p.getServer(), this, item), 0);
++                event.setCancelled(!p_70100_1_.field_82172_bs);
++                this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++                if (event.isCancelled())
++                {
++                    return;
++                }
++            }
++
++            // CraftBukkit end
+             boolean flag = this.field_70251_a == 1 || this.field_70251_a == 2 && p_70100_1_.field_71075_bZ.field_75098_d;
+ 
+             if (this.field_70251_a == 1 && !p_70100_1_.field_71071_by.func_70441_a(new ItemStack(Item.field_77704_l, 1)))

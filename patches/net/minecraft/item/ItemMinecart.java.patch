@@ -1,0 +1,38 @@
+--- ../net/minecraft/item/ItemMinecart.java
++++ ../net/minecraft/item/ItemMinecart.java
+@@ -1,13 +1,12 @@
+ package net.minecraft.item;
+ 
+ import net.minecraft.block.BlockDispenser;
+-import net.minecraft.block.BlockRailBase;
++import net.minecraft.block.BlockRail;
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.dispenser.IBehaviorDispenseItem;
+ import net.minecraft.entity.item.EntityMinecart;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.world.World;
+-
+ public class ItemMinecart extends Item
+ {
+     private static final IBehaviorDispenseItem field_96602_b = new BehaviorDispenseMinecart();
+@@ -26,10 +25,19 @@
+     {
+         int i1 = p_77648_3_.func_72798_a(p_77648_4_, p_77648_5_, p_77648_6_);
+ 
+-        if (BlockRailBase.func_72184_d(i1))
++        if (BlockRail.func_72184_d(i1))
+         {
+             if (!p_77648_3_.field_72995_K)
+             {
++                // CraftBukkit start - Minecarts
++                org.bukkit.event.player.PlayerInteractEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerInteractEvent(p_77648_2_, org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK, p_77648_4_, p_77648_5_, p_77648_6_, p_77648_7_, p_77648_1_);
++
++                if (event.isCancelled())
++                {
++                    return false;
++                }
++
++                // CraftBukkit end
+                 EntityMinecart entityminecart = EntityMinecart.func_94090_a(p_77648_3_, (double)((float)p_77648_4_ + 0.5F), (double)((float)p_77648_5_ + 0.5F), (double)((float)p_77648_6_ + 0.5F), this.field_77841_a);
+ 
+                 if (p_77648_1_.func_82837_s())

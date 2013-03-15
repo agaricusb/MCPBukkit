@@ -1,0 +1,35 @@
+--- ../net/minecraft/item/ItemHoe.java
++++ ../net/minecraft/item/ItemHoe.java
+@@ -4,7 +4,6 @@
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.world.World;
+-
+ public class ItemHoe extends Item
+ {
+     protected EnumToolMaterial field_77843_a;
+@@ -20,6 +19,8 @@
+ 
+     public boolean func_77648_a(ItemStack p_77648_1_, EntityPlayer p_77648_2_, World p_77648_3_, int p_77648_4_, int p_77648_5_, int p_77648_6_, int p_77648_7_, float p_77648_8_, float p_77648_9_, float p_77648_10_)
+     {
++        final int clickedX = p_77648_4_, clickedY = p_77648_5_, clickedZ = p_77648_6_; // CraftBukkit
++
+         if (!p_77648_2_.func_82247_a(p_77648_4_, p_77648_5_, p_77648_6_, p_77648_7_, p_77648_1_))
+         {
+             return false;
+@@ -44,7 +45,14 @@
+                 }
+                 else
+                 {
+-                    p_77648_3_.func_94575_c(p_77648_4_, p_77648_5_, p_77648_6_, block.field_71990_ca);
++                    // CraftBukkit start - Hoes - blockface -1 for 'SELF'
++                    // world.setTypeIdUpdate(i, j, k, block.id);
++                    if (!ItemBlock.processBlockPlace(p_77648_3_, p_77648_2_, null, p_77648_4_, p_77648_5_, p_77648_6_, block.field_71990_ca, 0, clickedX, clickedY, clickedZ))
++                    {
++                        return false;
++                    }
++
++                    // CraftBukkit end
+                     p_77648_1_.func_77972_a(1, p_77648_2_);
+                     return true;
+                 }

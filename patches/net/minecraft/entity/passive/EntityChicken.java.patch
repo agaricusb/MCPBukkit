@@ -1,0 +1,41 @@
+--- ../net/minecraft/entity/passive/EntityChicken.java
++++ ../net/minecraft/entity/passive/EntityChicken.java
+@@ -14,7 +14,6 @@
+ import net.minecraft.item.ItemSeeds;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.world.World;
+-
+ public class EntityChicken extends EntityAnimal
+ {
+     public boolean field_70885_d = false;
+@@ -120,21 +119,26 @@
+ 
+     protected void func_70628_a(boolean p_70628_1_, int p_70628_2_)
+     {
++        // CraftBukkit start - whole method
++        java.util.List<org.bukkit.inventory.ItemStack> loot = new java.util.ArrayList<org.bukkit.inventory.ItemStack>();
+         int j = this.field_70146_Z.nextInt(3) + this.field_70146_Z.nextInt(1 + p_70628_2_);
+ 
+-        for (int k = 0; k < j; ++k)
++        if (j > 0)
+         {
+-            this.func_70025_b(Item.field_77676_L.field_77779_bT, 1);
++            loot.add(new org.bukkit.inventory.ItemStack(Item.field_77676_L.field_77779_bT, j));
+         }
+ 
+         if (this.func_70027_ad())
+         {
+-            this.func_70025_b(Item.field_77736_bl.field_77779_bT, 1);
++            loot.add(new org.bukkit.inventory.ItemStack(Item.field_77736_bl.field_77779_bT, 1));
+         }
+         else
+         {
+-            this.func_70025_b(Item.field_77735_bk.field_77779_bT, 1);
++            loot.add(new org.bukkit.inventory.ItemStack(Item.field_77735_bk.field_77779_bT, 1));
+         }
++
++        org.bukkit.craftbukkit.event.CraftEventFactory.callEntityDeathEvent(this, loot);
++        // CraftBukkit end
+     }
+ 
+     public EntityChicken func_70879_a(EntityAgeable p_70879_1_)

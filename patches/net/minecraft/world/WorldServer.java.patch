@@ -1,0 +1,655 @@
+--- ../net/minecraft/world/WorldServer.java
++++ ../net/minecraft/world/WorldServer.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.world;
+ 
+ import java.util.ArrayList;
++import java.util.Collection;
+ import java.util.HashSet;
+ import java.util.Iterator;
+ import java.util.List;
+@@ -8,6 +9,7 @@
+ import java.util.Set;
+ import java.util.TreeSet;
+ import net.minecraft.block.Block;
++import net.minecraft.block.BlockContainer;
+ import net.minecraft.block.BlockEventData;
+ import net.minecraft.crash.CrashReport;
+ import net.minecraft.crash.CrashReportCategory;
+@@ -16,8 +18,6 @@
+ import net.minecraft.entity.EnumCreatureType;
+ import net.minecraft.entity.INpc;
+ import net.minecraft.entity.effect.EntityLightningBolt;
+-import net.minecraft.entity.passive.EntityAnimal;
+-import net.minecraft.entity.passive.EntityWaterMob;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.item.Item;
+@@ -33,6 +33,14 @@
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.management.PlayerManager;
+ import net.minecraft.tileentity.TileEntity;
++import net.minecraft.tileentity.TileEntityChest;
++import net.minecraft.tileentity.TileEntityDispenser;
++import net.minecraft.tileentity.TileEntityEnderChest;
++import net.minecraft.tileentity.TileEntityFurnace;
++import net.minecraft.tileentity.TileEntityMobSpawner;
++import net.minecraft.tileentity.TileEntityNote;
++import net.minecraft.tileentity.TileEntityRecordPlayer;
++import net.minecraft.tileentity.TileEntitySign;
+ import net.minecraft.util.ChunkCoordinates;
+ import net.minecraft.util.IProgressUpdate;
+ import net.minecraft.util.IntHashMap;
+@@ -51,10 +59,21 @@
+ import net.minecraft.world.gen.feature.WorldGeneratorBonusChest;
+ import net.minecraft.world.storage.ISaveHandler;
+ 
+-public class WorldServer extends World
++// CraftBukkit start
++import org.bukkit.block.BlockState;
++import org.bukkit.craftbukkit.util.LongHash;
++
++import org.bukkit.event.block.BlockFormEvent;
++import org.bukkit.event.weather.LightningStrikeEvent;
++import org.bukkit.event.weather.ThunderChangeEvent;
++import org.bukkit.event.weather.WeatherChangeEvent;
++
++public class WorldServer extends World implements org.bukkit.BlockChangeDelegate
+ {
++    // CraftBukkit end
++
+     private final MinecraftServer field_73061_a;
+-    private final EntityTracker field_73062_L;
++    public EntityTracker field_73062_L; // CraftBukkit - private final -> public
+     private final PlayerManager field_73063_M;
+     private Set field_73064_N;
+     private TreeSet field_73065_O;
+@@ -69,12 +88,18 @@
+     private ArrayList field_94579_S = new ArrayList();
+     private IntHashMap field_73066_T;
+ 
+-    public WorldServer(MinecraftServer p_i11031_1_, ISaveHandler p_i11031_2_, String p_i11031_3_, int p_i11031_4_, WorldSettings p_i11031_5_, Profiler p_i11031_6_, ILogAgent p_i11031_7_)
+-    {
+-        super(p_i11031_2_, p_i11031_3_, p_i11031_5_, WorldProvider.func_76570_a(p_i11031_4_), p_i11031_6_, p_i11031_7_);
+-        this.field_73061_a = p_i11031_1_;
++    // CraftBukkit start
++    public final int dimension;
++
++    public WorldServer(MinecraftServer minecraftserver, ISaveHandler isavehandler, String s, int i, WorldSettings worldsettings, Profiler profiler, ILogAgent ilogagent, org.bukkit.World.Environment env, org.bukkit.generator.ChunkGenerator gen)
++    {
++        super(isavehandler, s, worldsettings, WorldProvider.func_76570_a(env.getId()), profiler, ilogagent, gen, env);
++        this.dimension = i;
++        this.pvpMode = minecraftserver.func_71219_W();
++        // CraftBukkit end
++        this.field_73061_a = minecraftserver;
+         this.field_73062_L = new EntityTracker(this);
+-        this.field_73063_M = new PlayerManager(this, p_i11031_1_.func_71203_ab().func_72395_o());
++        this.field_73063_M = new PlayerManager(this, minecraftserver.func_71203_ab().func_72395_o());
+ 
+         if (this.field_73066_T == null)
+         {
+@@ -91,8 +116,8 @@
+             this.field_73065_O = new TreeSet();
+         }
+ 
+-        this.field_85177_Q = new Teleporter(this);
+-        this.field_96442_D = new ServerScoreboard(p_i11031_1_);
++        this.field_85177_Q = new org.bukkit.craftbukkit.CraftTravelAgent(this); // CraftBukkit
++        this.field_96442_D = new ServerScoreboard(minecraftserver);
+         ScoreboardSaveData scoreboardsavedata = (ScoreboardSaveData)this.field_72988_C.func_75742_a(ScoreboardSaveData.class, "scoreboard");
+ 
+         if (scoreboardsavedata == null)
+@@ -104,6 +129,104 @@
+         scoreboardsavedata.func_96499_a(this.field_96442_D);
+         ((ServerScoreboard)this.field_96442_D).func_96547_a(scoreboardsavedata);
+     }
++
++    // CraftBukkit start
++    @Override
++    public TileEntity func_72796_p(int i, int j, int k)
++    {
++        TileEntity result = super.func_72796_p(i, j, k);
++        int type = func_72798_a(i, j, k);
++
++        if (type == Block.field_72077_au.field_71990_ca)
++        {
++            if (!(result instanceof TileEntityChest))
++            {
++                result = fixTileEntity(i, j, k, type, result);
++            }
++        }
++        else if (type == Block.field_72051_aB.field_71990_ca)
++        {
++            if (!(result instanceof TileEntityFurnace))
++            {
++                result = fixTileEntity(i, j, k, type, result);
++            }
++        }
++        else if (type == Block.field_71958_P.field_71990_ca)
++        {
++            if (!(result instanceof TileEntityDispenser))
++            {
++                result = fixTileEntity(i, j, k, type, result);
++            }
++        }
++        else if (type == Block.field_72032_aY.field_71990_ca)
++        {
++            if (!(result instanceof TileEntityRecordPlayer))
++            {
++                result = fixTileEntity(i, j, k, type, result);
++            }
++        }
++        else if (type == Block.field_71960_R.field_71990_ca)
++        {
++            if (!(result instanceof TileEntityNote))
++            {
++                result = fixTileEntity(i, j, k, type, result);
++            }
++        }
++        else if (type == Block.field_72065_as.field_71990_ca)
++        {
++            if (!(result instanceof TileEntityMobSpawner))
++            {
++                result = fixTileEntity(i, j, k, type, result);
++            }
++        }
++        else if ((type == Block.field_72053_aD.field_71990_ca) || (type == Block.field_72042_aI.field_71990_ca))
++        {
++            if (!(result instanceof TileEntitySign))
++            {
++                result = fixTileEntity(i, j, k, type, result);
++            }
++        }
++        else if (type == Block.field_72066_bS.field_71990_ca)
++        {
++            if (!(result instanceof TileEntityEnderChest))
++            {
++                result = fixTileEntity(i, j, k, type, result);
++            }
++        }
++
++        return result;
++    }
++
++    private TileEntity fixTileEntity(int x, int y, int z, int type, TileEntity found)
++    {
++        this.getServer().getLogger().severe("Block at " + x + "," + y + "," + z + " is " + org.bukkit.Material.getMaterial(type).toString() + " but has " + found + ". "
++                + "Bukkit will attempt to fix this, but there may be additional damage that we cannot recover.");
++
++        if (Block.field_71973_m[type] instanceof BlockContainer)
++        {
++            TileEntity replacement = ((BlockContainer) Block.field_71973_m[type]).func_72274_a(this);
++            this.func_72837_a(x, y, z, replacement);
++            return replacement;
++        }
++        else
++        {
++            this.getServer().getLogger().severe("Don't know how to fix for this type... Can't do anything! :(");
++            return found;
++        }
++    }
++
++    private boolean canSpawn(int x, int z)
++    {
++        if (this.generator != null)
++        {
++            return this.generator.canSpawn(this.getWorld(), x, z);
++        }
++        else
++        {
++            return this.field_73011_w.func_76566_a(x, z);
++        }
++    }
++    // CraftBukkit end
+ 
+     public void func_72835_b()
+     {
+@@ -134,12 +257,15 @@
+         }
+ 
+         this.field_72984_F.func_76320_a("mobSpawner");
+-
+-        if (this.func_82736_K().func_82766_b("doMobSpawning"))
+-        {
+-            SpawnerAnimals.func_77192_a(this, this.field_72985_G, this.field_72992_H, this.field_72986_A.func_82573_f() % 400L == 0L);
+-        }
+-
++        // CraftBukkit start - Only call spawner if we have players online and the world allows for mobs or animals
++        long time = this.field_72986_A.func_82573_f();
++
++        if (this.func_82736_K().func_82766_b("doMobSpawning") && (this.field_72985_G || this.field_72992_H) && (this instanceof WorldServer && this.field_73010_i.size() > 0))
++        {
++            SpawnerAnimals.func_77192_a(this, this.field_72985_G && (this.ticksPerMonsterSpawns != 0 && time % this.ticksPerMonsterSpawns == 0L), this.field_72992_H && (this.ticksPerAnimalSpawns != 0 && time % this.ticksPerAnimalSpawns == 0L), this.field_72986_A.func_82573_f() % 400L == 0L);
++        }
++
++        // CraftBukkit end
+         this.field_72984_F.func_76318_c("chunkSource");
+         this.field_73020_y.func_73156_b();
+         int j = this.func_72967_a(1.0F);
+@@ -164,12 +290,13 @@
+         this.field_85177_Q.func_85189_a(this.func_82737_E());
+         this.field_72984_F.func_76319_b();
+         this.func_73055_Q();
++        this.getWorld().processChunkGC(); // CraftBukkit
+     }
+ 
+     public SpawnListEntry func_73057_a(EnumCreatureType p_73057_1_, int p_73057_2_, int p_73057_3_, int p_73057_4_)
+     {
+         List list = this.func_72863_F().func_73155_a(p_73057_1_, p_73057_2_, p_73057_3_, p_73057_4_);
+-        return list != null && !list.isEmpty() ? (SpawnListEntry)WeightedRandom.func_76271_a(this.field_73012_v, list) : null;
++        return list != null && !list.isEmpty() ? (SpawnListEntry) WeightedRandom.func_76271_a(this.field_73012_v, (Collection) list) : null;
+     }
+ 
+     public void func_72854_c()
+@@ -181,7 +308,7 @@
+         {
+             EntityPlayer entityplayer = (EntityPlayer)iterator.next();
+ 
+-            if (!entityplayer.func_70608_bn())
++            if (!entityplayer.func_70608_bn() && !entityplayer.fauxSleeping)   // CraftBukkit
+             {
+                 this.field_73068_P = false;
+                 break;
+@@ -209,10 +336,25 @@
+ 
+     private void func_73051_P()
+     {
+-        this.field_72986_A.func_76080_g(0);
+-        this.field_72986_A.func_76084_b(false);
+-        this.field_72986_A.func_76090_f(0);
+-        this.field_72986_A.func_76069_a(false);
++        // CraftBukkit start
++        WeatherChangeEvent weather = new WeatherChangeEvent(this.getWorld(), false);
++        this.getServer().getPluginManager().callEvent(weather);
++        ThunderChangeEvent thunder = new ThunderChangeEvent(this.getWorld(), false);
++        this.getServer().getPluginManager().callEvent(thunder);
++
++        if (!weather.isCancelled())
++        {
++            this.field_72986_A.func_76080_g(0);
++            this.field_72986_A.func_76084_b(false);
++        }
++
++        if (!thunder.isCancelled())
++        {
++            this.field_72986_A.func_76090_f(0);
++            this.field_72986_A.func_76069_a(false);
++        }
++
++        // CraftBukkit end
+     }
+ 
+     public boolean func_73056_e()
+@@ -220,19 +362,28 @@
+         if (this.field_73068_P && !this.field_72995_K)
+         {
+             Iterator iterator = this.field_73010_i.iterator();
++            // CraftBukkit - This allows us to assume that some people are in bed but not really, allowing time to pass in spite of AFKers
++            boolean foundActualSleepers = false;
+             EntityPlayer entityplayer;
+ 
+             do
+             {
+                 if (!iterator.hasNext())
+                 {
+-                    return true;
++                    return foundActualSleepers; // CraftBukkit
+                 }
+ 
+                 entityplayer = (EntityPlayer)iterator.next();
+-            }
+-            while (entityplayer.func_71026_bH());
+-
++
++                // CraftBukkit start
++                if (entityplayer.func_71026_bH())
++                {
++                    foundActualSleepers = true;
++                }
++            }
++            while (entityplayer.func_71026_bH() || entityplayer.fauxSleeping);
++
++            // CraftBukkit end
+             return false;
+         }
+         else
+@@ -246,15 +397,19 @@
+         super.func_72893_g();
+         int i = 0;
+         int j = 0;
+-        Iterator iterator = this.field_72993_I.iterator();
+-
+-        while (iterator.hasNext())
+-        {
+-            ChunkCoordIntPair chunkcoordintpair = (ChunkCoordIntPair)iterator.next();
+-            int k = chunkcoordintpair.field_77276_a * 16;
+-            int l = chunkcoordintpair.field_77275_b * 16;
++        // CraftBukkit start
++        // Iterator iterator = this.chunkTickList.iterator();
++
++        for (long chunkCoord : this.field_72993_I.popAll())
++        {
++            int chunkX = LongHash.msw(chunkCoord);
++            int chunkZ = LongHash.lsw(chunkCoord);
++            // ChunkCoordIntPair chunkcoordintpair = (ChunkCoordIntPair) iterator.next();
++            int k = chunkX * 16;
++            int l = chunkZ * 16;
+             this.field_72984_F.func_76320_a("getChunk");
+-            Chunk chunk = this.func_72964_e(chunkcoordintpair.field_77276_a, chunkcoordintpair.field_77275_b);
++            Chunk chunk = this.func_72964_e(chunkX, chunkZ);
++            // CraftBukkit end
+             this.func_72941_a(k, l, chunk);
+             this.field_72984_F.func_76318_c("tickChunk");
+             chunk.func_76586_k();
+@@ -291,12 +446,34 @@
+ 
+                 if (this.func_72850_v(j1 + k, l1 - 1, k1 + l))
+                 {
+-                    this.func_94575_c(j1 + k, l1 - 1, k1 + l, Block.field_72036_aT.field_71990_ca);
++                    // CraftBukkit start
++                    BlockState blockState = this.getWorld().getBlockAt(j1 + k, l1 - 1, k1 + l).getState();
++                    blockState.setTypeId(Block.field_72036_aT.field_71990_ca);
++                    BlockFormEvent iceBlockForm = new BlockFormEvent(blockState.getBlock(), blockState);
++                    this.getServer().getPluginManager().callEvent(iceBlockForm);
++
++                    if (!iceBlockForm.isCancelled())
++                    {
++                        blockState.update(true);
++                    }
++
++                    // CraftBukkit end
+                 }
+ 
+                 if (this.func_72896_J() && this.func_72858_w(j1 + k, l1, k1 + l))
+                 {
+-                    this.func_94575_c(j1 + k, l1, k1 + l, Block.field_72037_aS.field_71990_ca);
++                    // CraftBukkit start
++                    BlockState blockState = this.getWorld().getBlockAt(j1 + k, l1, k1 + l).getState();
++                    blockState.setTypeId(Block.field_72037_aS.field_71990_ca);
++                    BlockFormEvent snow = new BlockFormEvent(blockState.getBlock(), blockState);
++                    this.getServer().getPluginManager().callEvent(snow);
++
++                    if (!snow.isCancelled())
++                    {
++                        blockState.update(true);
++                    }
++
++                    // CraftBukkit end
+                 }
+ 
+                 if (this.func_72896_J())
+@@ -420,7 +597,7 @@
+ 
+     public void func_72939_s()
+     {
+-        if (this.field_73010_i.isEmpty())
++        if (false && this.field_73010_i.isEmpty())   // CraftBukkit - this prevents entity cleanup, other issues on servers with no players
+         {
+             if (this.field_80004_Q++ >= 1200)
+             {
+@@ -452,7 +629,17 @@
+         {
+             if (i > 1000)
+             {
+-                i = 1000;
++                // CraftBukkit start - if the server has too much to process over time, try to alleviate that
++                if (i > 20 * 1000)
++                {
++                    i = i / 20;
++                }
++                else
++                {
++                    i = 1000;
++                }
++
++                // CraftBukkit end
+             }
+ 
+             this.field_72984_F.func_76320_a("cleaning");
+@@ -578,16 +765,16 @@
+ 
+     public void func_72866_a(Entity p_72866_1_, boolean p_72866_2_)
+     {
+-        if (!this.field_73061_a.func_71268_U() && (p_72866_1_ instanceof EntityAnimal || p_72866_1_ instanceof EntityWaterMob))
++        /* CraftBukkit start - We prevent spawning in general, so this butchering is not needed
++        if (!this.server.getSpawnAnimals() && (entity instanceof EntityAnimal || entity instanceof EntityWaterAnimal)) {
++            entity.die();
++        }
++        // CraftBukkit end */
++        if (!this.field_73061_a.func_71220_V() && p_72866_1_ instanceof INpc)
+         {
+             p_72866_1_.func_70106_y();
+         }
+ 
+-        if (!this.field_73061_a.func_71220_V() && p_72866_1_ instanceof INpc)
+-        {
+-            p_72866_1_.func_70106_y();
+-        }
+-
+         if (!(p_72866_1_.field_70153_n instanceof EntityPlayer))
+         {
+             super.func_72866_a(p_72866_1_, p_72866_2_);
+@@ -602,17 +789,41 @@
+     protected IChunkProvider func_72970_h()
+     {
+         IChunkLoader ichunkloader = this.field_73019_z.func_75763_a(this.field_73011_w);
+-        this.field_73059_b = new ChunkProviderServer(this, ichunkloader, this.field_73011_w.func_76555_c());
++        // CraftBukkit start
++        org.bukkit.craftbukkit.generator.InternalChunkGenerator gen;
++
++        if (this.generator != null)
++        {
++            gen = new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, this.func_72905_C(), this.generator);
++        }
++        else if (this.field_73011_w instanceof WorldProviderHell)
++        {
++            gen = new org.bukkit.craftbukkit.generator.NetherChunkGenerator(this, this.func_72905_C());
++        }
++        else if (this.field_73011_w instanceof WorldProviderEnd)
++        {
++            gen = new org.bukkit.craftbukkit.generator.SkyLandsChunkGenerator(this, this.func_72905_C());
++        }
++        else
++        {
++            gen = new org.bukkit.craftbukkit.generator.NormalChunkGenerator(this, this.func_72905_C());
++        }
++
++        this.field_73059_b = new ChunkProviderServer(this, ichunkloader, gen);
++        // CraftBukkit end
+         return this.field_73059_b;
+     }
+ 
+     public List func_73049_a(int p_73049_1_, int p_73049_2_, int p_73049_3_, int p_73049_4_, int p_73049_5_, int p_73049_6_)
+     {
+         ArrayList arraylist = new ArrayList();
+-
+-        for (int k1 = 0; k1 < this.field_73009_h.size(); ++k1)
+-        {
+-            TileEntity tileentity = (TileEntity)this.field_73009_h.get(k1);
++        // CraftBukkit start - use iterator
++        Iterator iterator = this.field_73009_h.iterator();
++
++        while (iterator.hasNext())
++        {
++            TileEntity tileentity = (TileEntity) iterator.next();
++            // CraftBukkit end
+ 
+             if (tileentity.field_70329_l >= p_73049_1_ && tileentity.field_70330_m >= p_73049_2_ && tileentity.field_70327_n >= p_73049_3_ && tileentity.field_70329_l < p_73049_4_ && tileentity.field_70330_m < p_73049_5_ && tileentity.field_70327_n < p_73049_6_)
+             {
+@@ -666,6 +877,29 @@
+             int j = this.field_73011_w.func_76557_i();
+             int k = 0;
+ 
++            // CraftBukkit start
++            if (this.generator != null)
++            {
++                Random rand = new Random(this.func_72905_C());
++                org.bukkit.Location spawn = this.generator.getFixedSpawnLocation(((WorldServer) this).getWorld(), rand);
++
++                if (spawn != null)
++                {
++                    if (spawn.getWorld() != ((WorldServer) this).getWorld())
++                    {
++                        throw new IllegalStateException("Cannot set spawn point for " + this.field_72986_A.func_76065_j() + " to be in another world (" + spawn.getWorld().getName() + ")");
++                    }
++                    else
++                    {
++                        this.field_72986_A.func_76081_a(spawn.getBlockX(), spawn.getBlockY(), spawn.getBlockZ());
++                        this.field_72987_B = false;
++                        return;
++                    }
++                }
++            }
++
++            // CraftBukkit end
++
+             if (chunkposition != null)
+             {
+                 i = chunkposition.field_76930_a;
+@@ -678,7 +912,7 @@
+ 
+             int l = 0;
+ 
+-            while (!this.field_73011_w.func_76566_a(i, k))
++            while (!this.canSpawn(i, k))   // CraftBukkit - use our own canSpawn
+             {
+                 i += random.nextInt(64) - random.nextInt(64);
+                 k += random.nextInt(64) - random.nextInt(64);
+@@ -722,7 +956,7 @@
+         return this.field_73011_w.func_76554_h();
+     }
+ 
+-    public void func_73044_a(boolean p_73044_1_, IProgressUpdate p_73044_2_) throws MinecraftException
++    public void func_73044_a(boolean p_73044_1_, IProgressUpdate p_73044_2_) throws MinecraftException   // CraftBukkit - added throws
+     {
+         if (this.field_73020_y.func_73157_c())
+         {
+@@ -742,7 +976,7 @@
+         }
+     }
+ 
+-    protected void func_73042_a() throws MinecraftException
++    protected void func_73042_a() throws MinecraftException   // CraftBukkit - added throws
+     {
+         this.func_72906_B();
+         this.field_73019_z.func_75755_a(this.field_72986_A, this.field_73061_a.func_71203_ab().func_72378_q());
+@@ -786,9 +1020,19 @@
+ 
+     public boolean func_72942_c(Entity p_72942_1_)
+     {
++        // CraftBukkit start
++        LightningStrikeEvent lightning = new LightningStrikeEvent(this.getWorld(), (org.bukkit.entity.LightningStrike) p_72942_1_.getBukkitEntity());
++        this.getServer().getPluginManager().callEvent(lightning);
++
++        if (lightning.isCancelled())
++        {
++            return false;
++        }
++
+         if (super.func_72942_c(p_72942_1_))
+         {
+-            this.field_73061_a.func_71203_ab().func_72393_a(p_72942_1_.field_70165_t, p_72942_1_.field_70163_u, p_72942_1_.field_70161_v, 512.0D, this.field_73011_w.field_76574_g, new Packet71Weather(p_72942_1_));
++            this.field_73061_a.func_71203_ab().func_72393_a(p_72942_1_.field_70165_t, p_72942_1_.field_70163_u, p_72942_1_.field_70161_v, 512.0D, this.dimension, new Packet71Weather(p_72942_1_));
++            // CraftBukkit end
+             return true;
+         }
+         else
+@@ -805,11 +1049,21 @@
+ 
+     public Explosion func_72885_a(Entity p_72885_1_, double p_72885_2_, double p_72885_4_, double p_72885_6_, float p_72885_8_, boolean p_72885_9_, boolean p_72885_10_)
+     {
+-        Explosion explosion = new Explosion(this, p_72885_1_, p_72885_2_, p_72885_4_, p_72885_6_, p_72885_8_);
+-        explosion.field_77286_a = p_72885_9_;
+-        explosion.field_82755_b = p_72885_10_;
+-        explosion.func_77278_a();
+-        explosion.func_77279_a(false);
++        // CraftBukkit start
++        Explosion explosion = super.func_72885_a(p_72885_1_, p_72885_2_, p_72885_4_, p_72885_6_, p_72885_8_, p_72885_9_, p_72885_10_);
++
++        if (explosion.wasCanceled)
++        {
++            return explosion;
++        }
++
++        /* Remove
++        explosion.a = flag;
++        explosion.b = flag1;
++        explosion.a();
++        explosion.a(false);
++        */
++        // CraftBukkit end - TODO: Check if explosions are still properly implemented
+ 
+         if (!p_72885_10_)
+         {
+@@ -864,7 +1118,8 @@
+ 
+                 if (this.func_73043_a(blockeventdata))
+                 {
+-                    this.field_73061_a.func_71203_ab().func_72393_a((double)blockeventdata.func_76919_a(), (double)blockeventdata.func_76921_b(), (double)blockeventdata.func_76920_c(), 64.0D, this.field_73011_w.field_76574_g, new Packet54PlayNoteBlock(blockeventdata.func_76919_a(), blockeventdata.func_76921_b(), blockeventdata.func_76920_c(), blockeventdata.func_76916_f(), blockeventdata.func_76918_d(), blockeventdata.func_76917_e()));
++                    // CraftBukkit - this.worldProvider.dimension -> this.dimension
++                    this.field_73061_a.func_71203_ab().func_72393_a((double) blockeventdata.func_76919_a(), (double) blockeventdata.func_76921_b(), (double) blockeventdata.func_76920_c(), 64.0D, this.dimension, new Packet54PlayNoteBlock(blockeventdata.func_76919_a(), blockeventdata.func_76921_b(), blockeventdata.func_76920_c(), blockeventdata.func_76916_f(), blockeventdata.func_76918_d(), blockeventdata.func_76917_e()));
+                 }
+             }
+ 
+@@ -890,14 +1145,16 @@
+ 
+         if (flag != this.func_72896_J())
+         {
+-            if (flag)
+-            {
+-                this.field_73061_a.func_71203_ab().func_72384_a(new Packet70GameEvent(2, 0));
+-            }
+-            else
+-            {
+-                this.field_73061_a.func_71203_ab().func_72384_a(new Packet70GameEvent(1, 0));
+-            }
++            // CraftBukkit start - only sending weather packets to those affected
++            for (int i = 0; i < this.field_73010_i.size(); ++i)
++            {
++                if (((EntityPlayerMP) this.field_73010_i.get(i)).field_70170_p == this)
++                {
++                    ((EntityPlayerMP) this.field_73010_i.get(i)).field_71135_a.func_72567_b(new Packet70GameEvent(flag ? 2 : 1, 0));
++                }
++            }
++
++            // CraftBukkit end
+         }
+     }
+ 
+@@ -920,4 +1177,35 @@
+     {
+         return this.field_85177_Q;
+     }
+-}
++
++    // CraftBukkit start - Compatibility methods for BlockChangeDelegate
++    public boolean setRawTypeId(int x, int y, int z, int typeId)
++    {
++        return this.func_72832_d(x, y, z, typeId, 0, 4);
++    }
++
++    public boolean setRawTypeIdAndData(int x, int y, int z, int typeId, int data)
++    {
++        return this.func_72832_d(x, y, z, typeId, data, 4);
++    }
++
++    public boolean setTypeId(int x, int y, int z, int typeId)
++    {
++        return this.func_72832_d(x, y, z, typeId, 0, 3);
++    }
++
++    public boolean setTypeIdAndData(int x, int y, int z, int typeId, int data)
++    {
++        return this.func_72832_d(x, y, z, typeId, data, 3);
++    }
++    // CraftBukkit end
++    public int getHeight(){
++        return func_72800_K();
++    }
++    public boolean isEmpty(int a, int b, int c){
++        return func_72799_c(a, b, c);
++    }
++    public int getTypeId(int a, int b, int c){
++        return func_72798_a(a, b, c);
++    }
++}

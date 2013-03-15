@@ -1,0 +1,37 @@
+--- ../net/minecraft/block/BlockTrapDoor.java
++++ ../net/minecraft/block/BlockTrapDoor.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.block;
+ 
++import org.bukkit.event.block.BlockRedstoneEvent; // CraftBukkit
+ import net.minecraft.block.material.Material;
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.player.EntityPlayer;
+@@ -157,11 +158,22 @@
+                 this.func_71897_c(p_71863_1_, p_71863_2_, p_71863_3_, p_71863_4_, i1, 0);
+             }
+ 
+-            boolean flag = p_71863_1_.func_72864_z(p_71863_2_, p_71863_3_, p_71863_4_);
+-
+-            if (flag || p_71863_5_ > 0 && Block.field_71973_m[p_71863_5_].func_71853_i())
+-            {
+-                this.func_72138_a(p_71863_1_, p_71863_2_, p_71863_3_, p_71863_4_, flag);
++            // CraftBukkit start
++            if (p_71863_5_ == 0 || p_71863_5_ > 0 && Block.field_71973_m[p_71863_5_] != null && Block.field_71973_m[p_71863_5_].func_71853_i())
++            {
++                org.bukkit.World bworld = p_71863_1_.getWorld();
++                org.bukkit.block.Block block = bworld.getBlockAt(p_71863_2_, p_71863_3_, p_71863_4_);
++                int power = block.getBlockPower();
++                int oldPower = (p_71863_1_.func_72805_g(p_71863_2_, p_71863_3_, p_71863_4_) & 4) > 0 ? 15 : 0;
++
++                if (oldPower == 0 ^ power == 0 || (Block.field_71973_m[p_71863_5_] != null && Block.field_71973_m[p_71863_5_].func_71853_i()))
++                {
++                    BlockRedstoneEvent eventRedstone = new BlockRedstoneEvent(block, oldPower, power);
++                    p_71863_1_.getServer().getPluginManager().callEvent(eventRedstone);
++                    this.func_72138_a(p_71863_1_, p_71863_2_, p_71863_3_, p_71863_4_, eventRedstone.getNewCurrent() > 0);
++                }
++
++                // CraftBukkit end
+             }
+         }
+     }

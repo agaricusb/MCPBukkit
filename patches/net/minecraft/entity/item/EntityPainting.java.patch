@@ -1,0 +1,10 @@
+--- ../net/minecraft/entity/item/EntityPainting.java
++++ ../net/minecraft/entity/item/EntityPainting.java
+@@ -15,6 +15,7 @@
+     public EntityPainting(World p_i3447_1_)
+     {
+         super(p_i3447_1_);
++        this.field_70522_e = EnumArt.values()[this.field_70146_Z.nextInt(EnumArt.values().length)]; // CraftBukkit - generate a non-null painting
+     }
+ 
+     public EntityPainting(World p_i3448_1_, int p_i3448_2_, int p_i3448_3_, int p_i3448_4_, int p_i3448_5_)

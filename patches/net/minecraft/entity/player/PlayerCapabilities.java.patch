@@ -1,0 +1,23 @@
+--- ../net/minecraft/entity/player/PlayerCapabilities.java
++++ ../net/minecraft/entity/player/PlayerCapabilities.java
+@@ -1,7 +1,6 @@
+ package net.minecraft.entity.player;
+ 
+ import net.minecraft.nbt.NBTTagCompound;
+-
+ public class PlayerCapabilities
+ {
+     public boolean field_75102_a = false;
+@@ -9,8 +8,10 @@
+     public boolean field_75101_c = false;
+     public boolean field_75098_d = false;
+     public boolean field_75099_e = true;
+-    private float field_75096_f = 0.05F;
+-    private float field_75097_g = 0.1F;
++    public float field_75096_f = 0.05F; // CraftBukkit private -> public
++    public float field_75097_g = 0.1F; // CraftBukkit private -> public
++
++    public PlayerCapabilities() {}
+ 
+     public void func_75091_a(NBTTagCompound p_75091_1_)
+     {

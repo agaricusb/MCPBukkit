@@ -1,0 +1,117 @@
+--- ../net/minecraft/entity/monster/EntityEnderman.java
++++ ../net/minecraft/entity/monster/EntityEnderman.java
+@@ -1,5 +1,9 @@
+ package net.minecraft.entity.monster;
+ 
++// CraftBukkit start
++import org.bukkit.Location;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.event.entity.EntityTeleportEvent;
+ import net.minecraft.block.Block;
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.player.EntityPlayer;
+@@ -11,6 +15,7 @@
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.util.Vec3;
+ import net.minecraft.world.World;
++// CraftBukkit end
+ 
+ public class EntityEnderman extends EntityMob
+ {
+@@ -129,9 +134,15 @@
+ 
+                     if (field_70827_d[l])
+                     {
+-                        this.func_70818_a(this.field_70170_p.func_72798_a(i, j, k));
+-                        this.func_70817_b(this.field_70170_p.func_72805_g(i, j, k));
+-                        this.field_70170_p.func_94575_c(i, j, k, 0);
++                        // CraftBukkit start - pickup event
++                        if (!CraftEventFactory.callEntityChangeBlockEvent(this, this.field_70170_p.getWorld().getBlockAt(i, j, k), org.bukkit.Material.AIR).isCancelled())
++                        {
++                            this.func_70818_a(this.field_70170_p.func_72798_a(i, j, k));
++                            this.func_70817_b(this.field_70170_p.func_72805_g(i, j, k));
++                            this.field_70170_p.func_94575_c(i, j, k, 0);
++                        }
++
++                        // CraftBukkit end
+                     }
+                 }
+             }
+@@ -145,8 +156,14 @@
+ 
+                 if (l == 0 && i1 > 0 && Block.field_71973_m[i1].func_71886_c())
+                 {
+-                    this.field_70170_p.func_72832_d(i, j, k, this.func_70822_p(), this.func_70824_q(), 3);
+-                    this.func_70818_a(0);
++                    // CraftBukkit start - place event
++                    if (!CraftEventFactory.callEntityChangeBlockEvent(this, i, j, k, this.func_70822_p(), this.func_70824_q()).isCancelled())
++                    {
++                        this.field_70170_p.func_72832_d(i, j, k, this.func_70822_p(), this.func_70824_q(), 3);
++                        this.func_70818_a(0);
++                    }
++
++                    // CraftBukkit end
+                 }
+             }
+         }
+@@ -191,14 +208,14 @@
+                     this.field_70702_br = this.field_70701_bs = 0.0F;
+                     this.field_70697_bw = 0.0F;
+ 
+-                    if (this.field_70789_a.func_70068_e(this) < 16.0D)
++                    if (this.field_70789_a.func_70068_e((Entity) this) < 16.0D)
+                     {
+                         this.func_70820_n();
+                     }
+ 
+                     this.field_70828_e = 0;
+                 }
+-                else if (this.field_70789_a.func_70068_e(this) > 256.0D && this.field_70828_e++ >= 30 && this.func_70816_c(this.field_70789_a))
++                else if (this.field_70789_a.func_70068_e((Entity) this) > 256.0D && this.field_70828_e++ >= 30 && this.func_70816_c(this.field_70789_a))
+                 {
+                     this.field_70828_e = 0;
+                 }
+@@ -267,7 +284,18 @@
+ 
+             if (flag1)
+             {
+-                this.func_70107_b(this.field_70165_t, this.field_70163_u, this.field_70161_v);
++                // CraftBukkit start - teleport event
++                EntityTeleportEvent teleport = new EntityTeleportEvent(this.getBukkitEntity(), new Location(this.field_70170_p.getWorld(), d3, d4, d5), new Location(this.field_70170_p.getWorld(), this.field_70165_t, this.field_70163_u, this.field_70161_v));
++                this.field_70170_p.getServer().getPluginManager().callEvent(teleport);
++
++                if (teleport.isCancelled())
++                {
++                    return false;
++                }
++
++                Location to = teleport.getTo();
++                this.func_70107_b(to.getX(), to.getY(), to.getZ());
++                // CraftBukkit end
+ 
+                 if (this.field_70170_p.func_72945_a(this, this.field_70121_D).isEmpty() && !this.field_70170_p.func_72953_d(this.field_70121_D))
+                 {
+@@ -329,12 +357,17 @@
+ 
+         if (j > 0)
+         {
+-            int k = this.field_70146_Z.nextInt(2 + p_70628_2_);
+-
+-            for (int l = 0; l < k; ++l)
+-            {
+-                this.func_70025_b(j, 1);
+-            }
++            // CraftBukkit start - whole method
++            java.util.List<org.bukkit.inventory.ItemStack> loot = new java.util.ArrayList<org.bukkit.inventory.ItemStack>();
++            int count = this.field_70146_Z.nextInt(2 + p_70628_2_);
++
++            if ((j > 0) && (count > 0))
++            {
++                loot.add(new org.bukkit.inventory.ItemStack(j, count));
++            }
++
++            CraftEventFactory.callEntityDeathEvent(this, loot);
++            // CraftBukkit end
+         }
+     }
+ 

@@ -1,0 +1,41 @@
+--- ../net/minecraft/item/ItemMonsterPlacer.java
++++ ../net/minecraft/item/ItemMonsterPlacer.java
+@@ -10,7 +10,6 @@
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.util.StatCollector;
+ import net.minecraft.world.World;
+-
+ public class ItemMonsterPlacer extends Item
+ {
+     public ItemMonsterPlacer(int p_i3671_1_)
+@@ -20,10 +19,10 @@
+         this.func_77637_a(CreativeTabs.field_78026_f);
+     }
+ 
+-    public String func_77628_j(ItemStack p_77628_1_)
++    public String func_77657_g(ItemStack itemstack)
+     {
+         String s = ("" + StatCollector.func_74838_a(this.func_77658_a() + ".name")).trim();
+-        String s1 = EntityList.func_75617_a(p_77628_1_.func_77960_j());
++        String s1 = EntityList.func_75617_a(itemstack.func_77960_j());
+ 
+         if (s1 != null)
+         {
+@@ -35,7 +34,7 @@
+ 
+     public boolean func_77648_a(ItemStack p_77648_1_, EntityPlayer p_77648_2_, World p_77648_3_, int p_77648_4_, int p_77648_5_, int p_77648_6_, int p_77648_7_, float p_77648_8_, float p_77648_9_, float p_77648_10_)
+     {
+-        if (p_77648_3_.field_72995_K)
++        if (p_77648_3_.field_72995_K || p_77648_1_.func_77960_j() == 48 || p_77648_1_.func_77960_j() == 49 || p_77648_1_.func_77960_j() == 63 || p_77648_1_.func_77960_j() == 64)   // CraftBukkit
+         {
+             return true;
+         }
+@@ -92,7 +91,7 @@
+                     entityliving.field_70759_as = entityliving.field_70177_z;
+                     entityliving.field_70761_aq = entityliving.field_70177_z;
+                     entityliving.func_82163_bD();
+-                    p_77840_0_.func_72838_d(entity);
++                    p_77840_0_.addEntity(entity, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.SPAWNER_EGG); // CraftBukkit
+                     entityliving.func_70642_aH();
+                 }
+             }

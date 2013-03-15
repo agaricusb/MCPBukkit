@@ -1,0 +1,63 @@
+--- ../net/minecraft/block/BlockStationary.java
++++ ../net/minecraft/block/BlockStationary.java
+@@ -4,6 +4,11 @@
+ import net.minecraft.block.material.Material;
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
++
++// CraftBukkit start
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.event.block.BlockIgniteEvent;
++// CraftBukkit end
+ 
+ public class BlockStationary extends BlockFluid
+ {
+@@ -47,6 +52,10 @@
+             int l = p_71847_5_.nextInt(3);
+             int i1;
+             int j1;
++            // CraftBukkit start - prevent lava putting something on fire
++            org.bukkit.World bworld = p_71847_1_.getWorld();
++            BlockIgniteEvent.IgniteCause igniteCause = BlockIgniteEvent.IgniteCause.LAVA;
++            // CraftBukkit end
+ 
+             for (i1 = 0; i1 < l; ++i1)
+             {
+@@ -59,6 +68,18 @@
+                 {
+                     if (this.func_72216_n(p_71847_1_, p_71847_2_ - 1, p_71847_3_, p_71847_4_) || this.func_72216_n(p_71847_1_, p_71847_2_ + 1, p_71847_3_, p_71847_4_) || this.func_72216_n(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_ - 1) || this.func_72216_n(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_ + 1) || this.func_72216_n(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_) || this.func_72216_n(p_71847_1_, p_71847_2_, p_71847_3_ + 1, p_71847_4_))
+                     {
++                        // CraftBukkit start - prevent lava putting something on fire
++                        org.bukkit.block.Block block = bworld.getBlockAt(p_71847_2_, p_71847_3_, p_71847_4_);
++
++                        if (block.getTypeId() != Block.field_72067_ar.field_71990_ca)
++                        {
++                            if (CraftEventFactory.callEvent(new BlockIgniteEvent(block, igniteCause, null)).isCancelled())
++                            {
++                                continue;
++                            }
++                        }
++
++                        // CraftBukkit end
+                         p_71847_1_.func_94575_c(p_71847_2_, p_71847_3_, p_71847_4_, Block.field_72067_ar.field_71990_ca);
+                         return;
+                     }
+@@ -81,6 +102,18 @@
+ 
+                     if (p_71847_1_.func_72799_c(p_71847_2_, p_71847_3_ + 1, p_71847_4_) && this.func_72216_n(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_))
+                     {
++                        // CraftBukkit start - prevent lava putting something on fire
++                        org.bukkit.block.Block block = bworld.getBlockAt(p_71847_2_, p_71847_3_ + 1, p_71847_4_);
++
++                        if (block.getTypeId() != Block.field_72067_ar.field_71990_ca)
++                        {
++                            if (CraftEventFactory.callEvent(new BlockIgniteEvent(block, igniteCause, null)).isCancelled())
++                            {
++                                continue;
++                            }
++                        }
++
++                        // CraftBukkit end
+                         p_71847_1_.func_94575_c(p_71847_2_, p_71847_3_ + 1, p_71847_4_, Block.field_72067_ar.field_71990_ca);
+                     }
+                 }

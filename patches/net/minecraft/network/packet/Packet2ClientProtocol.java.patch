@@ -1,0 +1,35 @@
+--- ../net/minecraft/network/packet/Packet2ClientProtocol.java
++++ ../net/minecraft/network/packet/Packet2ClientProtocol.java
+@@ -2,16 +2,19 @@
+ 
+ import java.io.DataInputStream;
+ import java.io.DataOutputStream;
+-import java.io.IOException;
++
++import java.io.IOException; // CraftBukkit
+ 
+ public class Packet2ClientProtocol extends Packet
+ {
+     private int field_73458_a;
+     private String field_73456_b;
+-    private String field_73457_c;
+-    private int field_73455_d;
++    public String field_73457_c; // CraftBukkit private -> public
++    public int field_73455_d; // CraftBukkit private -> public
+ 
+-    public void func_73267_a(DataInputStream p_73267_1_) throws IOException
++    public Packet2ClientProtocol() {}
++
++    public void func_73267_a(DataInputStream p_73267_1_) throws IOException   // CraftBukkit - throws IOException
+     {
+         this.field_73458_a = p_73267_1_.readByte();
+         this.field_73456_b = func_73282_a(p_73267_1_, 16);
+@@ -19,7 +22,7 @@
+         this.field_73455_d = p_73267_1_.readInt();
+     }
+ 
+-    public void func_73273_a(DataOutputStream p_73273_1_) throws IOException
++    public void func_73273_a(DataOutputStream p_73273_1_) throws IOException   // CraftBukkit - throws IOException
+     {
+         p_73273_1_.writeByte(this.field_73458_a);
+         func_73271_a(this.field_73456_b, p_73273_1_);

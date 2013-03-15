@@ -1,0 +1,64 @@
+--- ../net/minecraft/tileentity/MobSpawnerBaseLogic.java
++++ ../net/minecraft/tileentity/MobSpawnerBaseLogic.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.tileentity;
+ 
+ import java.util.ArrayList;
++import java.util.Collection;
+ import java.util.Iterator;
+ import java.util.List;
+ import net.minecraft.entity.Entity;
+@@ -12,6 +13,8 @@
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.util.WeightedRandom;
+ import net.minecraft.world.World;
++
++import org.bukkit.event.entity.CreatureSpawnEvent; // CraftBukkit
+ 
+ public abstract class MobSpawnerBaseLogic
+ {
+@@ -29,6 +32,8 @@
+     private int field_98289_l = 16;
+     private int field_98290_m = 4;
+ 
++    public MobSpawnerBaseLogic() {}
++
+     public String func_98276_e()
+     {
+         if (this.func_98269_i() == null)
+@@ -156,7 +161,7 @@
+ 
+             if (p_98265_1_.field_70170_p != null)
+             {
+-                p_98265_1_.field_70170_p.func_72838_d(p_98265_1_);
++                p_98265_1_.field_70170_p.addEntity(p_98265_1_, CreatureSpawnEvent.SpawnReason.SPAWNER); // CraftBukkit
+             }
+ 
+             NBTTagCompound nbttagcompound1;
+@@ -180,7 +185,7 @@
+ 
+                     entity2.func_70020_e(nbttagcompound2);
+                     entity2.func_70012_b(entity1.field_70165_t, entity1.field_70163_u, entity1.field_70161_v, entity1.field_70177_z, entity1.field_70125_A);
+-                    this.func_98271_a().func_72838_d(entity2);
++                    this.func_98271_a().addEntity(entity2, CreatureSpawnEvent.SpawnReason.SPAWNER); // CraftBukkit);
+                     entity1.func_70078_a(entity2);
+                 }
+ 
+@@ -190,7 +195,7 @@
+         else if (p_98265_1_ instanceof EntityLiving && p_98265_1_.field_70170_p != null)
+         {
+             ((EntityLiving)p_98265_1_).func_82163_bD();
+-            this.func_98271_a().func_72838_d(p_98265_1_);
++            this.func_98271_a().addEntity(p_98265_1_, CreatureSpawnEvent.SpawnReason.SPAWNER); // CraftBukkit);
+         }
+ 
+         return p_98265_1_;
+@@ -210,7 +215,7 @@
+ 
+         if (this.field_98285_e != null && this.field_98285_e.size() > 0)
+         {
+-            this.func_98277_a((WeightedRandomMinecart)WeightedRandom.func_76271_a(this.func_98271_a().field_73012_v, this.field_98285_e));
++            this.func_98277_a((WeightedRandomMinecart) WeightedRandom.func_76271_a(this.func_98271_a().field_73012_v, (Collection) this.field_98285_e));
+         }
+ 
+         this.func_98267_a(1);

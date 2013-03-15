@@ -1,0 +1,12 @@
+--- ../net/minecraft/block/BlockNetherStalk.java
++++ ../net/minecraft/block/BlockNetherStalk.java
+@@ -35,8 +35,7 @@
+ 
+         if (l < 3 && p_71847_5_.nextInt(10) == 0)
+         {
+-            ++l;
+-            p_71847_1_.func_72921_c(p_71847_2_, p_71847_3_, p_71847_4_, l, 2);
++            org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockGrowEvent(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, this.field_71990_ca, ++l); // CraftBukkit
+         }
+ 
+         super.func_71847_b(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, p_71847_5_);

@@ -1,0 +1,105 @@
+--- ../net/minecraft/entity/EntityTracker.java
++++ ../net/minecraft/entity/EntityTracker.java
+@@ -4,6 +4,7 @@
+ import java.util.HashSet;
+ import java.util.Iterator;
+ import java.util.Set;
++import java.util.concurrent.Callable;
+ import net.minecraft.crash.CrashReport;
+ import net.minecraft.crash.CrashReportCategory;
+ import net.minecraft.entity.boss.EntityDragon;
+@@ -42,7 +43,7 @@
+ {
+     private final WorldServer field_72795_a;
+     private Set field_72793_b = new HashSet();
+-    private IntHashMap field_72794_c = new IntHashMap();
++    public IntHashMap field_72794_c = new IntHashMap(); // CraftBukkit - private -> public
+     private int field_72792_d;
+ 
+     public EntityTracker(WorldServer p_i3389_1_)
+@@ -51,7 +52,9 @@
+         this.field_72792_d = p_i3389_1_.func_73046_m().func_71203_ab().func_72372_a();
+     }
+ 
+-    public void func_72786_a(Entity p_72786_1_)
++    // CraftBukkit - synchronized
++
++    public synchronized void func_72786_a(Entity p_72786_1_)
+     {
+         if (p_72786_1_ instanceof EntityPlayerMP)
+         {
+@@ -176,7 +179,9 @@
+         this.func_72785_a(p_72791_1_, p_72791_2_, p_72791_3_, false);
+     }
+ 
+-    public void func_72785_a(Entity p_72785_1_, int p_72785_2_, int p_72785_3_, boolean p_72785_4_)
++    // CraftBukkit - synchronized
++
++    public synchronized void func_72785_a(Entity p_72785_1_, int p_72785_2_, int p_72785_3_, boolean p_72785_4_)
+     {
+         if (p_72785_2_ > this.field_72792_d)
+         {
+@@ -201,14 +206,16 @@
+         {
+             CrashReport crashreport = CrashReport.func_85055_a(throwable, "Adding entity to track");
+             CrashReportCategory crashreportcategory = crashreport.func_85058_a("Entity To Track");
+-            crashreportcategory.func_71507_a("Tracking range", p_72785_2_ + " blocks");
+-            crashreportcategory.func_71500_a("Update interval", new CallableEntityTracker(this, p_72785_3_));
++            crashreportcategory.func_71507_a("Tracking range", (p_72785_2_ + " blocks"));
++            crashreportcategory.func_71500_a("Update interval", (Callable)(new CallableEntityTracker(this, p_72785_3_)));
+             p_72785_1_.func_85029_a(crashreportcategory);
+             throw new ReportedException(crashreport);
+         }
+     }
+ 
+-    public void func_72790_b(Entity p_72790_1_)
++    // CraftBukkit - synchronized
++
++    public synchronized void func_72790_b(Entity p_72790_1_)
+     {
+         if (p_72790_1_ instanceof EntityPlayerMP)
+         {
+@@ -231,7 +238,9 @@
+         }
+     }
+ 
+-    public void func_72788_a()
++    // CraftBukkit - synchronized
++
++    public synchronized void func_72788_a()
+     {
+         ArrayList arraylist = new ArrayList();
+         Iterator iterator = this.field_72793_b.iterator();
+@@ -264,7 +273,9 @@
+         }
+     }
+ 
+-    public void func_72784_a(Entity p_72784_1_, Packet p_72784_2_)
++    // CraftBukkit - synchronized
++
++    public synchronized void func_72784_a(Entity p_72784_1_, Packet p_72784_2_)
+     {
+         EntityTrackerEntry entitytrackerentry = (EntityTrackerEntry)this.field_72794_c.func_76041_a(p_72784_1_.field_70157_k);
+ 
+@@ -274,7 +285,9 @@
+         }
+     }
+ 
+-    public void func_72789_b(Entity p_72789_1_, Packet p_72789_2_)
++    // CraftBukkit - synchronized
++
++    public synchronized void func_72789_b(Entity p_72789_1_, Packet p_72789_2_)
+     {
+         EntityTrackerEntry entitytrackerentry = (EntityTrackerEntry)this.field_72794_c.func_76041_a(p_72789_1_.field_70157_k);
+ 
+@@ -284,7 +297,9 @@
+         }
+     }
+ 
+-    public void func_72787_a(EntityPlayerMP p_72787_1_)
++    // CraftBukkit - synchronized
++
++    public synchronized void func_72787_a(EntityPlayerMP p_72787_1_)
+     {
+         Iterator iterator = this.field_72793_b.iterator();
+ 

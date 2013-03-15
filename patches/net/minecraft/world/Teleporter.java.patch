@@ -1,0 +1,391 @@
+--- ../net/minecraft/world/Teleporter.java
++++ ../net/minecraft/world/Teleporter.java
+@@ -6,9 +6,16 @@
+ import java.util.Random;
+ import net.minecraft.block.Block;
+ import net.minecraft.entity.Entity;
++import net.minecraft.util.ChunkCoordinates;
+ import net.minecraft.util.Direction;
+ import net.minecraft.util.LongHashMap;
+ import net.minecraft.util.MathHelper;
++
++// CraftBukkit start
++import org.bukkit.Location;
++import org.bukkit.event.entity.EntityPortalExitEvent;
++import org.bukkit.util.Vector;
++// CraftBukkit end
+ 
+ public class Teleporter
+ {
+@@ -35,41 +42,113 @@
+         }
+         else
+         {
+-            int i = MathHelper.func_76128_c(p_77185_1_.field_70165_t);
+-            int j = MathHelper.func_76128_c(p_77185_1_.field_70163_u) - 1;
+-            int k = MathHelper.func_76128_c(p_77185_1_.field_70161_v);
+-            byte b0 = 1;
+-            byte b1 = 0;
+-
+-            for (int l = -2; l <= 2; ++l)
+-            {
+-                for (int i1 = -2; i1 <= 2; ++i1)
+-                {
+-                    for (int j1 = -1; j1 < 3; ++j1)
++            // CraftBukkit start - modularize end portal creation
++            ChunkCoordinates created = this.createEndPortal(p_77185_2_, p_77185_4_, p_77185_6_);
++            p_77185_1_.func_70012_b((double) created.field_71574_a, (double) created.field_71572_b, (double) created.field_71573_c, p_77185_1_.field_70177_z, 0.0F);
++            p_77185_1_.field_70159_w = p_77185_1_.field_70181_x = p_77185_1_.field_70179_y = 0.0D;
++        }
++    }
++
++    // split out from original a(Entity, double, double, double, float) method in order to enable being called from createPortal
++    private ChunkCoordinates createEndPortal(double x, double y, double z)
++    {
++        int i = MathHelper.func_76128_c(x);
++        int j = MathHelper.func_76128_c(y) - 1;
++        int k = MathHelper.func_76128_c(z);
++        // CraftBukkit end
++        byte b0 = 1;
++        byte b1 = 0;
++
++        for (int l = -2; l <= 2; ++l)
++        {
++            for (int i1 = -2; i1 <= 2; ++i1)
++            {
++                for (int j1 = -1; j1 < 3; ++j1)
++                {
++                    int k1 = i + i1 * b0 + l * b1;
++                    int l1 = j + j1;
++                    int i2 = k + i1 * b1 - l * b0;
++                    boolean flag = j1 < 0;
++                    this.field_85192_a.func_94575_c(k1, l1, i2, flag ? Block.field_72089_ap.field_71990_ca : 0);
++                }
++            }
++        }
++
++        // CraftBukkit start
++        return new ChunkCoordinates(i, j, k);
++    }
++
++    // use logic based on creation to verify end portal
++    private ChunkCoordinates findEndPortal(ChunkCoordinates portal)
++    {
++        int i = portal.field_71574_a;
++        int j = portal.field_71572_b - 1;
++        int k = portal.field_71573_c;
++        byte b0 = 1;
++        byte b1 = 0;
++
++        for (int l = -2; l <= 2; ++l)
++        {
++            for (int i1 = -2; i1 <= 2; ++i1)
++            {
++                for (int j1 = -1; j1 < 3; ++j1)
++                {
++                    int k1 = i + i1 * b0 + l * b1;
++                    int l1 = j + j1;
++                    int i2 = k + i1 * b1 - l * b0;
++                    boolean flag = j1 < 0;
++
++                    if (this.field_85192_a.func_72798_a(k1, l1, i2) != (flag ? Block.field_72089_ap.field_71990_ca : 0))
+                     {
+-                        int k1 = i + i1 * b0 + l * b1;
+-                        int l1 = j + j1;
+-                        int i2 = k + i1 * b1 - l * b0;
+-                        boolean flag = j1 < 0;
+-                        this.field_85192_a.func_94575_c(k1, l1, i2, flag ? Block.field_72089_ap.field_71990_ca : 0);
++                        return null;
+                     }
+                 }
+             }
+-
+-            p_77185_1_.func_70012_b((double)i, (double)j, (double)k, p_77185_1_.field_70177_z, 0.0F);
+-            p_77185_1_.field_70159_w = p_77185_1_.field_70181_x = p_77185_1_.field_70179_y = 0.0D;
+-        }
+-    }
++        }
++
++        return new ChunkCoordinates(i, j, k);
++    }
++    // CraftBukkit end
+ 
+     public boolean func_77184_b(Entity p_77184_1_, double p_77184_2_, double p_77184_4_, double p_77184_6_, float p_77184_8_)
+     {
+-        short short1 = 128;
++        // CraftBukkit start - modularize portal search process and entity teleportation
++        ChunkCoordinates found = this.findPortal(p_77184_1_.field_70165_t, p_77184_1_.field_70163_u, p_77184_1_.field_70161_v, 128);
++
++        if (found == null)
++        {
++            return false;
++        }
++
++        Location exit = new Location(this.field_85192_a.getWorld(), found.field_71574_a, found.field_71572_b, found.field_71573_c, p_77184_8_, p_77184_1_.field_70125_A);
++        Vector velocity = p_77184_1_.getBukkitEntity().getVelocity();
++        this.adjustExit(p_77184_1_, exit, velocity);
++        p_77184_1_.func_70012_b(exit.getX(), exit.getY(), exit.getZ(), exit.getYaw(), exit.getPitch());
++
++        if (p_77184_1_.field_70159_w != velocity.getX() || p_77184_1_.field_70181_x != velocity.getY() || p_77184_1_.field_70179_y != velocity.getZ())
++        {
++            p_77184_1_.getBukkitEntity().setVelocity(velocity);
++        }
++
++        return true;
++    }
++
++    public ChunkCoordinates findPortal(double x, double y, double z, int short1)
++    {
++        if (this.field_85192_a.getWorld().getEnvironment() == org.bukkit.World.Environment.THE_END)
++        {
++            return this.findEndPortal(this.field_85192_a.field_73011_w.func_76554_h());
++        }
++
++        // CraftBukkit end
+         double d3 = -1.0D;
+         int i = 0;
+         int j = 0;
+         int k = 0;
+-        int l = MathHelper.func_76128_c(p_77184_1_.field_70165_t);
+-        int i1 = MathHelper.func_76128_c(p_77184_1_.field_70161_v);
++        // CraftBukkit start
++        int l = MathHelper.func_76128_c(x);
++        int i1 = MathHelper.func_76128_c(z);
++        // CraftBukkit end
+         long j1 = ChunkCoordIntPair.func_77272_a(l, i1);
+         boolean flag = true;
+         double d4;
+@@ -89,11 +168,11 @@
+         {
+             for (k1 = l - short1; k1 <= l + short1; ++k1)
+             {
+-                double d5 = (double)k1 + 0.5D - p_77184_1_.field_70165_t;
++                double d5 = (double) k1 + 0.5D - x; // CraftBukkit
+ 
+                 for (int l1 = i1 - short1; l1 <= i1 + short1; ++l1)
+                 {
+-                    double d6 = (double)l1 + 0.5D - p_77184_1_.field_70161_v;
++                    double d6 = (double) l1 + 0.5D - z; // CraftBukkit
+ 
+                     for (int i2 = this.field_85192_a.func_72940_L() - 1; i2 >= 0; --i2)
+                     {
+@@ -104,7 +183,7 @@
+                                 --i2;
+                             }
+ 
+-                            d4 = (double)i2 + 0.5D - p_77184_1_.field_70163_u;
++                            d4 = (double) i2 + 0.5D - y; // CraftBukkit
+                             double d7 = d5 * d5 + d4 * d4 + d6 * d6;
+ 
+                             if (d3 < 0.0D || d7 < d3)
+@@ -128,6 +207,38 @@
+                 this.field_85190_d.add(Long.valueOf(j1));
+             }
+ 
++            // CraftBukkit start - moved entity teleportation logic into exit
++            return new ChunkCoordinates(i, j, k);
++        }
++        else
++        {
++            return null;
++        }
++    }
++    // entity repositioning logic split out from original b method and combined with repositioning logic for The End from original a method
++    public void adjustExit(Entity entity, Location position, Vector velocity)
++    {
++        Location from = position.clone();
++        Vector before = velocity.clone();
++        int i = position.getBlockX();
++        int j = position.getBlockY();
++        int k = position.getBlockZ();
++        float f = position.getYaw();
++
++        if (this.field_85192_a.getWorld().getEnvironment() == org.bukkit.World.Environment.THE_END)
++        {
++            // entity.setPositionRotation((double) i, (double) j, (double) k, entity.yaw, 0.0F);
++            // entity.motX = entity.motY = entity.motZ = 0.0D;
++            position.setPitch(0.0F);
++            velocity.setX(0);
++            velocity.setY(0);
++            velocity.setZ(0);
++        }
++        else
++        {
++            double d4;
++            int k1;
++            // CraftBukkit end
+             double d8 = (double)i + 0.5D;
+             double d9 = (double)j + 0.5D;
+             d4 = (double)k + 0.5D;
+@@ -153,7 +264,7 @@
+                 j2 = 1;
+             }
+ 
+-            int k2 = p_77184_1_.func_82148_at();
++            int k2 = entity.func_82148_at();
+ 
+             if (j2 > -1)
+             {
+@@ -225,33 +336,77 @@
+                     f6 = 1.0F;
+                 }
+ 
+-                double d10 = p_77184_1_.field_70159_w;
+-                double d11 = p_77184_1_.field_70179_y;
+-                p_77184_1_.field_70159_w = d10 * (double)f3 + d11 * (double)f6;
+-                p_77184_1_.field_70179_y = d10 * (double)f5 + d11 * (double)f4;
+-                p_77184_1_.field_70177_z = p_77184_8_ - (float)(k2 * 90) + (float)(j2 * 90);
++                // CraftBukkit start
++                double d10 = velocity.getX();
++                double d11 = velocity.getZ();
++                // CraftBukkit end
++                // CraftBukkit start - adjust position and velocity instances instead of entity
++                velocity.setX(d10 * (double) f3 + d11 * (double) f6);
++                velocity.setZ(d10 * (double) f5 + d11 * (double) f4);
++                f = f - (float)(k2 * 90) + (float)(j2 * 90);
+             }
+             else
+             {
+-                p_77184_1_.field_70159_w = p_77184_1_.field_70181_x = p_77184_1_.field_70179_y = 0.0D;
+-            }
+-
+-            p_77184_1_.func_70012_b(d8, d9, d4, p_77184_1_.field_70177_z, p_77184_1_.field_70125_A);
++                // entity.motX = entity.motY = entity.motZ = 0.0D;
++                velocity.setX(0);
++                velocity.setY(0);
++                velocity.setZ(0);
++            }
++
++            // entity.setPositionRotation(d8, d9, d4, entity.yaw, entity.pitch);
++            position.setX(d8);
++            position.setY(d9);
++            position.setZ(d4);
++            position.setYaw(f);
++        }
++
++        EntityPortalExitEvent event = new EntityPortalExitEvent(entity.getBukkitEntity(), from, position, before, velocity);
++        this.field_85192_a.getServer().getPluginManager().callEvent(event);
++        Location to = event.getTo();
++
++        if (event.isCancelled() || to == null || !entity.func_70089_S())
++        {
++            position.setX(from.getX());
++            position.setY(from.getY());
++            position.setZ(from.getZ());
++            position.setYaw(from.getYaw());
++            position.setPitch(from.getPitch());
++            velocity.copy(before);
++        }
++        else
++        {
++            position.setX(to.getX());
++            position.setY(to.getY());
++            position.setZ(to.getZ());
++            position.setYaw(to.getYaw());
++            position.setPitch(to.getPitch());
++            velocity.copy(event.getAfter()); // event.getAfter() will never be null, as setAfter() will cause an NPE if null is passed in
++        }
++
++        // CraftBukkit end
++    }
++
++    public boolean func_85188_a(Entity p_85188_1_)
++    {
++        // CraftBukkit start - allow for portal creation to be based on coordinates instead of entity
++        return this.createPortal(p_85188_1_.field_70165_t, p_85188_1_.field_70163_u, p_85188_1_.field_70161_v, 16);
++    }
++
++    public boolean createPortal(double x, double y, double z, int b0)
++    {
++        if (this.field_85192_a.getWorld().getEnvironment() == org.bukkit.World.Environment.THE_END)
++        {
++            this.createEndPortal(x, y, z);
+             return true;
+         }
+-        else
+-        {
+-            return false;
+-        }
+-    }
+-
+-    public boolean func_85188_a(Entity p_85188_1_)
+-    {
+-        byte b0 = 16;
++
++        // CraftBukkit end
+         double d0 = -1.0D;
+-        int i = MathHelper.func_76128_c(p_85188_1_.field_70165_t);
+-        int j = MathHelper.func_76128_c(p_85188_1_.field_70163_u);
+-        int k = MathHelper.func_76128_c(p_85188_1_.field_70161_v);
++        // CraftBukkit start
++        int i = MathHelper.func_76128_c(x);
++        int j = MathHelper.func_76128_c(y);
++        int k = MathHelper.func_76128_c(z);
++        // CraftBukkit end
+         int l = i;
+         int i1 = j;
+         int j1 = k;
+@@ -275,11 +430,11 @@
+ 
+         for (i2 = i - b0; i2 <= i + b0; ++i2)
+         {
+-            d1 = (double)i2 + 0.5D - p_85188_1_.field_70165_t;
++            d1 = (double) i2 + 0.5D - x; // CraftBukkit
+ 
+             for (j2 = k - b0; j2 <= k + b0; ++j2)
+             {
+-                d2 = (double)j2 + 0.5D - p_85188_1_.field_70161_v;
++                d2 = (double) j2 + 0.5D - z; // CraftBukkit
+                 label274:
+ 
+                 for (k2 = this.field_85192_a.func_72940_L() - 1; k2 >= 0; --k2)
+@@ -320,12 +475,12 @@
+                                 }
+                             }
+ 
+-                            d4 = (double)k2 + 0.5D - p_85188_1_.field_70163_u;
+-                            d3 = d1 * d1 + d4 * d4 + d2 * d2;
+-
+-                            if (d0 < 0.0D || d3 < d0)
++                            d3 = (double) k2 + 0.5D - y; // CraftBukkit
++                            d4 = d1 * d1 + d3 * d3 + d2 * d2;
++
++                            if (d0 < 0.0D || d4 < d0)
+                             {
+-                                d0 = d3;
++                                d0 = d4;
+                                 l = i2;
+                                 i1 = k2;
+                                 j1 = j2;
+@@ -341,11 +496,11 @@
+         {
+             for (i2 = i - b0; i2 <= i + b0; ++i2)
+             {
+-                d1 = (double)i2 + 0.5D - p_85188_1_.field_70165_t;
++                d1 = (double) i2 + 0.5D - x; // CraftBukkit
+ 
+                 for (j2 = k - b0; j2 <= k + b0; ++j2)
+                 {
+-                    d2 = (double)j2 + 0.5D - p_85188_1_.field_70161_v;
++                    d2 = (double) j2 + 0.5D - z; // CraftBukkit
+                     label222:
+ 
+                     for (k2 = this.field_85192_a.func_72940_L() - 1; k2 >= 0; --k2)
+@@ -377,12 +532,12 @@
+                                     }
+                                 }
+ 
+-                                d4 = (double)k2 + 0.5D - p_85188_1_.field_70163_u;
+-                                d3 = d1 * d1 + d4 * d4 + d2 * d2;
+-
+-                                if (d0 < 0.0D || d3 < d0)
++                                d3 = (double) k2 + 0.5D - y; // CraftBukkit
++                                d4 = d1 * d1 + d3 * d3 + d2 * d2;
++
++                                if (d0 < 0.0D || d4 < d0)
+                                 {
+-                                    d0 = d3;
++                                    d0 = d4;
+                                     l = i2;
+                                     i1 = k2;
+                                     j1 = j2;

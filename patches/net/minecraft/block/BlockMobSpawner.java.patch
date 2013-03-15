@@ -1,0 +1,22 @@
+--- ../net/minecraft/block/BlockMobSpawner.java
++++ ../net/minecraft/block/BlockMobSpawner.java
+@@ -31,8 +31,17 @@
+     public void func_71914_a(World p_71914_1_, int p_71914_2_, int p_71914_3_, int p_71914_4_, int p_71914_5_, float p_71914_6_, int p_71914_7_)
+     {
+         super.func_71914_a(p_71914_1_, p_71914_2_, p_71914_3_, p_71914_4_, p_71914_5_, p_71914_6_, p_71914_7_);
+-        int j1 = 15 + p_71914_1_.field_73012_v.nextInt(15) + p_71914_1_.field_73012_v.nextInt(15);
+-        this.func_71923_g(p_71914_1_, p_71914_2_, p_71914_3_, p_71914_4_, j1);
++        /* CraftBukkit start - delegate to getExpDrop
++        int j1 = 15 + world.random.nextInt(15) + world.random.nextInt(15);
++
++        this.j(world, i, j, k, j1);*/
++    }
++
++    public int getExpDrop(World world, int data, int enchantmentLevel)
++    {
++        int j1 = 15 + world.field_73012_v.nextInt(15) + world.field_73012_v.nextInt(15);
++        return j1;
++        // CraftBukkit end
+     }
+ 
+     public boolean func_71926_d()

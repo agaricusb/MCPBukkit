@@ -1,0 +1,258 @@
+--- ../net/minecraft/entity/item/EntityBoat.java
++++ ../net/minecraft/entity/item/EntityBoat.java
+@@ -12,6 +12,15 @@
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
+ 
++// CraftBukkit start
++import org.bukkit.Location;
++import org.bukkit.entity.Vehicle;
++import org.bukkit.event.vehicle.VehicleDamageEvent;
++import org.bukkit.event.vehicle.VehicleDestroyEvent;
++import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
++import org.bukkit.event.vehicle.VehicleMoveEvent;
++// CraftBukkit end
++
+ public class EntityBoat extends Entity
+ {
+     private boolean field_70279_a;
+@@ -23,6 +32,28 @@
+     private double field_70273_g;
+     private double field_70281_h;
+ 
++    // CraftBukkit start
++    public double maxSpeed = 0.4D;
++    public double occupiedDeceleration = 0.2D;
++    public double unoccupiedDeceleration = -1;
++    public boolean landBoats = false;
++
++    @Override
++    public void func_70108_f(Entity entity)
++    {
++        org.bukkit.entity.Entity hitEntity = (entity == null) ? null : entity.getBukkitEntity();
++        VehicleEntityCollisionEvent event = new VehicleEntityCollisionEvent((Vehicle) this.getBukkitEntity(), hitEntity);
++        this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++        if (event.isCancelled())
++        {
++            return;
++        }
++
++        super.func_70108_f(entity);
++    }
++    // CraftBukkit end
++
+     public EntityBoat(World p_i3534_1_)
+     {
+         super(p_i3534_1_);
+@@ -70,6 +101,7 @@
+         this.field_70169_q = p_i3535_2_;
+         this.field_70167_r = p_i3535_4_;
+         this.field_70166_s = p_i3535_6_;
++        this.field_70170_p.getServer().getPluginManager().callEvent(new org.bukkit.event.vehicle.VehicleCreateEvent((Vehicle) this.getBukkitEntity())); // CraftBukkit
+     }
+ 
+     public double func_70042_X()
+@@ -85,6 +117,19 @@
+         }
+         else if (!this.field_70170_p.field_72995_K && !this.field_70128_L)
+         {
++            // CraftBukkit start
++            Vehicle vehicle = (Vehicle) this.getBukkitEntity();
++            org.bukkit.entity.Entity attacker = (p_70097_1_.func_76346_g() == null) ? null : p_70097_1_.func_76346_g().getBukkitEntity();
++            VehicleDamageEvent event = new VehicleDamageEvent(vehicle, attacker, p_70097_2_);
++            this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++            if (event.isCancelled())
++            {
++                return true;
++            }
++
++            // i = event.getDamage(); // TODO Why don't we do this?
++            // CraftBukkit end
+             this.func_70269_c(-this.func_70267_i());
+             this.func_70265_b(10);
+             this.func_70266_a(this.func_70271_g() + p_70097_2_ * 10);
+@@ -93,6 +138,18 @@
+ 
+             if (flag || this.func_70271_g() > 40)
+             {
++                // CraftBukkit start
++                VehicleDestroyEvent destroyEvent = new VehicleDestroyEvent(vehicle, attacker);
++                this.field_70170_p.getServer().getPluginManager().callEvent(destroyEvent);
++
++                if (destroyEvent.isCancelled())
++                {
++                    this.func_70266_a(40); // Maximize damage so this doesn't get triggered again right away
++                    return true;
++                }
++
++                // CraftBukkit end
++
+                 if (this.field_70153_n != null)
+                 {
+                     this.field_70153_n.func_70078_a(this);
+@@ -121,6 +178,13 @@
+ 
+     public void func_70071_h_()
+     {
++        // CraftBukkit start
++        double prevX = this.field_70165_t;
++        double prevY = this.field_70163_u;
++        double prevZ = this.field_70161_v;
++        float prevYaw = this.field_70177_z;
++        float prevPitch = this.field_70125_A;
++        // CraftBukkit end
+         super.func_70071_h_();
+ 
+         if (this.func_70268_h() > 0)
+@@ -191,20 +255,20 @@
+             {
+                 d4 = this.field_70165_t + (this.field_70274_d - this.field_70165_t) / (double)this.field_70277_c;
+                 d5 = this.field_70163_u + (this.field_70275_e - this.field_70163_u) / (double)this.field_70277_c;
+-                d11 = this.field_70161_v + (this.field_70272_f - this.field_70161_v) / (double)this.field_70277_c;
+-                d10 = MathHelper.func_76138_g(this.field_70273_g - (double)this.field_70177_z);
+-                this.field_70177_z = (float)((double)this.field_70177_z + d10 / (double)this.field_70277_c);
++                d10 = this.field_70161_v + (this.field_70272_f - this.field_70161_v) / (double) this.field_70277_c;
++                d11 = MathHelper.func_76138_g(this.field_70273_g - (double) this.field_70177_z);
++                this.field_70177_z = (float)((double) this.field_70177_z + d11 / (double) this.field_70277_c);
+                 this.field_70125_A = (float)((double)this.field_70125_A + (this.field_70281_h - (double)this.field_70125_A) / (double)this.field_70277_c);
+                 --this.field_70277_c;
+-                this.func_70107_b(d4, d5, d11);
++                this.func_70107_b(d4, d5, d10);
+                 this.func_70101_b(this.field_70177_z, this.field_70125_A);
+             }
+             else
+             {
+                 d4 = this.field_70165_t + this.field_70159_w;
+                 d5 = this.field_70163_u + this.field_70181_x;
+-                d11 = this.field_70161_v + this.field_70179_y;
+-                this.func_70107_b(d4, d5, d11);
++                d10 = this.field_70161_v + this.field_70179_y;
++                this.func_70107_b(d4, d5, d10);
+ 
+                 if (this.field_70122_E)
+                 {
+@@ -240,7 +304,25 @@
+                 this.field_70159_w += this.field_70153_n.field_70159_w * this.field_70276_b;
+                 this.field_70179_y += this.field_70153_n.field_70179_y * this.field_70276_b;
+             }
+-
++            // CraftBukkit start - block not in vanilla
++            else if (unoccupiedDeceleration >= 0)
++            {
++                this.field_70159_w *= unoccupiedDeceleration;
++                this.field_70179_y *= unoccupiedDeceleration;
++
++                // Kill lingering speed
++                if (field_70159_w <= 0.00001)
++                {
++                    field_70159_w = 0;
++                }
++
++                if (field_70179_y <= 0.00001)
++                {
++                    field_70179_y = 0;
++                }
++            }
++
++            // CraftBukkit end
+             d4 = Math.sqrt(this.field_70159_w * this.field_70159_w + this.field_70179_y * this.field_70179_y);
+ 
+             if (d4 > 0.35D)
+@@ -270,7 +352,7 @@
+                 }
+             }
+ 
+-            if (this.field_70122_E)
++            if (this.field_70122_E && !this.landBoats)   // CraftBukkit
+             {
+                 this.field_70159_w *= 0.5D;
+                 this.field_70181_x *= 0.5D;
+@@ -283,18 +365,28 @@
+             {
+                 if (!this.field_70170_p.field_72995_K)
+                 {
+-                    this.func_70106_y();
+-                    int k;
+-
+-                    for (k = 0; k < 3; ++k)
++                    // CraftBukkit start
++                    Vehicle vehicle = (Vehicle) this.getBukkitEntity();
++                    VehicleDestroyEvent destroyEvent = new VehicleDestroyEvent(vehicle, null);
++                    this.field_70170_p.getServer().getPluginManager().callEvent(destroyEvent);
++
++                    if (!destroyEvent.isCancelled())
+                     {
+-                        this.func_70054_a(Block.field_71988_x.field_71990_ca, 1, 0.0F);
++                        this.func_70106_y();
++                        int k;
++
++                        for (k = 0; k < 3; ++k)
++                        {
++                            this.func_70054_a(Block.field_71988_x.field_71990_ca, 1, 0.0F);
++                        }
++
++                        for (k = 0; k < 2; ++k)
++                        {
++                            this.func_70054_a(Item.field_77669_D.field_77779_bT, 1, 0.0F);
++                        }
+                     }
+ 
+-                    for (k = 0; k < 2; ++k)
+-                    {
+-                        this.func_70054_a(Item.field_77669_D.field_77779_bT, 1, 0.0F);
+-                    }
++                    // CraftBukkit end
+                 }
+             }
+             else
+@@ -306,12 +398,12 @@
+ 
+             this.field_70125_A = 0.0F;
+             d5 = (double)this.field_70177_z;
+-            d11 = this.field_70169_q - this.field_70165_t;
+-            d10 = this.field_70166_s - this.field_70161_v;
+-
+-            if (d11 * d11 + d10 * d10 > 0.001D)
+-            {
+-                d5 = (double)((float)(Math.atan2(d10, d11) * 180.0D / Math.PI));
++            d10 = this.field_70169_q - this.field_70165_t;
++            d11 = this.field_70166_s - this.field_70161_v;
++
++            if (d10 * d10 + d11 * d11 > 0.001D)
++            {
++                d5 = (double)((float)(Math.atan2(d11, d10) * 180.0D / Math.PI));
+             }
+ 
+             double d12 = MathHelper.func_76138_g(d5 - (double)this.field_70177_z);
+@@ -328,6 +420,21 @@
+ 
+             this.field_70177_z = (float)((double)this.field_70177_z + d12);
+             this.func_70101_b(this.field_70177_z, this.field_70125_A);
++            // CraftBukkit start
++            org.bukkit.Server server = this.field_70170_p.getServer();
++            org.bukkit.World bworld = this.field_70170_p.getWorld();
++            Location from = new Location(bworld, prevX, prevY, prevZ, prevYaw, prevPitch);
++            Location to = new Location(bworld, this.field_70165_t, this.field_70163_u, this.field_70161_v, this.field_70177_z, this.field_70125_A);
++            Vehicle vehicle = (Vehicle) this.getBukkitEntity();
++            server.getPluginManager().callEvent(new org.bukkit.event.vehicle.VehicleUpdateEvent(vehicle));
++
++            if (!from.equals(to))
++            {
++                VehicleMoveEvent event = new VehicleMoveEvent(vehicle, from, to);
++                server.getPluginManager().callEvent(event);
++            }
++
++            // CraftBukkit end
+ 
+             if (!this.field_70170_p.field_72995_K)
+             {
+@@ -370,6 +477,7 @@
+ 
+                 if (this.field_70153_n != null && this.field_70153_n.field_70128_L)
+                 {
++                    this.field_70153_n.field_70154_o = null; // CraftBukkit
+                     this.field_70153_n = null;
+                 }
+             }

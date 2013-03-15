@@ -1,0 +1,56 @@
+--- ../net/minecraft/block/BlockFarmland.java
++++ ../net/minecraft/block/BlockFarmland.java
+@@ -6,6 +6,11 @@
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.world.World;
++
++// CraftBukkit start
++import org.bukkit.event.entity.EntityInteractEvent;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++// CraftBukkit end
+ 
+ public class BlockFarmland extends Block
+ {
+@@ -44,6 +49,15 @@
+             }
+             else if (!this.func_72248_l(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_))
+             {
++                // CraftBukkit start
++                org.bukkit.block.Block block = p_71847_1_.getWorld().getBlockAt(p_71847_2_, p_71847_3_, p_71847_4_);
++
++                if (CraftEventFactory.callBlockFadeEvent(block, Block.field_71979_v.field_71990_ca).isCancelled())
++                {
++                    return;
++                }
++
++                // CraftBukkit end
+                 p_71847_1_.func_94575_c(p_71847_2_, p_71847_3_, p_71847_4_, Block.field_71979_v.field_71990_ca);
+             }
+         }
+@@ -62,6 +76,25 @@
+                 return;
+             }
+ 
++            // CraftBukkit start - interact soil
++            org.bukkit.event.Cancellable cancellable;
++
++            if (p_71866_5_ instanceof EntityPlayer)
++            {
++                cancellable = CraftEventFactory.callPlayerInteractEvent((EntityPlayer) p_71866_5_, org.bukkit.event.block.Action.PHYSICAL, p_71866_2_, p_71866_3_, p_71866_4_, -1, null);
++            }
++            else
++            {
++                cancellable = new EntityInteractEvent(p_71866_5_.getBukkitEntity(), p_71866_1_.getWorld().getBlockAt(p_71866_2_, p_71866_3_, p_71866_4_));
++                p_71866_1_.getServer().getPluginManager().callEvent((EntityInteractEvent) cancellable);
++            }
++
++            if (cancellable.isCancelled())
++            {
++                return;
++            }
++
++            // CraftBukkit end
+             p_71866_1_.func_94575_c(p_71866_2_, p_71866_3_, p_71866_4_, Block.field_71979_v.field_71990_ca);
+         }
+     }

@@ -1,0 +1,74 @@
+--- ../net/minecraft/block/BlockPortal.java
++++ ../net/minecraft/block/BlockPortal.java
+@@ -8,6 +8,11 @@
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
+ 
++// CraftBukkit start
++import org.bukkit.event.entity.EntityPortalEnterEvent;
++import org.bukkit.event.world.PortalCreateEvent;
++// CraftBukkit end
++
+ public class BlockPortal extends BlockBreakable
+ {
+     public BlockPortal(int p_i9077_1_)
+@@ -96,6 +101,11 @@
+         }
+         else
+         {
++            // CraftBukkit start
++            java.util.Collection<org.bukkit.block.Block> blocks = new java.util.HashSet<org.bukkit.block.Block>();
++            org.bukkit.World bworld = p_72246_1_.getWorld();
++            // CraftBukkit end
++
+             if (p_72246_1_.func_72798_a(p_72246_2_ - b0, p_72246_3_, p_72246_4_ - b1) == 0)
+             {
+                 p_72246_2_ -= b0;
+@@ -120,6 +130,10 @@
+                             if (j1 != Block.field_72089_ap.field_71990_ca)
+                             {
+                                 return false;
++                            }
++                            else     // CraftBukkit
++                            {
++                                blocks.add(bworld.getBlockAt(p_72246_2_ + b0 * l, p_72246_3_ + i1, p_72246_4_ + b1 * l)); // CraftBukkit
+                             }
+                         }
+                         else if (j1 != 0 && j1 != Block.field_72067_ar.field_71990_ca)
+@@ -130,6 +144,25 @@
+                 }
+             }
+ 
++            // CraftBukkit start
++            for (l = 0; l < 2; ++l)
++            {
++                for (i1 = 0; i1 < 3; ++i1)
++                {
++                    blocks.add(bworld.getBlockAt(p_72246_2_ + b0 * l, p_72246_3_ + i1, p_72246_4_ + b1 * l));
++                }
++            }
++
++            PortalCreateEvent event = new PortalCreateEvent(blocks, bworld, PortalCreateEvent.CreateReason.FIRE);
++            p_72246_1_.getServer().getPluginManager().callEvent(event);
++
++            if (event.isCancelled())
++            {
++                return false;
++            }
++
++            // CraftBukkit end
++
+             for (l = 0; l < 2; ++l)
+             {
+                 for (i1 = 0; i1 < 3; ++i1)
+@@ -206,6 +239,10 @@
+     {
+         if (p_71869_5_.field_70154_o == null && p_71869_5_.field_70153_n == null)
+         {
++            // CraftBukkit start - Entity in portal
++            EntityPortalEnterEvent event = new EntityPortalEnterEvent(p_71869_5_.getBukkitEntity(), new org.bukkit.Location(p_71869_1_.getWorld(), p_71869_2_, p_71869_3_, p_71869_4_));
++            p_71869_1_.getServer().getPluginManager().callEvent(event);
++            // CraftBukkit end
+             p_71869_5_.func_70063_aa();
+         }
+     }

@@ -1,0 +1,96 @@
+--- ../net/minecraft/inventory/ContainerPlayer.java
++++ ../net/minecraft/inventory/ContainerPlayer.java
+@@ -1,10 +1,16 @@
+ package net.minecraft.inventory;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.inventory.CraftInventoryCrafting;
++import org.bukkit.craftbukkit.inventory.CraftInventoryView;
+ import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.entity.player.InventoryPlayer;
+ import net.minecraft.item.ItemArmor;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.item.crafting.CraftingManager;
++import net.minecraft.network.packet.Packet103SetSlot;
++// CraftBukkit end
+ 
+ public class ContainerPlayer extends Container
+ {
+@@ -12,12 +18,20 @@
+     public IInventory field_75179_f = new InventoryCraftResult();
+     public boolean field_75180_g = false;
+     private final EntityPlayer field_82862_h;
++    // CraftBukkit start
++    private CraftInventoryView bukkitEntity = null;
++    private InventoryPlayer player;
++    // CraftBukkit end
+ 
+     public ContainerPlayer(InventoryPlayer p_i5077_1_, boolean p_i5077_2_, EntityPlayer p_i5077_3_)
+     {
+         this.field_75180_g = p_i5077_2_;
+         this.field_82862_h = p_i5077_3_;
+-        this.func_75146_a(new SlotCrafting(p_i5077_1_.field_70458_d, this.field_75181_e, this.field_75179_f, 0, 144, 36));
++        this.field_75179_f = new InventoryCraftResult(); // CraftBukkit - moved to before InventoryCrafting construction
++        this.field_75181_e = new InventoryCrafting(this, 2, 2, p_i5077_1_.field_70458_d); // CraftBukkit - pass player
++        this.field_75181_e.resultInventory = this.field_75179_f; // CraftBukkit - let InventoryCrafting know about its result slot
++        this.player = p_i5077_1_; // CraftBukkit - save player
++        this.func_75146_a((Slot)(new SlotCrafting(p_i5077_1_.field_70458_d, this.field_75181_e, this.field_75179_f, 0, 144, 36)));
+         int i;
+         int j;
+ 
+@@ -31,7 +45,7 @@
+ 
+         for (i = 0; i < 4; ++i)
+         {
+-            this.func_75146_a(new SlotArmor(this, p_i5077_1_, p_i5077_1_.func_70302_i_() - 1 - i, 8, 8 + i * 18, i));
++            this.func_75146_a((Slot)(new SlotArmor(this, p_i5077_1_, p_i5077_1_.func_70302_i_() - 1 - i, 8, 8 + i * 18, i)));
+         }
+ 
+         for (i = 0; i < 3; ++i)
+@@ -47,12 +61,24 @@
+             this.func_75146_a(new Slot(p_i5077_1_, i, 8 + i * 18, 142));
+         }
+ 
+-        this.func_75130_a(this.field_75181_e);
++        // this.a((IInventory) this.craftInventory); // CraftBukkit - unneeded since it just sets result slot to empty
+     }
+ 
+     public void func_75130_a(IInventory p_75130_1_)
+     {
+-        this.field_75179_f.func_70299_a(0, CraftingManager.func_77594_a().func_82787_a(this.field_75181_e, this.field_82862_h.field_70170_p));
++        // CraftBukkit start (Note: the following line would cause an error if called during construction)
++        CraftingManager.func_77594_a().lastCraftView = getBukkitView();
++        ItemStack craftResult = CraftingManager.func_77594_a().func_82787_a(this.field_75181_e, this.field_82862_h.field_70170_p);
++        this.field_75179_f.func_70299_a(0, craftResult);
++
++        if (super.field_75149_d.size() < 1)
++        {
++            return;
++        }
++
++        EntityPlayerMP player = (EntityPlayerMP) super.field_75149_d.get(0); // TODO: Is this _always_ correct? Seems like it.
++        player.field_71135_a.func_72567_b(new Packet103SetSlot(player.field_71070_bA.field_75152_c, 0, craftResult));
++        // CraftBukkit end
+     }
+ 
+     public void func_75134_a(EntityPlayer p_75134_1_)
+@@ -162,4 +188,18 @@
+     {
+         return p_94530_2_.field_75224_c != this.field_75179_f && super.func_94530_a(p_94530_1_, p_94530_2_);
+     }
++
++    // CraftBukkit start
++    public CraftInventoryView getBukkitView()
++    {
++        if (bukkitEntity != null)
++        {
++            return bukkitEntity;
++        }
++
++        CraftInventoryCrafting inventory = new CraftInventoryCrafting(this.field_75181_e, this.field_75179_f);
++        bukkitEntity = new CraftInventoryView(this.player.field_70458_d.getBukkitEntity(), inventory, this);
++        return bukkitEntity;
++    }
++    // CraftBukkit end
+ }

@@ -1,0 +1,22 @@
+--- ../net/minecraft/util/EntityDamageSourceIndirect.java
++++ ../net/minecraft/util/EntityDamageSourceIndirect.java
+@@ -3,7 +3,6 @@
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.item.ItemStack;
+-
+ public class EntityDamageSourceIndirect extends EntityDamageSource
+ {
+     private Entity field_76387_p;
+@@ -32,4 +31,11 @@
+         String s2 = s1 + ".item";
+         return itemstack != null && itemstack.func_82837_s() && StatCollector.func_94522_b(s2) ? StatCollector.func_74837_a(s2, new Object[] {p_76360_1_.func_96090_ax(), s, itemstack.func_82833_r()}): StatCollector.func_74837_a(s1, new Object[] {p_76360_1_.func_96090_ax(), s});
+     }
++
++    // CraftBukkit start
++    public Entity getProximateDamageSource()
++    {
++        return super.func_76346_g();
++    }
++    // CraftBukkit end
+ }

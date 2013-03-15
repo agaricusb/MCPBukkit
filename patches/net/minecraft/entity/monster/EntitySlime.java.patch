@@ -1,0 +1,75 @@
+--- ../net/minecraft/entity/monster/EntitySlime.java
++++ ../net/minecraft/entity/monster/EntitySlime.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.entity.monster;
+ 
++import org.bukkit.event.entity.SlimeSplitEvent; // CraftBukkit
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.item.Item;
+@@ -35,12 +36,22 @@
+         this.field_70180_af.func_75682_a(16, new Byte((byte)1));
+     }
+ 
+-    protected void func_70799_a(int p_70799_1_)
+-    {
++    // CraftBukkit - protected -> public
++    public void func_70799_a(int p_70799_1_)
++    {
++        boolean updateMaxHealth = this.func_70667_aM() == this.maxHealth; // CraftBukkit
+         this.field_70180_af.func_75692_b(16, new Byte((byte)p_70799_1_));
+         this.func_70105_a(0.6F * (float)p_70799_1_, 0.6F * (float)p_70799_1_);
+         this.func_70107_b(this.field_70165_t, this.field_70163_u, this.field_70161_v);
+-        this.func_70606_j(this.func_70667_aM());
++
++        // CraftBukkit start
++        if (updateMaxHealth)
++        {
++            this.maxHealth = this.func_70667_aM();
++        }
++
++        this.func_70606_j(this.maxHealth);
++        // CraftBukkit end
+         this.field_70728_aV = p_70799_1_;
+     }
+ 
+@@ -127,7 +138,7 @@
+     protected void func_70626_be()
+     {
+         this.func_70623_bb();
+-        EntityPlayer entityplayer = this.field_70170_p.func_72856_b(this, 16.0D);
++        EntityPlayer entityplayer = this.field_70170_p.func_72856_b(this, 16.0D); // CraftBukkit TODO: EntityTargetEvent
+ 
+         if (entityplayer != null)
+         {
+@@ -186,6 +197,21 @@
+         if (!this.field_70170_p.field_72995_K && i > 1 && this.func_70630_aN() <= 0)
+         {
+             int j = 2 + this.field_70146_Z.nextInt(3);
++            // CraftBukkit start
++            SlimeSplitEvent event = new SlimeSplitEvent((org.bukkit.entity.Slime) this.getBukkitEntity(), j);
++            this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++            if (!event.isCancelled() && event.getCount() > 0)
++            {
++                j = event.getCount();
++            }
++            else
++            {
++                super.func_70106_y();
++                return;
++            }
++
++            // CraftBukkit end
+ 
+             for (int k = 0; k < j; ++k)
+             {
+@@ -194,7 +220,7 @@
+                 EntitySlime entityslime = this.func_70802_j();
+                 entityslime.func_70799_a(i / 2);
+                 entityslime.func_70012_b(this.field_70165_t + (double)f, this.field_70163_u + 0.5D, this.field_70161_v + (double)f1, this.field_70146_Z.nextFloat() * 360.0F, 0.0F);
+-                this.field_70170_p.func_72838_d(entityslime);
++                this.field_70170_p.addEntity(entityslime, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.SLIME_SPLIT); // CraftBukkit - SpawnReason
+             }
+         }
+ 

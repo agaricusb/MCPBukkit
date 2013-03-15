@@ -1,0 +1,115 @@
+--- ../net/minecraft/entity/EntityCreature.java
++++ ../net/minecraft/entity/EntityCreature.java
+@@ -1,14 +1,18 @@
+ package net.minecraft.entity;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.entity.CraftEntity;
++import org.bukkit.event.entity.EntityTargetEvent;
+ import net.minecraft.pathfinding.PathEntity;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.util.Vec3;
+ import net.minecraft.world.World;
++// CraftBukkit end
+ 
+ public abstract class EntityCreature extends EntityLiving
+ {
+-    private PathEntity field_70786_d;
+-    protected Entity field_70789_a;
++    public PathEntity field_70786_d; // CraftBukkit - private -> public
++    public Entity field_70789_a; // CraftBukkit - protected -> public
+     protected boolean field_70787_b = false;
+     protected int field_70788_c = 0;
+ 
+@@ -36,7 +40,28 @@
+ 
+         if (this.field_70789_a == null)
+         {
+-            this.field_70789_a = this.func_70782_k();
++            // CraftBukkit start
++            Entity target = this.func_70782_k();
++
++            if (target != null)
++            {
++                EntityTargetEvent event = new EntityTargetEvent(this.getBukkitEntity(), target.getBukkitEntity(), EntityTargetEvent.TargetReason.CLOSEST_PLAYER);
++                this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++                if (!event.isCancelled())
++                {
++                    if (event.getTarget() == null)
++                    {
++                        this.field_70789_a = null;
++                    }
++                    else
++                    {
++                        this.field_70789_a = ((CraftEntity) event.getTarget()).getHandle();
++                    }
++                }
++            }
++
++            // CraftBukkit end
+ 
+             if (this.field_70789_a != null)
+             {
+@@ -45,7 +70,7 @@
+         }
+         else if (this.field_70789_a.func_70089_S())
+         {
+-            float f1 = this.field_70789_a.func_70032_d(this);
++            float f1 = this.field_70789_a.func_70032_d((Entity) this);
+ 
+             if (this.func_70685_l(this.field_70789_a))
+             {
+@@ -54,7 +79,23 @@
+         }
+         else
+         {
+-            this.field_70789_a = null;
++            // CraftBukkit start
++            EntityTargetEvent event = new EntityTargetEvent(this.getBukkitEntity(), null, EntityTargetEvent.TargetReason.TARGET_DIED);
++            this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++            if (!event.isCancelled())
++            {
++                if (event.getTarget() == null)
++                {
++                    this.field_70789_a = null;
++                }
++                else
++                {
++                    this.field_70789_a = ((CraftEntity) event.getTarget()).getHandle();
++                }
++            }
++
++            // CraftBukkit end
+         }
+ 
+         this.field_70170_p.field_72984_F.func_76319_b();
+@@ -76,7 +117,7 @@
+         if (this.field_70786_d != null && this.field_70146_Z.nextInt(100) != 0)
+         {
+             this.field_70170_p.field_72984_F.func_76320_a("followpath");
+-            Vec3 vec3 = this.field_70786_d.func_75878_a(this);
++            Vec3 vec3 = this.field_70786_d.func_75878_a((Entity) this);
+             double d0 = (double)(this.field_70130_N * 2.0F);
+ 
+             while (vec3 != null && vec3.func_72445_d(this.field_70165_t, vec3.field_72448_b, this.field_70161_v) < d0 * d0)
+@@ -90,7 +131,7 @@
+                 }
+                 else
+                 {
+-                    vec3 = this.field_70786_d.func_75878_a(this);
++                    vec3 = this.field_70786_d.func_75878_a((Entity) this);
+                 }
+             }
+ 
+@@ -101,7 +142,8 @@
+                 double d1 = vec3.field_72450_a - this.field_70165_t;
+                 double d2 = vec3.field_72449_c - this.field_70161_v;
+                 double d3 = vec3.field_72448_b - (double)i;
+-                float f2 = (float)(Math.atan2(d2, d1) * 180.0D / Math.PI) - 90.0F;
++                // CraftBukkit - Math -> TrigMath
++                float f2 = (float)(org.bukkit.craftbukkit.TrigMath.atan2(d2, d1) * 180.0D / Math.PI) - 90.0F;
+                 float f3 = MathHelper.func_76142_g(f2 - this.field_70177_z);
+                 this.field_70701_bs = this.field_70697_bw;
+ 

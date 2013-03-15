@@ -1,0 +1,15 @@
+--- ../net/minecraft/entity/item/EntityFireworkRocket.java
++++ ../net/minecraft/entity/item/EntityFireworkRocket.java
+@@ -5,11 +5,10 @@
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
+-
+ public class EntityFireworkRocket extends Entity
+ {
+     private int field_92056_a;
+-    private int field_92055_b;
++    public int field_92055_b; // CraftBukkit - private -> public
+ 
+     public EntityFireworkRocket(World p_i8008_1_)
+     {

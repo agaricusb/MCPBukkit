@@ -1,0 +1,40 @@
+--- ../net/minecraft/item/crafting/ShapelessRecipes.java
++++ ../net/minecraft/item/crafting/ShapelessRecipes.java
+@@ -6,6 +6,11 @@
+ import net.minecraft.inventory.InventoryCrafting;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.world.World;
++
++// CraftBukkit start
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.inventory.CraftShapelessRecipe;
++// CraftBukkit end
+ 
+ public class ShapelessRecipes implements IRecipe
+ {
+@@ -17,6 +22,25 @@
+         this.field_77580_a = p_i3701_1_;
+         this.field_77579_b = p_i3701_2_;
+     }
++
++    // CraftBukkit start
++    @SuppressWarnings("unchecked")
++    public org.bukkit.inventory.ShapelessRecipe toBukkitRecipe()
++    {
++        CraftItemStack result = CraftItemStack.asCraftMirror(this.field_77580_a);
++        CraftShapelessRecipe recipe = new CraftShapelessRecipe(result, this);
++
++        for (ItemStack stack : (List<ItemStack>) this.field_77579_b)
++        {
++            if (stack != null)
++            {
++                recipe.addIngredient(org.bukkit.Material.getMaterial(stack.field_77993_c), stack.func_77960_j());
++            }
++        }
++
++        return recipe;
++    }
++    // CraftBukkit end
+ 
+     public ItemStack func_77571_b()
+     {

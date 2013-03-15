@@ -1,0 +1,38 @@
+--- ../net/minecraft/world/WorldManager.java
++++ ../net/minecraft/world/WorldManager.java
+@@ -12,7 +12,7 @@
+ public class WorldManager implements IWorldAccess
+ {
+     private MinecraftServer field_72783_a;
+-    private WorldServer field_72782_b;
++    public WorldServer field_72782_b; // CraftBukkit - private -> public
+ 
+     public WorldManager(MinecraftServer p_i3390_1_, WorldServer p_i3390_2_)
+     {
+@@ -34,12 +34,14 @@
+ 
+     public void func_72704_a(String p_72704_1_, double p_72704_2_, double p_72704_4_, double p_72704_6_, float p_72704_8_, float p_72704_9_)
+     {
+-        this.field_72783_a.func_71203_ab().func_72393_a(p_72704_2_, p_72704_4_, p_72704_6_, p_72704_8_ > 1.0F ? (double)(16.0F * p_72704_8_) : 16.0D, this.field_72782_b.field_73011_w.field_76574_g, new Packet62LevelSound(p_72704_1_, p_72704_2_, p_72704_4_, p_72704_6_, p_72704_8_, p_72704_9_));
++        // CraftBukkit - this.world.dimension
++        this.field_72783_a.func_71203_ab().func_72393_a(p_72704_2_, p_72704_4_, p_72704_6_, p_72704_8_ > 1.0F ? (double)(16.0F * p_72704_8_) : 16.0D, this.field_72782_b.dimension, new Packet62LevelSound(p_72704_1_, p_72704_2_, p_72704_4_, p_72704_6_, p_72704_8_, p_72704_9_));
+     }
+ 
+     public void func_85102_a(EntityPlayer p_85102_1_, String p_85102_2_, double p_85102_3_, double p_85102_5_, double p_85102_7_, float p_85102_9_, float p_85102_10_)
+     {
+-        this.field_72783_a.func_71203_ab().func_72397_a(p_85102_1_, p_85102_3_, p_85102_5_, p_85102_7_, p_85102_9_ > 1.0F ? (double)(16.0F * p_85102_9_) : 16.0D, this.field_72782_b.field_73011_w.field_76574_g, new Packet62LevelSound(p_85102_2_, p_85102_3_, p_85102_5_, p_85102_7_, p_85102_9_, p_85102_10_));
++        // CraftBukkit - this.world.dimension
++        this.field_72783_a.func_71203_ab().func_72397_a(p_85102_1_, p_85102_3_, p_85102_5_, p_85102_7_, p_85102_9_ > 1.0F ? (double)(16.0F * p_85102_9_) : 16.0D, this.field_72782_b.dimension, new Packet62LevelSound(p_85102_2_, p_85102_3_, p_85102_5_, p_85102_7_, p_85102_9_, p_85102_10_));
+     }
+ 
+     public void func_72707_a(int p_72707_1_, int p_72707_2_, int p_72707_3_, int p_72707_4_, int p_72707_5_, int p_72707_6_) {}
+@@ -55,7 +57,8 @@
+ 
+     public void func_72706_a(EntityPlayer p_72706_1_, int p_72706_2_, int p_72706_3_, int p_72706_4_, int p_72706_5_, int p_72706_6_)
+     {
+-        this.field_72783_a.func_71203_ab().func_72397_a(p_72706_1_, (double)p_72706_3_, (double)p_72706_4_, (double)p_72706_5_, 64.0D, this.field_72782_b.field_73011_w.field_76574_g, new Packet61DoorChange(p_72706_2_, p_72706_3_, p_72706_4_, p_72706_5_, p_72706_6_, false));
++        // CraftBukkit - this.world.dimension
++        this.field_72783_a.func_71203_ab().func_72397_a(p_72706_1_, (double) p_72706_3_, (double) p_72706_4_, (double) p_72706_5_, 64.0D, this.field_72782_b.dimension, new Packet61DoorChange(p_72706_2_, p_72706_3_, p_72706_4_, p_72706_5_, p_72706_6_, false));
+     }
+ 
+     public void func_82746_a(int p_82746_1_, int p_82746_2_, int p_82746_3_, int p_82746_4_, int p_82746_5_)

@@ -1,0 +1,39 @@
+--- ../net/minecraft/block/BlockPressurePlate.java
++++ ../net/minecraft/block/BlockPressurePlate.java
+@@ -7,6 +7,8 @@
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.world.World;
++
++import org.bukkit.event.entity.EntityInteractEvent; // CraftBukkit
+ 
+ public class BlockPressurePlate extends BlockBasePressurePlate
+ {
+@@ -54,6 +56,27 @@
+             while (iterator.hasNext())
+             {
+                 Entity entity = (Entity)iterator.next();
++                // CraftBukkit start
++                org.bukkit.World bworld = p_94351_1_.getWorld();
++                org.bukkit.plugin.PluginManager manager = p_94351_1_.getServer().getPluginManager();
++                org.bukkit.event.Cancellable cancellable;
++
++                if (entity instanceof EntityPlayer)
++                {
++                    cancellable = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerInteractEvent((EntityPlayer) entity, org.bukkit.event.block.Action.PHYSICAL, p_94351_2_, p_94351_3_, p_94351_4_, -1, null);
++                }
++                else
++                {
++                    cancellable = new EntityInteractEvent(entity.getBukkitEntity(), bworld.getBlockAt(p_94351_2_, p_94351_3_, p_94351_4_));
++                    manager.callEvent((EntityInteractEvent) cancellable);
++                }
++
++                if (cancellable.isCancelled())
++                {
++                    return 0;
++                }
++
++                // CraftBukkit end
+ 
+                 if (!entity.func_82144_au())
+                 {
