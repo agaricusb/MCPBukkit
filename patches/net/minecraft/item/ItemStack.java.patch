@@ -28,11 +28,18 @@
          }
      }
  
-@@ -194,6 +195,19 @@
+@@ -194,6 +195,26 @@
  
      public void func_77964_b(int p_77964_1_)
      {
 +        // CraftBukkit start - filter out data for items that shouldn't have it
++        // The crafting system uses this value for a special purpose so we have to allow it
++        if (p_77964_1_ == 32767)
++        {
++            this.field_77991_e = p_77964_1_;
++            return;
++        }
++
 +        if (!(this.func_77981_g() || Item.field_77698_e[this.field_77993_c].func_77645_m()))   // Should be canBeDepleted
 +        {
 +            p_77964_1_ = 0;
@@ -48,7 +55,7 @@
          this.field_77991_e = p_77964_1_;
  
          if (this.field_77991_e < 0)
-@@ -263,6 +277,13 @@
+@@ -263,6 +284,13 @@
                          this.field_77994_a = 0;
                      }
  
@@ -62,7 +69,7 @@
                      this.field_77991_e = 0;
                  }
              }
-@@ -271,7 +292,7 @@
+@@ -271,7 +299,7 @@
  
      public void func_77961_a(EntityLiving p_77961_1_, EntityPlayer p_77961_2_)
      {
