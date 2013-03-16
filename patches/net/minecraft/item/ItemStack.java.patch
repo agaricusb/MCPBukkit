@@ -33,7 +33,7 @@
      public void func_77964_b(int p_77964_1_)
      {
 +        // CraftBukkit start - filter out data for items that shouldn't have it
-+        if (!this.func_77981_g())
++        if (!(this.func_77981_g() || Item.field_77698_e[this.field_77993_c].func_77645_m()))   // Should be canBeDepleted
 +        {
 +            p_77964_1_ = 0;
 +        }
