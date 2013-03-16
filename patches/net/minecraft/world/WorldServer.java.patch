@@ -406,6 +406,23 @@
              }
  
              this.field_72984_F.func_76320_a("cleaning");
+@@ -544,11 +731,11 @@
+             else
+             {
+                 iterator = this.field_94579_S.iterator();
+-
+-                if (!this.field_94579_S.isEmpty())
+-                {
+-                    System.out.println(this.field_94579_S.size());
+-                }
++                /* CraftBukkit start - comment out debug spam
++                if (!this.T.isEmpty()) {
++                    System.out.println(this.T.size());
++                }
++                // CraftBukkit end */
+             }
+ 
+             while (iterator.hasNext())
 @@ -578,16 +765,16 @@
  
      public void func_72866_a(Entity p_72866_1_, boolean p_72866_2_)
