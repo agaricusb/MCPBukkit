@@ -1,18 +1,17 @@
 package org.bukkit.craftbukkit.entity;
 
-import net.minecraft.server.EntityWitherSkull;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.WitherSkull;
 
 public class CraftWitherSkull extends CraftFireball implements WitherSkull {
-    public CraftWitherSkull(CraftServer server, EntityWitherSkull entity) {
+    public CraftWitherSkull(CraftServer server, net.minecraft.entity.projectile.EntityWitherSkull entity) {
         super(server, entity);
     }
 
     @Override
-    public EntityWitherSkull getHandle() {
-        return (EntityWitherSkull) entity;
+    public net.minecraft.entity.projectile.EntityWitherSkull getHandle() {
+        return (net.minecraft.entity.projectile.EntityWitherSkull) entity;
     }
 
     @Override

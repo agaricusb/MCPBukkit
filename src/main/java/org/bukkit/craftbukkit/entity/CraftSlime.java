@@ -1,6 +1,5 @@
 package org.bukkit.craftbukkit.entity;
 
-import net.minecraft.server.EntitySlime;
 
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.EntityType;
@@ -8,21 +7,21 @@ import org.bukkit.entity.Slime;
 
 public class CraftSlime extends CraftLivingEntity implements Slime {
 
-    public CraftSlime(CraftServer server, EntitySlime entity) {
+    public CraftSlime(CraftServer server, net.minecraft.entity.monster.EntitySlime entity) {
         super(server, entity);
     }
 
     public int getSize() {
-        return getHandle().getSize();
+        return getHandle().func_70809_q();
     }
 
     public void setSize(int size) {
-        getHandle().setSize(size);
+        getHandle().func_70799_a(size);
     }
 
     @Override
-    public EntitySlime getHandle() {
-        return (EntitySlime) entity;
+    public net.minecraft.entity.monster.EntitySlime getHandle() {
+        return (net.minecraft.entity.monster.EntitySlime) entity;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package org.bukkit.craftbukkit.entity;
 
-import net.minecraft.server.EntityCow;
 
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Cow;
@@ -8,13 +7,13 @@ import org.bukkit.entity.EntityType;
 
 public class CraftCow extends CraftAnimals implements Cow {
 
-    public CraftCow(CraftServer server, EntityCow entity) {
+    public CraftCow(CraftServer server, net.minecraft.entity.passive.EntityCow entity) {
         super(server, entity);
     }
 
     @Override
-    public EntityCow getHandle() {
-        return (EntityCow) entity;
+    public net.minecraft.entity.passive.EntityCow getHandle() {
+        return (net.minecraft.entity.passive.EntityCow) entity;
     }
 
     @Override

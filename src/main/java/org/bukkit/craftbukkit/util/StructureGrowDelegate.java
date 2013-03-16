@@ -3,7 +3,6 @@ package org.bukkit.craftbukkit.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.server.World;
 
 import org.bukkit.BlockChangeDelegate;
 import org.bukkit.block.BlockState;
@@ -14,7 +13,7 @@ public class StructureGrowDelegate implements BlockChangeDelegate {
     private final CraftWorld world;
     private final List<BlockState> blocks = new ArrayList<BlockState>();
 
-    public StructureGrowDelegate(World world) {
+    public StructureGrowDelegate(net.minecraft.world.World world) {
         this.world = world.getWorld();
     }
 

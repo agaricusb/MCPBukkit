@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.server.NBTTagCompound;
-import net.minecraft.server.NBTTagList;
-import net.minecraft.server.NBTTagString;
 
 import org.apache.commons.lang.Validate;
 import org.bukkit.Material;
@@ -42,23 +39,23 @@ class CraftMetaBook extends CraftMetaItem implements BookMeta {
         pages.addAll(bookMeta.pages);
     }
 
-    CraftMetaBook(NBTTagCompound tag) {
+    CraftMetaBook(net.minecraft.nbt.NBTTagCompound tag) {
         super(tag);
 
-        if (tag.hasKey(BOOK_TITLE.NBT)) {
-            this.title = tag.getString(BOOK_TITLE.NBT);
+        if (tag.func_74764_b(BOOK_TITLE.NBT)) {
+            this.title = tag.func_74779_i(BOOK_TITLE.NBT);
         }
 
-        if (tag.hasKey(BOOK_AUTHOR.NBT)) {
-            this.author = tag.getString(BOOK_AUTHOR.NBT);
+        if (tag.func_74764_b(BOOK_AUTHOR.NBT)) {
+            this.author = tag.func_74779_i(BOOK_AUTHOR.NBT);
         }
 
-        if (tag.hasKey(BOOK_PAGES.NBT)) {
-            NBTTagList pages = tag.getList(BOOK_PAGES.NBT);
-            String[] pageArray = new String[pages.size()];
+        if (tag.func_74764_b(BOOK_PAGES.NBT)) {
+            net.minecraft.nbt.NBTTagList pages = tag.func_74761_m(BOOK_PAGES.NBT);
+            String[] pageArray = new String[pages.func_74745_c()];
 
-            for (int i = 0; i < pages.size(); i++) {
-                String page = ((NBTTagString) pages.get(i)).data;
+            for (int i = 0; i < pages.func_74745_c(); i++) {
+                String page = ((net.minecraft.nbt.NBTTagString) pages.func_74743_b(i)).field_74751_a;
                 pageArray[i] = page;
             }
 
@@ -78,19 +75,19 @@ class CraftMetaBook extends CraftMetaItem implements BookMeta {
     }
 
     @Override
-    void applyToItem(NBTTagCompound itemData) {
+    void applyToItem(net.minecraft.nbt.NBTTagCompound itemData) {
         super.applyToItem(itemData);
 
         if (hasTitle()) {
-            itemData.setString(BOOK_TITLE.NBT, this.title);
+            itemData.func_74778_a(BOOK_TITLE.NBT, this.title);
         }
 
         if (hasAuthor()) {
-            itemData.setString(BOOK_AUTHOR.NBT, this.author);
+            itemData.func_74778_a(BOOK_AUTHOR.NBT, this.author);
         }
 
         if (hasPages()) {
-            itemData.set(BOOK_PAGES.NBT, createStringList(pages, BOOK_PAGES));
+            itemData.func_74782_a(BOOK_PAGES.NBT, createStringList(pages, BOOK_PAGES));
         }
     }
 

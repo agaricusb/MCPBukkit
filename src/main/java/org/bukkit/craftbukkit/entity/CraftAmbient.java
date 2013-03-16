@@ -1,18 +1,17 @@
 package org.bukkit.craftbukkit.entity;
 
-import net.minecraft.server.EntityAmbient;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Ambient;
 import org.bukkit.entity.EntityType;
 
 public class CraftAmbient extends CraftLivingEntity implements Ambient {
-    public CraftAmbient(CraftServer server, EntityAmbient entity) {
+    public CraftAmbient(CraftServer server, net.minecraft.entity.passive.EntityAmbientCreature entity) {
         super(server, entity);
     }
 
     @Override
-    public EntityAmbient getHandle() {
-        return (EntityAmbient) entity;
+    public net.minecraft.entity.passive.EntityAmbientCreature getHandle() {
+        return (net.minecraft.entity.passive.EntityAmbientCreature) entity;
     }
 
     @Override

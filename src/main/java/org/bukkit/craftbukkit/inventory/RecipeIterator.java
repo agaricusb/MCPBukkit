@@ -5,18 +5,15 @@ import java.util.Iterator;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 
-import net.minecraft.server.CraftingManager;
-import net.minecraft.server.IRecipe;
-import net.minecraft.server.RecipesFurnace;
 
 public class RecipeIterator implements Iterator<Recipe> {
-    private Iterator<IRecipe> recipes;
+    private Iterator<net.minecraft.item.crafting.IRecipe> recipes;
     private Iterator<Integer> smelting;
     private Iterator<?> removeFrom = null;
 
     public RecipeIterator() {
-        this.recipes = CraftingManager.getInstance().getRecipes().iterator();
-        this.smelting = RecipesFurnace.getInstance().getRecipes().keySet().iterator();
+        this.recipes = net.minecraft.item.crafting.CraftingManager.func_77594_a().func_77592_b().iterator();
+        this.smelting = net.minecraft.item.crafting.FurnaceRecipes.func_77602_a().func_77599_b().keySet().iterator();
     }
 
     public boolean hasNext() {
@@ -34,7 +31,7 @@ public class RecipeIterator implements Iterator<Recipe> {
         } else {
             removeFrom = smelting;
             int id = smelting.next();
-            CraftItemStack stack = CraftItemStack.asCraftMirror(RecipesFurnace.getInstance().getResult(id));
+            CraftItemStack stack = CraftItemStack.asCraftMirror(net.minecraft.item.crafting.FurnaceRecipes.func_77602_a().func_77603_b(id));
             CraftFurnaceRecipe recipe = new CraftFurnaceRecipe(stack, new ItemStack(id, 1, (short) -1));
             return recipe;
         }

@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.server.NBTTagCompound;
-import net.minecraft.server.NBTTagList;
 
 import org.apache.commons.lang.Validate;
 import org.bukkit.Material;
@@ -40,21 +38,21 @@ class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
         }
     }
 
-    CraftMetaPotion(NBTTagCompound tag) {
+    CraftMetaPotion(net.minecraft.nbt.NBTTagCompound tag) {
         super(tag);
 
-        if (tag.hasKey(POTION_EFFECTS.NBT)) {
-            NBTTagList list = tag.getList(POTION_EFFECTS.NBT);
-            int length = list.size();
+        if (tag.func_74764_b(POTION_EFFECTS.NBT)) {
+            net.minecraft.nbt.NBTTagList list = tag.func_74761_m(POTION_EFFECTS.NBT);
+            int length = list.func_74745_c();
             if (length > 0) {
                 customEffects = new ArrayList<PotionEffect>(length);
 
                 for (int i = 0; i < length; i++) {
-                    NBTTagCompound effect = (NBTTagCompound) list.get(i);
-                    PotionEffectType type = PotionEffectType.getById(effect.getByte(ID.NBT));
-                    int amp = effect.getByte(AMPLIFIER.NBT);
-                    int duration = effect.getInt(DURATION.NBT);
-                    boolean ambient = effect.getBoolean(AMBIENT.NBT);
+                    net.minecraft.nbt.NBTTagCompound effect = (net.minecraft.nbt.NBTTagCompound) list.func_74743_b(i);
+                    PotionEffectType type = PotionEffectType.getById(effect.func_74771_c(ID.NBT));
+                    int amp = effect.func_74771_c(AMPLIFIER.NBT);
+                    int duration = effect.func_74762_e(DURATION.NBT);
+                    boolean ambient = effect.func_74767_n(AMBIENT.NBT);
                     customEffects.add(new PotionEffect(type, duration, amp, ambient));
                 }
             }
@@ -78,19 +76,19 @@ class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
     }
 
     @Override
-    void applyToItem(NBTTagCompound tag) {
+    void applyToItem(net.minecraft.nbt.NBTTagCompound tag) {
         super.applyToItem(tag);
         if (hasCustomEffects()) {
-            NBTTagList effectList = new NBTTagList();
-            tag.set(POTION_EFFECTS.NBT, effectList);
+            net.minecraft.nbt.NBTTagList effectList = new net.minecraft.nbt.NBTTagList();
+            tag.func_74782_a(POTION_EFFECTS.NBT, effectList);
 
             for (PotionEffect effect : customEffects) {
-                NBTTagCompound effectData = new NBTTagCompound();
-                effectData.setByte(ID.NBT, (byte) effect.getType().getId());
-                effectData.setByte(AMPLIFIER.NBT, (byte) effect.getAmplifier());
-                effectData.setInt(DURATION.NBT, effect.getDuration());
-                effectData.setBoolean(AMBIENT.NBT, effect.isAmbient());
-                effectList.add(effectData);
+                net.minecraft.nbt.NBTTagCompound effectData = new net.minecraft.nbt.NBTTagCompound();
+                effectData.func_74774_a(ID.NBT, (byte) effect.getType().getId());
+                effectData.func_74774_a(AMPLIFIER.NBT, (byte) effect.getAmplifier());
+                effectData.func_74768_a(DURATION.NBT, effect.getDuration());
+                effectData.func_74757_a(AMBIENT.NBT, effect.isAmbient());
+                effectList.func_74742_a(effectData);
             }
         }
     }

@@ -1,8 +1,6 @@
 package org.bukkit.craftbukkit.block;
 
 import java.util.Random;
-import net.minecraft.server.BlockDispenser;
-import net.minecraft.server.TileEntityDispenser;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Dispenser;
@@ -12,13 +10,13 @@ import org.bukkit.inventory.Inventory;
 
 public class CraftDispenser extends CraftBlockState implements Dispenser {
     private final CraftWorld world;
-    private final TileEntityDispenser dispenser;
+    private final net.minecraft.tileentity.TileEntityDispenser dispenser;
 
     public CraftDispenser(final Block block) {
         super(block);
 
         world = (CraftWorld) block.getWorld();
-        dispenser = (TileEntityDispenser) world.getTileEntityAt(getX(), getY(), getZ());
+        dispenser = (net.minecraft.tileentity.TileEntityDispenser) world.getTileEntityAt(getX(), getY(), getZ());
     }
 
     public Inventory getInventory() {
@@ -30,9 +28,9 @@ public class CraftDispenser extends CraftBlockState implements Dispenser {
 
         synchronized (block) {
             if (block.getType() == Material.DISPENSER) {
-                BlockDispenser dispense = (BlockDispenser) net.minecraft.server.Block.DISPENSER;
+                net.minecraft.block.BlockDispenser dispense = (net.minecraft.block.BlockDispenser) net.minecraft.block.Block.field_71958_P;
 
-                dispense.dispense(world.getHandle(), getX(), getY(), getZ());
+                dispense.func_82526_n(world.getHandle(), getX(), getY(), getZ());
                 return true;
             } else {
                 return false;
@@ -45,7 +43,7 @@ public class CraftDispenser extends CraftBlockState implements Dispenser {
         boolean result = super.update(force);
 
         if (result) {
-            dispenser.update();
+            dispenser.func_70296_d();
         }
 
         return result;

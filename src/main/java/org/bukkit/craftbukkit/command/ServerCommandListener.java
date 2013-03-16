@@ -2,13 +2,10 @@ package org.bukkit.craftbukkit.command;
 
 import java.lang.reflect.Method;
 
-import net.minecraft.server.ChunkCoordinates;
-import net.minecraft.server.ICommandListener;
-import net.minecraft.server.LocaleLanguage;
 
 import org.bukkit.command.CommandSender;
 
-public class ServerCommandListener implements ICommandListener {
+public class ServerCommandListener implements net.minecraft.command.ICommandSender {
     private final CommandSender commandSender;
     private final String prefix;
 
@@ -18,7 +15,7 @@ public class ServerCommandListener implements ICommandListener {
         this.prefix = parts[parts.length - 1];
     }
 
-    public void sendMessage(String msg) {
+    public void func_70006_a(String msg) {
         this.commandSender.sendMessage(msg);
     }
 
@@ -26,7 +23,7 @@ public class ServerCommandListener implements ICommandListener {
         return commandSender;
     }
 
-    public String getName() {
+    public String func_70005_c_() {
         try {
             Method getName = commandSender.getClass().getMethod("getName");
 
@@ -36,15 +33,15 @@ public class ServerCommandListener implements ICommandListener {
         return this.prefix;
     }
 
-    public String a(String s, Object... aobject) {
-        return LocaleLanguage.a().a(s, aobject);
+    public String func_70004_a(String s, Object... aobject) {
+        return net.minecraft.util.StringTranslate.func_74808_a().func_74803_a(s, aobject);
     }
 
-    public boolean a(int i, String s) {
+    public boolean func_70003_b(int i, String s) {
         return true;
     }
 
-    public ChunkCoordinates b() {
-        return new ChunkCoordinates(0, 0, 0);
+    public net.minecraft.util.ChunkCoordinates func_82114_b() {
+        return new net.minecraft.util.ChunkCoordinates(0, 0, 0);
     }
 }

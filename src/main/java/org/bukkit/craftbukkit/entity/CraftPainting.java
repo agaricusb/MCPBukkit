@@ -1,8 +1,5 @@
 package org.bukkit.craftbukkit.entity;
 
-import net.minecraft.server.EntityPainting;
-import net.minecraft.server.EnumArt;
-import net.minecraft.server.WorldServer;
 
 import org.bukkit.Art;
 import org.bukkit.block.BlockFace;
@@ -14,12 +11,12 @@ import org.bukkit.entity.Painting;
 
 public class CraftPainting extends CraftHanging implements Painting {
 
-    public CraftPainting(CraftServer server, EntityPainting entity) {
+    public CraftPainting(CraftServer server, net.minecraft.entity.item.EntityPainting entity) {
         super(server, entity);
     }
 
     public Art getArt() {
-        EnumArt art = getHandle().art;
+        net.minecraft.util.EnumArt art = getHandle().field_70522_e;
         return CraftArt.NotchToBukkit(art);
     }
 
@@ -28,14 +25,14 @@ public class CraftPainting extends CraftHanging implements Painting {
     }
 
     public boolean setArt(Art art, boolean force) {
-        EntityPainting painting = this.getHandle();
-        EnumArt oldArt = painting.art;
-        painting.art = CraftArt.BukkitToNotch(art);
-        painting.setDirection(painting.direction);
-        if (!force && !painting.survives()) {
+        net.minecraft.entity.item.EntityPainting painting = this.getHandle();
+        net.minecraft.util.EnumArt oldArt = painting.field_70522_e;
+        painting.field_70522_e = CraftArt.BukkitToNotch(art);
+        painting.func_82328_a(painting.field_82332_a);
+        if (!force && !painting.func_70518_d()) {
             // Revert painting since it doesn't fit
-            painting.art = oldArt;
-            painting.setDirection(painting.direction);
+            painting.field_70522_e = oldArt;
+            painting.func_82328_a(painting.field_82332_a);
             return false;
         }
         this.update();
@@ -52,22 +49,22 @@ public class CraftPainting extends CraftHanging implements Painting {
     }
 
     private void update() {
-        WorldServer world = ((CraftWorld) getWorld()).getHandle();
-        EntityPainting painting = new EntityPainting(world);
-        painting.x = getHandle().x;
-        painting.y = getHandle().y;
-        painting.z = getHandle().z;
-        painting.art = getHandle().art;
-        painting.setDirection(getHandle().direction);
-        getHandle().die();
-        getHandle().velocityChanged = true; // because this occurs when the painting is broken, so it might be important
-        world.addEntity(painting);
+        net.minecraft.world.WorldServer world = ((CraftWorld) getWorld()).getHandle();
+        net.minecraft.entity.item.EntityPainting painting = new net.minecraft.entity.item.EntityPainting(world);
+        painting.field_70523_b = getHandle().field_70523_b;
+        painting.field_70524_c = getHandle().field_70524_c;
+        painting.field_70521_d = getHandle().field_70521_d;
+        painting.field_70522_e = getHandle().field_70522_e;
+        painting.func_82328_a(getHandle().field_82332_a);
+        getHandle().func_70106_y();
+        getHandle().field_70133_I = true; // because this occurs when the painting is broken, so it might be important
+        world.func_72838_d(painting);
         this.entity = painting;
     }
 
     @Override
-    public EntityPainting getHandle() {
-        return (EntityPainting) entity;
+    public net.minecraft.entity.item.EntityPainting getHandle() {
+        return (net.minecraft.entity.item.EntityPainting) entity;
     }
 
     @Override

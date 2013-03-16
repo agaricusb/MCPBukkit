@@ -4,7 +4,6 @@ import org.bukkit.ChunkSnapshot;
 import org.bukkit.block.Biome;
 import org.bukkit.craftbukkit.block.CraftBlock;
 
-import net.minecraft.server.BiomeBase;
 
 /**
  * Represents a static, thread-safe snapshot of chunk of blocks
@@ -20,11 +19,11 @@ public class CraftChunkSnapshot implements ChunkSnapshot {
     private final boolean[] empty;
     private final int[] hmap; // Height map
     private final long captureFulltime;
-    private final BiomeBase[] biome;
+    private final net.minecraft.world.biome.BiomeGenBase[] biome;
     private final double[] biomeTemp;
     private final double[] biomeRain;
 
-    CraftChunkSnapshot(int x, int z, String wname, long wtime, short[][] sectionBlockIDs, byte[][] sectionBlockData, byte[][] sectionSkyLights, byte[][] sectionEmitLights, boolean[] sectionEmpty, int[] hmap, BiomeBase[] biome, double[] biomeTemp, double[] biomeRain) {
+    CraftChunkSnapshot(int x, int z, String wname, long wtime, short[][] sectionBlockIDs, byte[][] sectionBlockData, byte[][] sectionSkyLights, byte[][] sectionEmitLights, boolean[] sectionEmpty, int[] hmap, net.minecraft.world.biome.BiomeGenBase[] biome, double[] biomeTemp, double[] biomeRain) {
         this.x = x;
         this.z = z;
         this.worldname = wname;

@@ -1,7 +1,5 @@
 package org.bukkit.craftbukkit.entity;
 
-import net.minecraft.server.EntityFireball;
-import net.minecraft.server.EntityLiving;
 
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.EntityType;
@@ -10,7 +8,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 public class CraftFireball extends AbstractProjectile implements Fireball {
-    public CraftFireball(CraftServer server, EntityFireball entity) {
+    public CraftFireball(CraftServer server, net.minecraft.entity.projectile.EntityFireball entity) {
         super(server, entity);
     }
 
@@ -31,8 +29,8 @@ public class CraftFireball extends AbstractProjectile implements Fireball {
     }
 
     public LivingEntity getShooter() {
-        if (getHandle().shooter != null) {
-            return (LivingEntity) getHandle().shooter.getBukkitEntity();
+        if (getHandle().field_70235_a != null) {
+            return (LivingEntity) getHandle().field_70235_a.getBukkitEntity();
         }
 
         return null;
@@ -40,12 +38,12 @@ public class CraftFireball extends AbstractProjectile implements Fireball {
 
     public void setShooter(LivingEntity shooter) {
         if (shooter instanceof CraftLivingEntity) {
-            getHandle().shooter = (EntityLiving) ((CraftLivingEntity) shooter).entity;
+            getHandle().field_70235_a = (net.minecraft.entity.EntityLiving) ((CraftLivingEntity) shooter).entity;
         }
     }
 
     public Vector getDirection() {
-        return new Vector(getHandle().dirX, getHandle().dirY, getHandle().dirZ);
+        return new Vector(getHandle().field_70232_b, getHandle().field_70233_c, getHandle().field_70230_d);
     }
 
     public void setDirection(Vector direction) {
@@ -53,8 +51,8 @@ public class CraftFireball extends AbstractProjectile implements Fireball {
     }
 
     @Override
-    public EntityFireball getHandle() {
-        return (EntityFireball) entity;
+    public net.minecraft.entity.projectile.EntityFireball getHandle() {
+        return (net.minecraft.entity.projectile.EntityFireball) entity;
     }
 
     @Override

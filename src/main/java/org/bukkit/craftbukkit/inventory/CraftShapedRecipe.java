@@ -2,21 +2,19 @@ package org.bukkit.craftbukkit.inventory;
 
 import java.util.Map;
 
-import net.minecraft.server.CraftingManager;
-import net.minecraft.server.ShapedRecipes;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 
 public class CraftShapedRecipe extends ShapedRecipe implements CraftRecipe {
     // TODO: Could eventually use this to add a matches() method or some such
-    private ShapedRecipes recipe;
+    private net.minecraft.item.crafting.ShapedRecipes recipe;
     
     public CraftShapedRecipe(ItemStack result) {
         super(result);
     }
     
-    public CraftShapedRecipe(ItemStack result, ShapedRecipes recipe) {
+    public CraftShapedRecipe(ItemStack result, net.minecraft.item.crafting.ShapedRecipes recipe) {
         this(result);
         this.recipe = recipe;
     }
@@ -56,9 +54,9 @@ public class CraftShapedRecipe extends ShapedRecipe implements CraftRecipe {
             i++;
             int id = mdata.getTypeId();
             short dmg = mdata.getDurability();
-            data[i] = new net.minecraft.server.ItemStack(id, 1, dmg);
+            data[i] = new net.minecraft.item.ItemStack(id, 1, dmg);
             i++;
         }
-        CraftingManager.getInstance().registerShapedRecipe(CraftItemStack.asNMSCopy(this.getResult()), data);
+        net.minecraft.item.crafting.CraftingManager.func_77594_a().func_92103_a(CraftItemStack.asNMSCopy(this.getResult()), data);
     }
 }

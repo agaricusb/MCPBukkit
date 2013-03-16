@@ -4,17 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 
-import net.minecraft.server.ContainerAnvilInventory;
-import net.minecraft.server.ContainerEnchantTableInventory;
-import net.minecraft.server.IInventory;
-import net.minecraft.server.InventoryCrafting;
-import net.minecraft.server.InventoryEnderChest;
-import net.minecraft.server.InventoryMerchant;
-import net.minecraft.server.PlayerInventory;
-import net.minecraft.server.TileEntityBeacon;
-import net.minecraft.server.TileEntityBrewingStand;
-import net.minecraft.server.TileEntityDispenser;
-import net.minecraft.server.TileEntityFurnace;
 
 import org.apache.commons.lang.Validate;
 import org.bukkit.entity.HumanEntity;
@@ -25,32 +14,32 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
 
 public class CraftInventory implements Inventory {
-    protected IInventory inventory;
+    protected net.minecraft.inventory.IInventory inventory;
 
-    public CraftInventory(IInventory inventory) {
+    public CraftInventory(net.minecraft.inventory.IInventory inventory) {
         this.inventory = inventory;
     }
 
-    public IInventory getInventory() {
+    public net.minecraft.inventory.IInventory getInventory() {
         return inventory;
     }
 
     public int getSize() {
-        return getInventory().getSize();
+        return getInventory().func_70302_i_();
     }
 
     public String getName() {
-        return getInventory().getName();
+        return getInventory().func_70303_b();
     }
 
     public ItemStack getItem(int index) {
-        net.minecraft.server.ItemStack item = getInventory().getItem(index);
+        net.minecraft.item.ItemStack item = getInventory().func_70301_a(index);
         return item == null ? null : CraftItemStack.asCraftMirror(item);
     }
 
     public ItemStack[] getContents() {
         ItemStack[] items = new ItemStack[getSize()];
-        net.minecraft.server.ItemStack[] mcItems = getInventory().getContents();
+        net.minecraft.item.ItemStack[] mcItems = getInventory().getContents();
 
         for (int i = 0; i < mcItems.length; i++) {
             items[i] = mcItems[i] == null ? null : CraftItemStack.asCraftMirror(mcItems[i]);
@@ -64,7 +53,7 @@ public class CraftInventory implements Inventory {
             throw new IllegalArgumentException("Invalid inventory size; expected " + getInventory().getContents().length + " or less");
         }
 
-        net.minecraft.server.ItemStack[] mcItems = getInventory().getContents();
+        net.minecraft.item.ItemStack[] mcItems = getInventory().getContents();
 
         for (int i = 0; i < mcItems.length; i++) {
             if (i >= items.length) {
@@ -76,7 +65,7 @@ public class CraftInventory implements Inventory {
     }
 
     public void setItem(int index, ItemStack item) {
-        getInventory().setItem(index, ((item == null || item.getTypeId() == 0) ? null : CraftItemStack.asNMSCopy(item)));
+        getInventory().func_70299_a(index, ((item == null || item.getTypeId() == 0) ? null : CraftItemStack.asNMSCopy(item)));
     }
 
     public boolean contains(int materialId) {
@@ -366,7 +355,7 @@ public class CraftInventory implements Inventory {
     }
 
     private int getMaxItemStack() {
-        return getInventory().getMaxStackSize();
+        return getInventory().func_70297_j_();
     }
 
     public void remove(int materialId) {
@@ -418,31 +407,31 @@ public class CraftInventory implements Inventory {
     }
 
     public String getTitle() {
-        return inventory.getName();
+        return inventory.func_70303_b();
     }
 
     public InventoryType getType() {
-        if (inventory instanceof InventoryCrafting) {
-            return inventory.getSize() >= 9 ? InventoryType.WORKBENCH : InventoryType.CRAFTING;
-        } else if (inventory instanceof PlayerInventory) {
+        if (inventory instanceof net.minecraft.inventory.InventoryCrafting) {
+            return inventory.func_70302_i_() >= 9 ? InventoryType.WORKBENCH : InventoryType.CRAFTING;
+        } else if (inventory instanceof net.minecraft.entity.player.InventoryPlayer) {
             return InventoryType.PLAYER;
-        } else if (inventory instanceof TileEntityDispenser) {
+        } else if (inventory instanceof net.minecraft.tileentity.TileEntityDispenser) {
             return InventoryType.DISPENSER;
-        } else if (inventory instanceof TileEntityFurnace) {
+        } else if (inventory instanceof net.minecraft.tileentity.TileEntityFurnace) {
             return InventoryType.FURNACE;
-        } else if (inventory instanceof ContainerEnchantTableInventory) {
+        } else if (inventory instanceof net.minecraft.inventory.SlotEnchantmentTable) {
             return InventoryType.ENCHANTING;
-        } else if (inventory instanceof TileEntityBrewingStand) {
+        } else if (inventory instanceof net.minecraft.tileentity.TileEntityBrewingStand) {
             return InventoryType.BREWING;
         } else if (inventory instanceof CraftInventoryCustom.MinecraftInventory) {
             return ((CraftInventoryCustom.MinecraftInventory) inventory).getType();
-        } else if (inventory instanceof InventoryEnderChest) {
+        } else if (inventory instanceof net.minecraft.inventory.InventoryEnderChest) {
             return InventoryType.ENDER_CHEST;
-        } else if (inventory instanceof InventoryMerchant) {
+        } else if (inventory instanceof net.minecraft.inventory.InventoryMerchant) {
             return InventoryType.MERCHANT;
-        } else if (inventory instanceof TileEntityBeacon) {
+        } else if (inventory instanceof net.minecraft.tileentity.TileEntityBeacon) {
             return InventoryType.BEACON;
-        } else if (inventory instanceof ContainerAnvilInventory) {
+        } else if (inventory instanceof net.minecraft.inventory.InventoryRepair) {
             return InventoryType.ANVIL;
         } else {
             return InventoryType.CHEST;
@@ -454,7 +443,7 @@ public class CraftInventory implements Inventory {
     }
 
     public int getMaxStackSize() {
-        return inventory.getMaxStackSize();
+        return inventory.func_70297_j_();
     }
 
     public void setMaxStackSize(int size) {

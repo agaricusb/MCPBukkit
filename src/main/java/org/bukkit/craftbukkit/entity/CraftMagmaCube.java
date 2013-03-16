@@ -1,6 +1,5 @@
 package org.bukkit.craftbukkit.entity;
 
-import net.minecraft.server.EntityMagmaCube;
 
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.EntityType;
@@ -8,12 +7,12 @@ import org.bukkit.entity.MagmaCube;
 
 public class CraftMagmaCube extends CraftSlime implements MagmaCube {
 
-    public CraftMagmaCube(CraftServer server, EntityMagmaCube entity) {
+    public CraftMagmaCube(CraftServer server, net.minecraft.entity.monster.EntityMagmaCube entity) {
         super(server, entity);
     }
 
-    public EntityMagmaCube getHandle() {
-        return (EntityMagmaCube) entity;
+    public net.minecraft.entity.monster.EntityMagmaCube getHandle() {
+        return (net.minecraft.entity.monster.EntityMagmaCube) entity;
     }
 
     @Override

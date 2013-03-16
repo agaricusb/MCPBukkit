@@ -1,19 +1,18 @@
 package org.bukkit.craftbukkit.entity;
 
-import net.minecraft.server.EntityTameableAnimal;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Tameable;
 
 public class CraftTameableAnimal extends CraftAnimals implements Tameable, Creature {
-    public CraftTameableAnimal(CraftServer server, EntityTameableAnimal entity) {
+    public CraftTameableAnimal(CraftServer server, net.minecraft.entity.passive.EntityTameable entity) {
         super(server, entity);
     }
 
     @Override
-    public EntityTameableAnimal getHandle() {
-        return (EntityTameableAnimal)super.getHandle();
+    public net.minecraft.entity.passive.EntityTameable getHandle() {
+        return (net.minecraft.entity.passive.EntityTameable)super.getHandle();
     }
 
     public AnimalTamer getOwner() {
@@ -28,17 +27,17 @@ public class CraftTameableAnimal extends CraftAnimals implements Tameable, Creat
     }
 
     public String getOwnerName() {
-        return getHandle().getOwnerName();
+        return getHandle().func_70905_p();
     }
 
     public boolean isTamed() {
-        return getHandle().isTamed();
+        return getHandle().func_70909_n();
     }
 
     public void setOwner(AnimalTamer tamer) {
         if (tamer != null) {
             setTamed(true);
-            getHandle().setPathEntity(null);
+            getHandle().func_70778_a(null);
             setOwnerName(tamer.getName());
         } else {
             setTamed(false);
@@ -47,22 +46,22 @@ public class CraftTameableAnimal extends CraftAnimals implements Tameable, Creat
     }
 
     public void setOwnerName(String ownerName) {
-        getHandle().setOwnerName(ownerName == null ? "" : ownerName);
+        getHandle().func_70910_a(ownerName == null ? "" : ownerName);
     }
 
     public void setTamed(boolean tame) {
-        getHandle().setTamed(tame);
+        getHandle().func_70903_f(tame);
         if (!tame) {
             setOwnerName("");
         }
     }
 
     public boolean isSitting() {
-        return getHandle().isSitting();
+        return getHandle().func_70906_o();
     }
 
     public void setSitting(boolean sitting) {
-        getHandle().getGoalSit().setSitting(sitting);
+        getHandle().func_70907_r().func_75270_a(sitting);
     }
 
     @Override

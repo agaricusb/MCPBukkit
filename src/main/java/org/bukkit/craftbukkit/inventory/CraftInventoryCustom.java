@@ -8,9 +8,6 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryHolder;
 
-import net.minecraft.server.EntityHuman;
-import net.minecraft.server.IInventory;
-import net.minecraft.server.ItemStack;
 
 public class CraftInventoryCustom extends CraftInventory {
     public CraftInventoryCustom(InventoryHolder owner, InventoryType type) {
@@ -25,8 +22,8 @@ public class CraftInventoryCustom extends CraftInventory {
         super(new MinecraftInventory(owner, size, title));
     }
 
-    static class MinecraftInventory implements IInventory {
-        private final ItemStack[] items;
+    static class MinecraftInventory implements net.minecraft.inventory.IInventory {
+        private final net.minecraft.item.ItemStack[] items;
         private int maxStack = MAX_STACK;
         private final List<HumanEntity> viewers;
         private final String title;
@@ -43,62 +40,62 @@ public class CraftInventoryCustom extends CraftInventory {
         }
 
         public MinecraftInventory(InventoryHolder owner, int size, String title) {
-            this.items = new ItemStack[size];
+            this.items = new net.minecraft.item.ItemStack[size];
             this.title = title;
             this.viewers = new ArrayList<HumanEntity>();
             this.owner = owner;
             this.type = InventoryType.CHEST;
         }
 
-        public int getSize() {
+        public int func_70302_i_() {
             return items.length;
         }
 
-        public ItemStack getItem(int i) {
+        public net.minecraft.item.ItemStack func_70301_a(int i) {
             return items[i];
         }
 
-        public ItemStack splitStack(int i, int j) {
-            ItemStack stack = this.getItem(i);
-            ItemStack result;
+        public net.minecraft.item.ItemStack func_70298_a(int i, int j) {
+            net.minecraft.item.ItemStack stack = this.func_70301_a(i);
+            net.minecraft.item.ItemStack result;
             if (stack == null) return null;
-            if (stack.count <= j) {
-                this.setItem(i, null);
+            if (stack.field_77994_a <= j) {
+                this.func_70299_a(i, null);
                 result = stack;
             } else {
                 result = CraftItemStack.copyNMSStack(stack, j);
-                stack.count -= j;
+                stack.field_77994_a -= j;
             }
-            this.update();
+            this.func_70296_d();
             return result;
         }
 
-        public ItemStack splitWithoutUpdate(int i) {
-            ItemStack stack = this.getItem(i);
-            ItemStack result;
+        public net.minecraft.item.ItemStack func_70304_b(int i) {
+            net.minecraft.item.ItemStack stack = this.func_70301_a(i);
+            net.minecraft.item.ItemStack result;
             if (stack == null) return null;
-            if (stack.count <= 1) {
-                this.setItem(i, null);
+            if (stack.field_77994_a <= 1) {
+                this.func_70299_a(i, null);
                 result = stack;
             } else {
                 result = CraftItemStack.copyNMSStack(stack, 1);
-                stack.count -= 1;
+                stack.field_77994_a -= 1;
             }
             return result;
         }
 
-        public void setItem(int i, ItemStack itemstack) {
+        public void func_70299_a(int i, net.minecraft.item.ItemStack itemstack) {
             items[i] = itemstack;
-            if (itemstack != null && this.getMaxStackSize() > 0 && itemstack.count > this.getMaxStackSize()) {
-                itemstack.count = this.getMaxStackSize();
+            if (itemstack != null && this.func_70297_j_() > 0 && itemstack.field_77994_a > this.func_70297_j_()) {
+                itemstack.field_77994_a = this.func_70297_j_();
             }
         }
 
-        public String getName() {
+        public String func_70303_b() {
             return title;
         }
 
-        public int getMaxStackSize() {
+        public int func_70297_j_() {
             return maxStack;
         }
 
@@ -106,13 +103,13 @@ public class CraftInventoryCustom extends CraftInventory {
             maxStack = size;
         }
 
-        public void update() {}
+        public void func_70296_d() {}
 
-        public boolean a(EntityHuman entityhuman) {
+        public boolean func_70300_a(net.minecraft.entity.player.EntityPlayer entityhuman) {
             return true;
         }
 
-        public ItemStack[] getContents() {
+        public net.minecraft.item.ItemStack[] getContents() {
             return items;
         }
 
@@ -132,19 +129,19 @@ public class CraftInventoryCustom extends CraftInventory {
             return type;
         }
 
-        public void g() {}
+        public void func_70305_f() {}
 
         public InventoryHolder getOwner() {
             return owner;
         }
 
-        public void startOpen() {}
+        public void func_70295_k_() {}
 
-        public boolean c() {
+        public boolean func_94042_c() {
             return false;
         }
 
-        public boolean b(int i, ItemStack itemstack) {
+        public boolean func_94041_b(int i, net.minecraft.item.ItemStack itemstack) {
             return true;
         }
     }

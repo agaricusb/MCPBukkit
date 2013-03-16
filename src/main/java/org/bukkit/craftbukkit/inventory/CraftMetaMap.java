@@ -2,7 +2,6 @@ package org.bukkit.craftbukkit.inventory;
 
 import java.util.Map;
 
-import net.minecraft.server.NBTTagCompound;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.DelegateDeserialization;
@@ -31,11 +30,11 @@ class CraftMetaMap extends CraftMetaItem implements MapMeta {
         this.scaling = map.scaling;
     }
 
-    CraftMetaMap(NBTTagCompound tag) {
+    CraftMetaMap(net.minecraft.nbt.NBTTagCompound tag) {
         super(tag);
 
-        if (tag.hasKey(MAP_SCALING.NBT)) {
-            this.scaling = tag.getBoolean(MAP_SCALING.NBT) ? SCALING_TRUE : SCALING_FALSE;
+        if (tag.func_74764_b(MAP_SCALING.NBT)) {
+            this.scaling = tag.func_74767_n(MAP_SCALING.NBT) ? SCALING_TRUE : SCALING_FALSE;
         }
     }
 
@@ -49,11 +48,11 @@ class CraftMetaMap extends CraftMetaItem implements MapMeta {
     }
 
     @Override
-    void applyToItem(NBTTagCompound tag) {
+    void applyToItem(net.minecraft.nbt.NBTTagCompound tag) {
         super.applyToItem(tag);
 
         if (hasScaling()) {
-            tag.setBoolean(MAP_SCALING.NBT, isScaling());
+            tag.func_74757_a(MAP_SCALING.NBT, isScaling());
         }
     }
 

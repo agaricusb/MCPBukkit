@@ -1,7 +1,5 @@
 package org.bukkit.craftbukkit.entity;
 
-import net.minecraft.server.Entity;
-import net.minecraft.server.EntityItem;
 
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -10,31 +8,31 @@ import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.CraftServer;
 
 public class CraftItem extends CraftEntity implements Item {
-    private final EntityItem item;
+    private final net.minecraft.entity.item.EntityItem item;
 
-    public CraftItem(CraftServer server, Entity entity, EntityItem item) {
+    public CraftItem(CraftServer server, net.minecraft.entity.Entity entity, net.minecraft.entity.item.EntityItem item) {
         super(server, entity);
         this.item = item;
     }
 
-    public CraftItem(CraftServer server, EntityItem entity) {
+    public CraftItem(CraftServer server, net.minecraft.entity.item.EntityItem entity) {
         this(server, entity, entity);
     }
 
     public ItemStack getItemStack() {
-        return CraftItemStack.asCraftMirror(item.getItemStack());
+        return CraftItemStack.asCraftMirror(item.func_92059_d());
     }
 
     public void setItemStack(ItemStack stack) {
-        item.setItemStack(CraftItemStack.asNMSCopy(stack));
+        item.func_92058_a(CraftItemStack.asNMSCopy(stack));
     }
 
     public int getPickupDelay() {
-        return item.pickupDelay;
+        return item.field_70293_c;
     }
 
     public void setPickupDelay(int delay) {
-        item.pickupDelay = delay;
+        item.field_70293_c = delay;
     }
 
     @Override

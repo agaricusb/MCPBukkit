@@ -1,6 +1,5 @@
 package org.bukkit.craftbukkit.block;
 
-import net.minecraft.server.TileEntityMobSpawner;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
@@ -10,27 +9,27 @@ import org.bukkit.entity.EntityType;
 
 public class CraftCreatureSpawner extends CraftBlockState implements CreatureSpawner {
     private final CraftWorld world;
-    private final TileEntityMobSpawner spawner;
+    private final net.minecraft.tileentity.TileEntityMobSpawner spawner;
 
     public CraftCreatureSpawner(final Block block) {
         super(block);
 
         world = (CraftWorld) block.getWorld();
-        spawner = (TileEntityMobSpawner) world.getTileEntityAt(getX(), getY(), getZ());
+        spawner = (net.minecraft.tileentity.TileEntityMobSpawner) world.getTileEntityAt(getX(), getY(), getZ());
     }
 
     @Deprecated
     public CreatureType getCreatureType() {
-        return CreatureType.fromName(spawner.a().getMobName());
+        return CreatureType.fromName(spawner.func_98049_a().func_98276_e());
     }
 
     public EntityType getSpawnedType() {
-        return EntityType.fromName(spawner.a().getMobName());
+        return EntityType.fromName(spawner.func_98049_a().func_98276_e());
     }
 
     @Deprecated
     public void setCreatureType(CreatureType creatureType) {
-        spawner.a().a(creatureType.getName());
+        spawner.func_98049_a().func_98272_a(creatureType.getName());
     }
 
     public void setSpawnedType(EntityType entityType) {
@@ -38,12 +37,12 @@ public class CraftCreatureSpawner extends CraftBlockState implements CreatureSpa
             throw new IllegalArgumentException("Can't spawn EntityType " + entityType + " from mobspawners!");
         }
 
-        spawner.a().a(entityType.getName());
+        spawner.func_98049_a().func_98272_a(entityType.getName());
     }
 
     @Deprecated
     public String getCreatureTypeId() {
-        return spawner.a().getMobName();
+        return spawner.func_98049_a().func_98276_e();
     }
 
     @Deprecated
@@ -52,7 +51,7 @@ public class CraftCreatureSpawner extends CraftBlockState implements CreatureSpa
     }
 
     public String getCreatureTypeName() {
-        return spawner.a().getMobName();
+        return spawner.func_98049_a().func_98276_e();
     }
 
     public void setCreatureTypeByName(String creatureType) {
@@ -65,11 +64,11 @@ public class CraftCreatureSpawner extends CraftBlockState implements CreatureSpa
     }
 
     public int getDelay() {
-        return spawner.a().spawnDelay;
+        return spawner.func_98049_a().field_98286_b;
     }
 
     public void setDelay(int delay) {
-        spawner.a().spawnDelay = delay;
+        spawner.func_98049_a().field_98286_b = delay;
     }
 
 }

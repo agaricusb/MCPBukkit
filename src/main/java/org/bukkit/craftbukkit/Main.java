@@ -9,7 +9,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import net.minecraft.server.MinecraftServer;
 
 public class Main {
     public static boolean useJline = true;
@@ -149,7 +148,7 @@ public class Main {
                     useConsole = false;
                 }
 
-                MinecraftServer.main(options);
+                net.minecraft.server.MinecraftServer.main(options);
             } catch (Throwable t) {
                 t.printStackTrace();
             }

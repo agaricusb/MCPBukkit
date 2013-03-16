@@ -5,10 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.server.BanEntry;
-import net.minecraft.server.EntityPlayer;
-import net.minecraft.server.NBTTagCompound;
-import net.minecraft.server.WorldNBTStorage;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -24,12 +20,12 @@ import org.bukkit.plugin.Plugin;
 public class CraftOfflinePlayer implements OfflinePlayer, ConfigurationSerializable {
     private final String name;
     private final CraftServer server;
-    private final WorldNBTStorage storage;
+    private final net.minecraft.world.storage.SaveHandler storage;
 
     protected CraftOfflinePlayer(CraftServer server, String name) {
         this.server = server;
         this.name = name;
-        this.storage = (WorldNBTStorage) (server.console.worlds.get(0).getDataManager());
+        this.storage = (net.minecraft.world.storage.SaveHandler) (server.console.worlds.get(0).func_72860_G());
     }
 
     public boolean isOnline() {
@@ -45,43 +41,43 @@ public class CraftOfflinePlayer implements OfflinePlayer, ConfigurationSerializa
     }
 
     public boolean isOp() {
-        return server.getHandle().isOp(getName().toLowerCase());
+        return server.getHandle().func_72353_e(getName().toLowerCase());
     }
 
     public void setOp(boolean value) {
         if (value == isOp()) return;
 
         if (value) {
-            server.getHandle().addOp(getName().toLowerCase());
+            server.getHandle().func_72386_b(getName().toLowerCase());
         } else {
-            server.getHandle().removeOp(getName().toLowerCase());
+            server.getHandle().func_72360_c(getName().toLowerCase());
         }
     }
 
     public boolean isBanned() {
-        return server.getHandle().getNameBans().isBanned(name.toLowerCase());
+        return server.getHandle().func_72390_e().func_73704_a(name.toLowerCase());
     }
 
     public void setBanned(boolean value) {
         if (value) {
-            BanEntry entry = new BanEntry(name.toLowerCase());
-            server.getHandle().getNameBans().add(entry);
+            net.minecraft.server.management.BanEntry entry = new net.minecraft.server.management.BanEntry(name.toLowerCase());
+            server.getHandle().func_72390_e().func_73706_a(entry);
         } else {
-            server.getHandle().getNameBans().remove(name.toLowerCase());
+            server.getHandle().func_72390_e().func_73709_b(name.toLowerCase());
         }
 
-        server.getHandle().getNameBans().save();
+        server.getHandle().func_72390_e().func_73711_f();
     }
 
     public boolean isWhitelisted() {
-        return server.getHandle().getWhitelisted().contains(name.toLowerCase());
+        return server.getHandle().func_72388_h().contains(name.toLowerCase());
     }
 
     public void setWhitelisted(boolean value) {
         if (value) {
-            server.getHandle().addWhitelist(name.toLowerCase());
+            server.getHandle().func_72359_h(name.toLowerCase());
         } else {
-            server.getHandle().removeWhitelist(name.toLowerCase());
+            server.getHandle().func_72379_i(name.toLowerCase());
         }
     }
 
@@ -103,10 +99,10 @@ public class CraftOfflinePlayer implements OfflinePlayer, ConfigurationSerializa
     }
 
     public Player getPlayer() {
-        for (Object obj : server.getHandle().players) {
-            EntityPlayer player = (EntityPlayer) obj;
-            if (player.name.equalsIgnoreCase(getName())) {
-                return (player.playerConnection != null) ? player.playerConnection.getPlayer() : null;
+        for (Object obj : server.getHandle().field_72404_b) {
+            net.minecraft.entity.player.EntityPlayerMP player = (net.minecraft.entity.player.EntityPlayerMP) obj;
+            if (player.field_71092_bJ.equalsIgnoreCase(getName())) {
+                return (player.field_71135_a != null) ? player.field_71135_a.getPlayer() : null;
             }
         }
 
@@ -135,18 +131,18 @@ public class CraftOfflinePlayer implements OfflinePlayer, ConfigurationSerializa
         return hash;
     }
 
-    private NBTTagCompound getData() {
-        return storage.getPlayerData(getName());
+    private net.minecraft.nbt.NBTTagCompound getData() {
+        return storage.func_75764_a(getName());
     }
 
-    private NBTTagCompound getBukkitData() {
-        NBTTagCompound result = getData();
+    private net.minecraft.nbt.NBTTagCompound getBukkitData() {
+        net.minecraft.nbt.NBTTagCompound result = getData();
 
         if (result != null) {
-            if (!result.hasKey("bukkit")) {
-                result.setCompound("bukkit", new NBTTagCompound());
+            if (!result.func_74764_b("bukkit")) {
+                result.func_74766_a("bukkit", new net.minecraft.nbt.NBTTagCompound());
             }
-            result = result.getCompound("bukkit");
+            result = result.func_74775_l("bukkit");
         }
 
         return result;
@@ -160,11 +156,11 @@ public class CraftOfflinePlayer implements OfflinePlayer, ConfigurationSerializa
         Player player = getPlayer();
         if (player != null) return player.getFirstPlayed();
 
-        NBTTagCompound data = getBukkitData();
+        net.minecraft.nbt.NBTTagCompound data = getBukkitData();
 
         if (data != null) {
-            if (data.hasKey("firstPlayed")) {
-                return data.getLong("firstPlayed");
+            if (data.func_74764_b("firstPlayed")) {
+                return data.func_74763_f("firstPlayed");
             } else {
                 File file = getDataFile();
                 return file.lastModified();
@@ -178,11 +174,11 @@ public class CraftOfflinePlayer implements OfflinePlayer, ConfigurationSerializa
         Player player = getPlayer();
         if (player != null) return player.getLastPlayed();
 
-        NBTTagCompound data = getBukkitData();
+        net.minecraft.nbt.NBTTagCompound data = getBukkitData();
 
         if (data != null) {
-            if (data.hasKey("lastPlayed")) {
-                return data.getLong("lastPlayed");
+            if (data.func_74764_b("lastPlayed")) {
+                return data.func_74763_f("lastPlayed");
             } else {
                 File file = getDataFile();
                 return file.lastModified();
@@ -197,15 +193,15 @@ public class CraftOfflinePlayer implements OfflinePlayer, ConfigurationSerializa
     }
 
     public Location getBedSpawnLocation() {
-        NBTTagCompound data = getData();
+        net.minecraft.nbt.NBTTagCompound data = getData();
         if (data == null) return null;
 
-        if (data.hasKey("SpawnX") && data.hasKey("SpawnY") && data.hasKey("SpawnZ")) {
-            String spawnWorld = data.getString("SpawnWorld");
+        if (data.func_74764_b("SpawnX") && data.func_74764_b("SpawnY") && data.func_74764_b("SpawnZ")) {
+            String spawnWorld = data.func_74779_i("SpawnWorld");
             if (spawnWorld.equals("")) {
                 spawnWorld = server.getWorlds().get(0).getName();
             }
-            return new Location(server.getWorld(spawnWorld), data.getInt("SpawnX"), data.getInt("SpawnY"), data.getInt("SpawnZ"));
+            return new Location(server.getWorld(spawnWorld), data.func_74762_e("SpawnX"), data.func_74762_e("SpawnY"), data.func_74762_e("SpawnZ"));
         }
         return null;
     }

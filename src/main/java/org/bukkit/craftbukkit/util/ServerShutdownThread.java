@@ -1,20 +1,18 @@
 package org.bukkit.craftbukkit.util;
 
-import net.minecraft.server.ExceptionWorldConflict;
-import net.minecraft.server.MinecraftServer;
 
 public class ServerShutdownThread extends Thread {
-    private final MinecraftServer server;
+    private final net.minecraft.server.MinecraftServer server;
 
-    public ServerShutdownThread(MinecraftServer server) {
+    public ServerShutdownThread(net.minecraft.server.MinecraftServer server) {
         this.server = server;
     }
 
     @Override
     public void run() {
         try {
-            server.stop();
-        } catch (ExceptionWorldConflict ex) {
+            server.func_71260_j();
+        } catch (net.minecraft.world.MinecraftException ex) {
             ex.printStackTrace();
         } finally {
             try {

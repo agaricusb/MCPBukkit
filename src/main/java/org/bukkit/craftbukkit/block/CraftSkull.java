@@ -2,7 +2,6 @@ package org.bukkit.craftbukkit.block;
 
 import com.google.common.base.Strings;
 
-import net.minecraft.server.TileEntitySkull;
 
 import org.bukkit.SkullType;
 import org.bukkit.block.Block;
@@ -11,7 +10,7 @@ import org.bukkit.block.Skull;
 import org.bukkit.craftbukkit.CraftWorld;
 
 public class CraftSkull extends CraftBlockState implements Skull {
-    private final TileEntitySkull skull;
+    private final net.minecraft.tileentity.TileEntitySkull skull;
     private String player;
     private SkullType skullType;
     private byte rotation;
@@ -21,9 +20,9 @@ public class CraftSkull extends CraftBlockState implements Skull {
         super(block);
 
         CraftWorld world = (CraftWorld) block.getWorld();
-        skull = (TileEntitySkull) world.getTileEntityAt(getX(), getY(), getZ());
-        player = skull.getExtraType();
-        skullType = getSkullType(skull.getSkullType());
+        skull = (net.minecraft.tileentity.TileEntitySkull) world.getTileEntityAt(getX(), getY(), getZ());
+        player = skull.func_82120_c();
+        skullType = getSkullType(skull.func_82117_a());
         rotation = (byte) skull.getRotation();
     }
 
@@ -185,9 +184,9 @@ public class CraftSkull extends CraftBlockState implements Skull {
         boolean result = super.update(force);
 
         if (result) {
-            skull.setSkullType(getSkullType(skullType), player);
-            skull.setRotation(rotation);
-            skull.update();
+            skull.func_82118_a(getSkullType(skullType), player);
+            skull.func_82116_a(rotation);
+            skull.func_70296_d();
         }
 
         return result;

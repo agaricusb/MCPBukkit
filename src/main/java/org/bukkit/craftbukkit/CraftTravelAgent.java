@@ -1,13 +1,10 @@
 package org.bukkit.craftbukkit;
 
-import net.minecraft.server.ChunkCoordinates;
-import net.minecraft.server.PortalTravelAgent;
-import net.minecraft.server.WorldServer;
 
 import org.bukkit.Location;
 import org.bukkit.TravelAgent;
 
-public class CraftTravelAgent extends PortalTravelAgent implements TravelAgent {
+public class CraftTravelAgent extends net.minecraft.world.Teleporter implements TravelAgent {
 
     public static TravelAgent DEFAULT = null;
 
@@ -15,7 +12,7 @@ public class CraftTravelAgent extends PortalTravelAgent implements TravelAgent {
     private int creationRadius = 16;
     private boolean canCreatePortal = true;
 
-    public CraftTravelAgent(WorldServer worldserver) {
+    public CraftTravelAgent(net.minecraft.world.WorldServer worldserver) {
         super(worldserver);
         if (DEFAULT == null && worldserver.dimension == 0) {
             DEFAULT = this;
@@ -23,9 +20,9 @@ public class CraftTravelAgent extends PortalTravelAgent implements TravelAgent {
     }
 
     public Location findOrCreate(Location target) {
-        WorldServer worldServer = ((CraftWorld) target.getWorld()).getHandle();
-        boolean before = worldServer.chunkProviderServer.forceChunkLoad;
-        worldServer.chunkProviderServer.forceChunkLoad = true;
+        net.minecraft.world.WorldServer worldServer = ((CraftWorld) target.getWorld()).getHandle();
+        boolean before = worldServer.field_73059_b.field_73250_a;
+        worldServer.field_73059_b.field_73250_a = true;
 
         Location found = this.findPortal(target);
         if (found == null) {
@@ -36,18 +33,18 @@ public class CraftTravelAgent extends PortalTravelAgent implements TravelAgent {
             }
         }
 
-        worldServer.chunkProviderServer.forceChunkLoad = before;
+        worldServer.field_73059_b.field_73250_a = before;
         return found;
     }
 
     public Location findPortal(Location location) {
-        PortalTravelAgent pta = ((CraftWorld) location.getWorld()).getHandle().s();
-        ChunkCoordinates found = pta.findPortal(location.getX(), location.getY(), location.getZ(), this.getSearchRadius());
-        return found != null ? new Location(location.getWorld(), found.x, found.y, found.z, location.getYaw(), location.getPitch()) : null;
+        net.minecraft.world.Teleporter pta = ((CraftWorld) location.getWorld()).getHandle().func_85176_s();
+        net.minecraft.util.ChunkCoordinates found = pta.findPortal(location.getX(), location.getY(), location.getZ(), this.getSearchRadius());
+        return found != null ? new Location(location.getWorld(), found.field_71574_a, found.field_71572_b, found.field_71573_c, location.getYaw(), location.getPitch()) : null;
     }
 
     public boolean createPortal(Location location) {
-        PortalTravelAgent pta = ((CraftWorld) location.getWorld()).getHandle().s();
+        net.minecraft.world.Teleporter pta = ((CraftWorld) location.getWorld()).getHandle().func_85176_s();
         return pta.createPortal(location.getX(), location.getY(), location.getZ(), this.getCreationRadius());
     }
 

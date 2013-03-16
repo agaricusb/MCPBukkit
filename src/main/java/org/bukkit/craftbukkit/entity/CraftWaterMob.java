@@ -1,19 +1,18 @@
 package org.bukkit.craftbukkit.entity;
 
-import net.minecraft.server.EntityWaterAnimal;
 
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.WaterMob;
 
 public class CraftWaterMob extends CraftCreature implements WaterMob {
 
-    public CraftWaterMob(CraftServer server, EntityWaterAnimal entity) {
+    public CraftWaterMob(CraftServer server, net.minecraft.entity.passive.EntityWaterMob entity) {
         super(server, entity);
     }
 
     @Override
-    public EntityWaterAnimal getHandle() {
-        return (EntityWaterAnimal) entity;
+    public net.minecraft.entity.passive.EntityWaterMob getHandle() {
+        return (net.minecraft.entity.passive.EntityWaterMob) entity;
     }
 
     @Override

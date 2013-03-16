@@ -3,10 +3,9 @@ package org.bukkit.craftbukkit.inventory;
 import org.bukkit.inventory.EnchantingInventory;
 import org.bukkit.inventory.ItemStack;
 
-import net.minecraft.server.ContainerEnchantTableInventory;
 
 public class CraftInventoryEnchanting extends CraftInventory implements EnchantingInventory {
-    public CraftInventoryEnchanting(ContainerEnchantTableInventory inventory) {
+    public CraftInventoryEnchanting(net.minecraft.inventory.SlotEnchantmentTable inventory) {
         super(inventory);
     }
 
@@ -19,7 +18,7 @@ public class CraftInventoryEnchanting extends CraftInventory implements Enchanti
     }
 
     @Override
-    public ContainerEnchantTableInventory getInventory() {
-        return (ContainerEnchantTableInventory)inventory;
+    public net.minecraft.inventory.SlotEnchantmentTable getInventory() {
+        return (net.minecraft.inventory.SlotEnchantmentTable)inventory;
     }
 }

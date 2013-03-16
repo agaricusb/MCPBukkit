@@ -9,14 +9,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
-import net.minecraft.server.Container;
 
 public class CraftInventoryView extends InventoryView {
-    private final Container container;
+    private final net.minecraft.inventory.Container container;
     private final CraftHumanEntity player;
     private final CraftInventory viewing;
 
-    public CraftInventoryView(HumanEntity player, Inventory viewing, Container container) {
+    public CraftInventoryView(HumanEntity player, Inventory viewing, net.minecraft.inventory.Container container) {
         // TODO: Should we make sure it really IS a CraftHumanEntity first? And a CraftInventory?
         this.player = (CraftHumanEntity) player;
         this.viewing = (CraftInventory) viewing;
@@ -49,11 +48,11 @@ public class CraftInventoryView extends InventoryView {
 
     @Override
     public void setItem(int slot, ItemStack item) {
-        net.minecraft.server.ItemStack stack = CraftItemStack.asNMSCopy(item);
+        net.minecraft.item.ItemStack stack = CraftItemStack.asNMSCopy(item);
         if (slot != -999) {
-            container.getSlot(slot).set(stack);
+            container.func_75139_a(slot).func_75215_d(stack);
         } else {
-            player.getHandle().drop(stack);
+            player.getHandle().func_71021_b(stack);
         }
     }
 
@@ -62,14 +61,14 @@ public class CraftInventoryView extends InventoryView {
         if (slot == -999) {
             return null;
         }
-        return CraftItemStack.asCraftMirror(container.getSlot(slot).getItem());
+        return CraftItemStack.asCraftMirror(container.func_75139_a(slot).func_75211_c());
     }
 
     public boolean isInTop(int rawSlot) {
         return rawSlot < viewing.getSize();
     }
 
-    public Container getHandle() {
+    public net.minecraft.inventory.Container getHandle() {
         return container;
     }
 
