@@ -1,0 +1,15 @@
+--- ../net/minecraft/dispenser/DispenserBehaviorFire.java
++++ ../net/minecraft/dispenser/DispenserBehaviorFire.java
+@@ -5,10 +5,11 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.util.EnumFacing;
+ import net.minecraft.world.World;
+-
+ final class DispenserBehaviorFire extends BehaviorDefaultDispenseItem
+ {
+     private boolean field_96466_b = true;
++
++    DispenserBehaviorFire() {}
+ 
+     protected ItemStack func_82487_b(IBlockSource p_82487_1_, ItemStack p_82487_2_)
+     {

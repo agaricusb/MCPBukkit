@@ -1,0 +1,15 @@
+--- ../net/minecraft/dispenser/DispenserBehaviorDye.java
++++ ../net/minecraft/dispenser/DispenserBehaviorDye.java
+@@ -5,10 +5,11 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.util.EnumFacing;
+ import net.minecraft.world.World;
+-
+ final class DispenserBehaviorDye extends BehaviorDefaultDispenseItem
+ {
+     private boolean field_96461_b = true;
++
++    DispenserBehaviorDye() {}
+ 
+     protected ItemStack func_82487_b(IBlockSource p_82487_1_, ItemStack p_82487_2_)
+     {

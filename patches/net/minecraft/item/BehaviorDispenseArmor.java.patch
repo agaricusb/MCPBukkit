@@ -1,0 +1,28 @@
+--- ../net/minecraft/item/BehaviorDispenseArmor.java
++++ ../net/minecraft/item/BehaviorDispenseArmor.java
+@@ -2,6 +2,7 @@
+ 
+ import java.util.List;
+ import net.minecraft.block.BlockDispenser;
++import net.minecraft.command.IEntitySelector;
+ import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
+ import net.minecraft.dispenser.IBlockSource;
+ import net.minecraft.entity.EntityLiving;
+@@ -12,6 +13,8 @@
+ 
+ final class BehaviorDispenseArmor extends BehaviorDefaultDispenseItem
+ {
++    BehaviorDispenseArmor() {}
++
+     protected ItemStack func_82487_b(IBlockSource p_82487_1_, ItemStack p_82487_2_)
+     {
+         EnumFacing enumfacing = BlockDispenser.func_100009_j_(p_82487_1_.func_82620_h());
+@@ -19,7 +22,7 @@
+         int j = p_82487_1_.func_82622_e() + enumfacing.func_96559_d();
+         int k = p_82487_1_.func_82621_f() + enumfacing.func_82599_e();
+         AxisAlignedBB axisalignedbb = AxisAlignedBB.func_72332_a().func_72299_a((double)i, (double)j, (double)k, (double)(i + 1), (double)(j + 1), (double)(k + 1));
+-        List list = p_82487_1_.func_82618_k().func_82733_a(EntityLiving.class, axisalignedbb, new EntitySelectorArmoredMob(p_82487_2_));
++        List list = p_82487_1_.func_82618_k().func_82733_a(EntityLiving.class, axisalignedbb, (IEntitySelector)(new EntitySelectorArmoredMob(p_82487_2_)));
+ 
+         if (list.size() > 0)
+         {
