@@ -731,11 +731,11 @@ public class WorldServer extends World implements org.bukkit.BlockChangeDelegate
             else
             {
                 iterator = this.field_94579_S.iterator();
-
-                if (!this.field_94579_S.isEmpty())
-                {
-                    System.out.println(this.field_94579_S.size());
+                /* CraftBukkit start - comment out debug spam
+                if (!this.T.isEmpty()) {
+                    System.out.println(this.T.size());
                 }
+                // CraftBukkit end */
             }
 
             while (iterator.hasNext())
