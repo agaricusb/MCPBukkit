@@ -433,6 +433,8 @@ public class CraftInventory implements Inventory {
             return InventoryType.BEACON;
         } else if (inventory instanceof net.minecraft.inventory.InventoryRepair) {
             return InventoryType.ANVIL;
+        } else if (inventory instanceof net.minecraft.tileentity.TileEntityHopper) {
+            return InventoryType.HOPPER;
         } else {
             return InventoryType.CHEST;
         }

@@ -207,7 +207,12 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
             }
             break;
         case ENCHANTING:
-                openCustomInventory(inventory, player, 4);
+            openCustomInventory(inventory, player, 4);
+            break;
+        case HOPPER:
+            if (craftinv.getInventory() instanceof net.minecraft.tileentity.TileEntityHopper) {
+                getHandle().func_94064_a((net.minecraft.tileentity.TileEntityHopper)craftinv.getInventory());
+            }
             break;
         case CREATIVE:
         case CRAFTING:
