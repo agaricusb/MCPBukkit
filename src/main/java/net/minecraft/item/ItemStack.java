@@ -195,6 +195,21 @@ public final class ItemStack
 
     public void func_77964_b(int p_77964_1_)
     {
+        // CraftBukkit start - filter out data for items that shouldn't have it
+        if (!this.func_77981_g())
+        {
+            this.field_77991_e = 0;
+            return;
+        }
+
+        // Filter wool to avoid confusing the client
+        if (this.field_77993_c == Block.field_72101_ab.field_71990_ca)
+        {
+            this.field_77991_e = Math.min(15, p_77964_1_);
+            return;
+        }
+
+        // CraftBukkit end
         this.field_77991_e = p_77964_1_;
 
         if (this.field_77991_e < 0)
