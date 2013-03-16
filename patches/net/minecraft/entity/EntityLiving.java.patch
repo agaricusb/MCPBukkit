@@ -288,13 +288,13 @@
 +
 +            if (!event.isCancelled())
 +            {
-+                this.field_70734_aK += event.getAmount();
++                this.func_70606_j(this.func_70630_aN() + event.getAmount());
 +            }
 +
 +            // this.getMaxHealth() -> this.maxHealth
 +            if (this.field_70734_aK > this.maxHealth)
 +            {
-+                this.field_70734_aK = this.maxHealth;
++                this.func_70606_j(this.maxHealth);
 +                // CraftBukkit end
              }
  
