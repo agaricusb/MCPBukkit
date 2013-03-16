@@ -1125,7 +1125,7 @@
              }
              else if (this.field_72574_e.func_71121_q().func_72912_H().func_76093_s())
              {
-@@ -789,14 +1506,91 @@
+@@ -789,14 +1506,97 @@
  
      public void func_72474_a(Packet101CloseWindow p_72474_1_)
      {
@@ -1153,6 +1153,12 @@
          {
 -            ItemStack itemstack = this.field_72574_e.field_71070_bA.func_75144_a(p_72523_1_.field_73442_b, p_72523_1_.field_73443_c, p_72523_1_.field_73439_f, this.field_72574_e);
 +            // CraftBukkit start - fire InventoryClickEvent
++            if (p_72523_1_.field_73442_b == -1)
++            {
++                // Vanilla doesn't do anything with this, neither should we
++                return;
++            }
++
 +            InventoryView inventory = this.field_72574_e.field_71070_bA.getBukkitView();
 +            SlotType type = CraftInventoryView.getSlotType(inventory, p_72523_1_.field_73442_b);
 +            InventoryClickEvent event = new InventoryClickEvent(inventory, type, p_72523_1_.field_73442_b, p_72523_1_.field_73443_c != 0, p_72523_1_.field_73439_f == 1);
@@ -1218,7 +1224,7 @@
  
              if (ItemStack.func_77989_b(p_72523_1_.field_73441_e, itemstack))
              {
-@@ -819,6 +1613,14 @@
+@@ -819,6 +1619,14 @@
                  }
  
                  this.field_72574_e.func_71110_a(this.field_72574_e.field_71070_bA, arraylist);
@@ -1233,7 +1239,7 @@
              }
          }
      }
-@@ -827,7 +1629,7 @@
+@@ -827,7 +1635,7 @@
      {
          if (this.field_72574_e.field_71070_bA.field_75152_c == p_72479_1_.field_73446_a && this.field_72574_e.field_71070_bA.func_75129_b(this.field_72574_e))
          {
@@ -1242,7 +1248,7 @@
              this.field_72574_e.field_71070_bA.func_75142_b();
          }
      }
-@@ -839,8 +1641,59 @@
+@@ -839,8 +1647,59 @@
              boolean flag = p_72464_1_.field_73385_a < 0;
              ItemStack itemstack = p_72464_1_.field_73384_b;
              boolean flag1 = p_72464_1_.field_73385_a >= 1 && p_72464_1_.field_73385_a < 36 + InventoryPlayer.func_70451_h();
@@ -1303,7 +1309,7 @@
  
              if (flag1 && flag2 && flag3)
              {
-@@ -870,6 +1723,11 @@
+@@ -870,6 +1729,11 @@
  
      public void func_72476_a(Packet106Transaction p_72476_1_)
      {
@@ -1315,7 +1321,7 @@
          Short oshort = (Short)this.field_72586_s.func_76041_a(this.field_72574_e.field_71070_bA.field_75152_c);
  
          if (oshort != null && p_72476_1_.field_73433_b == oshort.shortValue() && this.field_72574_e.field_71070_bA.field_75152_c == p_72476_1_.field_73435_a && !this.field_72574_e.field_71070_bA.func_75129_b(this.field_72574_e))
-@@ -880,6 +1738,11 @@
+@@ -880,6 +1744,11 @@
  
      public void func_72487_a(Packet130UpdateSign p_72487_1_)
      {
@@ -1327,7 +1333,7 @@
          WorldServer worldserver = this.field_72573_d.func_71218_a(this.field_72574_e.field_71093_bK);
  
          if (worldserver.func_72899_e(p_72487_1_.field_73311_a, p_72487_1_.field_73309_b, p_72487_1_.field_73310_c))
-@@ -893,6 +1756,7 @@
+@@ -893,6 +1762,7 @@
                  if (!tileentitysign.func_70409_a())
                  {
                      this.field_72573_d.func_71236_h("Player " + this.field_72574_e.field_71092_bJ + " just tried to change non-editable sign");
@@ -1335,7 +1341,7 @@
                      return;
                  }
              }
-@@ -931,7 +1795,27 @@
+@@ -931,7 +1801,27 @@
                  int k = p_72487_1_.field_73309_b;
                  i = p_72487_1_.field_73310_c;
                  TileEntitySign tileentitysign1 = (TileEntitySign)tileentity;
@@ -1364,7 +1370,7 @@
                  tileentitysign1.func_70296_d();
                  worldserver.func_72845_h(j, k, i);
              }
-@@ -954,7 +1838,23 @@
+@@ -954,7 +1844,23 @@
  
      public void func_72471_a(Packet202PlayerAbilities p_72471_1_)
      {
@@ -1389,7 +1395,7 @@
      }
  
      public void func_72461_a(Packet203AutoComplete p_72461_1_)
-@@ -962,13 +1862,13 @@
+@@ -962,13 +1868,13 @@
          StringBuilder stringbuilder = new StringBuilder();
          String s;
  
@@ -1405,7 +1411,7 @@
              }
          }
  
-@@ -986,6 +1886,14 @@
+@@ -986,6 +1892,14 @@
          ItemStack itemstack;
          ItemStack itemstack1;
  
@@ -1420,7 +1426,7 @@
          if ("MC|BEdit".equals(p_72501_1_.field_73630_a))
          {
              try
-@@ -1002,12 +1910,15 @@
+@@ -1002,12 +1916,15 @@
  
                  if (itemstack != null && itemstack.field_77993_c == Item.field_77821_bF.field_77779_bT && itemstack.field_77993_c == itemstack1.field_77993_c)
                  {
@@ -1438,7 +1444,7 @@
              }
          }
          else if ("MC|BSign".equals(p_72501_1_.field_73630_a))
-@@ -1026,15 +1937,18 @@
+@@ -1026,15 +1943,18 @@
  
                  if (itemstack != null && itemstack.field_77993_c == Item.field_77823_bG.field_77779_bT && itemstack1.field_77993_c == Item.field_77821_bF.field_77779_bT)
                  {
@@ -1461,7 +1467,7 @@
              }
          }
          else
-@@ -1056,7 +1970,10 @@
+@@ -1056,7 +1976,10 @@
                  }
                  catch (Exception exception2)
                  {
@@ -1473,7 +1479,7 @@
                  }
              }
              else
-@@ -1089,7 +2006,10 @@
+@@ -1089,7 +2012,10 @@
                          }
                          catch (Exception exception3)
                          {
@@ -1485,7 +1491,7 @@
                          }
                      }
                      else
-@@ -1120,7 +2040,10 @@
+@@ -1120,7 +2046,10 @@
                          }
                          catch (Exception exception4)
                          {
@@ -1497,7 +1503,7 @@
                          }
                      }
                  }
-@@ -1142,6 +2065,45 @@
+@@ -1142,6 +2071,45 @@
                          containerrepair.func_82850_a("");
                      }
                  }
