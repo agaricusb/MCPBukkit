@@ -61,11 +61,11 @@
 +                {
 +                    // CraftBukkit start
 +                    Player player = (entityplayer instanceof EntityPlayerMP) ? (Player) entityplayer.getBukkitEntity() : null;
-+                    ((BlockSapling) Block.field_71987_y).func_72269_c(world, i, j, k, world.field_73012_v, true, player, itemstack);
++                    ((BlockSapling) Block.field_71987_y).func_72269_c(world, i, j, k, world.field_73012_v, true, player, null);
++                    // CraftBukkit end
 +                }
 +
-+                // --itemstack.count; - called later if the bonemeal attempt was succesful
-+                // CraftBukkit end
++                --itemstack.field_77994_a;
              }
  
              return true;
@@ -221,7 +221,7 @@
 +                    ((BlockMushroom) Block.field_71973_m[l]).func_72271_c(world, i, j, k, world.field_73012_v, true, player, itemstack);
 +                }
 +
-+                //--itemstack.count; - called later if the bonemeal attempt was succesful
++                //--itemstack.count; - called later if the bonemeal attempt was not cancelled by a plugin
 +                // CraftBukkit end
              }
  

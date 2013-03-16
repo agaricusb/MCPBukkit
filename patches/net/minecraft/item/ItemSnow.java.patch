@@ -17,7 +17,7 @@
          if (p_77648_1_.field_77994_a == 0)
          {
              return false;
-@@ -31,12 +32,21 @@
+@@ -31,12 +32,20 @@
                  int j1 = p_77648_3_.func_72805_g(p_77648_4_, p_77648_5_, p_77648_6_);
                  int k1 = j1 & 7;
  
@@ -32,7 +32,6 @@
 +
 +                /*
 +                if (k1 <= 6 && world.b(block.b(world, i, j, k)) && world.setData(i, j, k, k1 + 1 | j1 & -8, 2)) {
-+                    // CraftBukkit end
 +                    world.makeSound((double) ((float) i + 0.5F), (double) ((float) j + 0.5F), (double) ((float) k + 0.5F), block.stepSound.getPlaceSound(), (block.stepSound.getVolume1() + 1.0F) / 2.0F, block.stepSound.getVolume2() * 0.8F);
 +                    --itemstack.count;
 +                    return true;

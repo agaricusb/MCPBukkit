@@ -92,7 +92,7 @@
          }
          else if (l == 3)
          {
-@@ -72,63 +89,95 @@
+@@ -72,63 +89,100 @@
              {
                  for (j1 = 0; j1 >= -1; --j1)
                  {
@@ -186,6 +186,11 @@
 +                }
 +            }
 +        }
++        else if (bonemeal && itemstack != null)
++        {
++            // We always consume bonemeal when trying to grow
++            --itemstack.field_77994_a;
++        }
 +
 +        if (!grownTree)
          {
@@ -213,7 +218,7 @@
      }
  
      public boolean func_72268_e(World p_72268_1_, int p_72268_2_, int p_72268_3_, int p_72268_4_, int p_72268_5_)
-@@ -140,4 +189,13 @@
+@@ -140,4 +194,13 @@
      {
          return p_71899_1_ & 3;
      }
