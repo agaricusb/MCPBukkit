@@ -1529,6 +1529,12 @@ public class NetServerHandler extends NetHandler
         if (this.field_72574_e.field_71070_bA.field_75152_c == p_72523_1_.field_73444_a && this.field_72574_e.field_71070_bA.func_75129_b(this.field_72574_e))
         {
             // CraftBukkit start - fire InventoryClickEvent
+            if (p_72523_1_.field_73442_b == -1)
+            {
+                // Vanilla doesn't do anything with this, neither should we
+                return;
+            }
+
             InventoryView inventory = this.field_72574_e.field_71070_bA.getBukkitView();
             SlotType type = CraftInventoryView.getSlotType(inventory, p_72523_1_.field_73442_b);
             InventoryClickEvent event = new InventoryClickEvent(inventory, type, p_72523_1_.field_73442_b, p_72523_1_.field_73443_c != 0, p_72523_1_.field_73439_f == 1);
