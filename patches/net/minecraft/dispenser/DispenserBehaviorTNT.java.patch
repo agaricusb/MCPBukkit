@@ -1,0 +1,14 @@
+--- ../net/minecraft/dispenser/DispenserBehaviorTNT.java
++++ ../net/minecraft/dispenser/DispenserBehaviorTNT.java
+@@ -6,9 +6,10 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.util.EnumFacing;
+ import net.minecraft.world.World;
+-
+ final class DispenserBehaviorTNT extends BehaviorDefaultDispenseItem
+ {
++    DispenserBehaviorTNT() {}
++
+     protected ItemStack func_82487_b(IBlockSource p_82487_1_, ItemStack p_82487_2_)
+     {
+         EnumFacing enumfacing = BlockDispenser.func_100009_j_(p_82487_1_.func_82620_h());
