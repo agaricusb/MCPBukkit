@@ -181,6 +181,10 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
         entity.field_70133_I = true;
     }
 
+    public boolean isOnGround() {
+        return entity.field_70122_E;
+    }
+
     public World getWorld() {
         return ((net.minecraft.world.WorldServer) entity.field_70170_p).getWorld();
     }
