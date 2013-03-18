@@ -1,0 +1,20 @@
+--- ../net/minecraft/network/packet/Packet51MapChunk.java
++++ ../net/minecraft/network/packet/Packet51MapChunk.java
+@@ -52,7 +52,7 @@
+         }
+     }
+ 
+-    public void func_73267_a(DataInputStream p_73267_1_) throws IOException
++    public void func_73267_a(DataInputStream p_73267_1_) throws IOException   // CraftBukkit - throws IOException
+     {
+         this.field_73601_a = p_73267_1_.readInt();
+         this.field_73599_b = p_73267_1_.readInt();
+@@ -100,7 +100,7 @@
+         }
+     }
+ 
+-    public void func_73273_a(DataOutputStream p_73273_1_) throws IOException
++    public void func_73273_a(DataOutputStream p_73273_1_) throws IOException   // CraftBukkit - throws IOException
+     {
+         p_73273_1_.writeInt(this.field_73601_a);
+         p_73273_1_.writeInt(this.field_73599_b);

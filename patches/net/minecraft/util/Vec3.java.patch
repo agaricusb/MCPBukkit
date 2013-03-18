@@ -1,0 +1,19 @@
+--- ../net/minecraft/util/Vec3.java
++++ ../net/minecraft/util/Vec3.java
+@@ -7,6 +7,7 @@
+     public double field_72450_a;
+     public double field_72448_b;
+     public double field_72449_c;
++    public Vec3 next; // CraftBukkit
+ 
+     public static Vec3 func_72443_a(double p_72443_0_, double p_72443_2_, double p_72443_4_)
+     {
+@@ -168,4 +169,7 @@
+         this.field_72448_b = d1;
+         this.field_72449_c = d2;
+     }
+-}
++    public Vec3 func_72439_b_CodeFix_Public(double a, double b, double c){
++        return func_72439_b(a, b, c);
++    }
++}

@@ -1,0 +1,592 @@
+--- ../net/minecraft/entity/EntityLiving.java
++++ ../net/minecraft/entity/EntityLiving.java
+@@ -14,12 +14,14 @@
+ import net.minecraft.entity.ai.EntityLookHelper;
+ import net.minecraft.entity.ai.EntityMoveHelper;
+ import net.minecraft.entity.ai.EntitySenses;
++import net.minecraft.entity.boss.EntityDragon;
+ import net.minecraft.entity.item.EntityItem;
+ import net.minecraft.entity.item.EntityXPOrb;
+ import net.minecraft.entity.monster.EntityCreeper;
+ import net.minecraft.entity.monster.EntityGhast;
+ import net.minecraft.entity.passive.EntityWolf;
+ import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.entity.projectile.EntityArrow;
+ import net.minecraft.item.Item;
+ import net.minecraft.item.ItemArmor;
+@@ -28,6 +30,7 @@
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.nbt.NBTTagFloat;
+ import net.minecraft.nbt.NBTTagList;
++import net.minecraft.network.packet.Packet;
+ import net.minecraft.network.packet.Packet18Animation;
+ import net.minecraft.network.packet.Packet22Collect;
+ import net.minecraft.network.packet.Packet5PlayerInventory;
+@@ -38,10 +41,18 @@
+ import net.minecraft.util.ChunkCoordinates;
+ import net.minecraft.util.CombatTracker;
+ import net.minecraft.util.DamageSource;
++import net.minecraft.util.EntityDamageSource;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.util.Vec3;
+ import net.minecraft.world.World;
+ import net.minecraft.world.WorldServer;
++
++// CraftBukkit start
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.event.entity.EntityDamageByBlockEvent;
++import org.bukkit.event.entity.EntityDamageEvent;
++import org.bukkit.event.entity.EntityRegainHealthEvent;
++// CraftBukkit end
+ 
+ public abstract class EntityLiving extends Entity
+ {
+@@ -74,7 +85,7 @@
+     public float field_70733_aJ;
+     protected int field_70734_aK = this.func_70667_aM();
+     public int field_70735_aL;
+-    public int field_70736_aM;
++    protected int field_70736_aM;
+     public int field_70757_a;
+     public int field_70737_aN;
+     public int field_70738_aO;
+@@ -90,21 +101,21 @@
+     public float field_70722_aY;
+     public float field_70721_aZ;
+     public float field_70754_ba;
+-    protected EntityPlayer field_70717_bb = null;
++    public EntityPlayer field_70717_bb = null; // CraftBukkit - protected -> public
+     protected int field_70718_bc = 0;
+-    private EntityLiving field_70755_b = null;
++    public EntityLiving field_70755_b = null; // CraftBukkit - private -> public
+     private int field_70756_c = 0;
+     private EntityLiving field_70751_d = null;
+     public int field_70720_be = 0;
+-    protected HashMap field_70713_bf = new HashMap();
+-    private boolean field_70752_e = true;
++    public HashMap field_70713_bf = new HashMap(); // CraftBukkit - protected -> public
++    public boolean field_70752_e = true; // CraftBukkit - private -> public
+     private int field_70748_f;
+     private EntityLookHelper field_70749_g;
+     private EntityMoveHelper field_70765_h;
+     private EntityJumpHelper field_70767_i;
+     private EntityBodyHelper field_70762_j;
+     private PathNavigate field_70699_by;
+-    public final EntityAITasks field_70714_bg;
++    protected final EntityAITasks field_70714_bg;
+     protected final EntityAITasks field_70715_bh;
+     private EntityLiving field_70696_bz;
+     private EntitySenses field_70723_bA;
+@@ -112,12 +123,12 @@
+     private ChunkCoordinates field_70775_bC = new ChunkCoordinates(0, 0, 0);
+     private float field_70772_bD = -1.0F;
+     private ItemStack[] field_82182_bS = new ItemStack[5];
+-    protected float[] field_82174_bp = new float[5];
++    public float[] field_82174_bp = new float[5]; // CraftBukkit - protected -> public
+     private ItemStack[] field_82180_bT = new ItemStack[5];
+     public boolean field_82175_bq = false;
+     public int field_82173_br = 0;
+-    private boolean field_82172_bs = false;
+-    private boolean field_82179_bU = false;
++    public boolean field_82172_bs = false; // CraftBukkit - protected -> public
++    public boolean field_82179_bU = !this.func_70692_ba(); // CraftBukkit - private -> public, change value
+     protected final CombatTracker field_94063_bt = new CombatTracker(this);
+     protected int field_70716_bi;
+     protected double field_70709_bj;
+@@ -126,17 +137,22 @@
+     protected double field_70712_bm;
+     protected double field_70705_bn;
+     float field_70706_bo = 0.0F;
+-    protected int field_70707_bp = 0;
++    public int field_70707_bp = 0; // CraftBukkit - protected -> public
+     protected int field_70708_bq = 0;
+     protected float field_70702_br;
+     protected float field_70701_bs;
+     protected float field_70704_bt;
+-    public boolean field_70703_bu = false;
++    protected boolean field_70703_bu = false;
+     protected float field_70698_bv = 0.0F;
+     protected float field_70697_bw = 0.7F;
+     private int field_70773_bE = 0;
+     private Entity field_70776_bF;
+     protected int field_70700_bx = 0;
++    // CraftBukkit start
++    public int expToDrop = 0;
++    public int maxAirTicks = 300;
++    public int maxHealth = this.func_70667_aM();
++    // CraftBukkit end
+ 
+     public EntityLiving(World p_i3443_1_)
+     {
+@@ -392,10 +408,20 @@
+             this.func_70642_aH();
+         }
+ 
+-        if (this.func_70089_S() && this.func_70094_T())
+-        {
+-            this.func_70097_a(DamageSource.field_76368_d, 1);
+-        }
++        // CraftBukkit start
++        if (this.func_70089_S() && this.func_70094_T() && !(this instanceof EntityDragon))   // EnderDragon's don't suffocate.
++        {
++            EntityDamageEvent event = new EntityDamageEvent(this.getBukkitEntity(), EntityDamageEvent.DamageCause.SUFFOCATION, 1);
++            this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++            if (!event.isCancelled())
++            {
++                event.getEntity().setLastDamageCause(event);
++                this.func_70097_a(DamageSource.field_76368_d, event.getDamage());
++            }
++        }
++
++        // CraftBukkit end
+ 
+         if (this.func_70045_F() || this.field_70170_p.field_72995_K)
+         {
+@@ -420,14 +446,30 @@
+                     this.field_70170_p.func_72869_a("bubble", this.field_70165_t + (double)f, this.field_70163_u + (double)f1, this.field_70161_v + (double)f2, this.field_70159_w, this.field_70181_x, this.field_70179_y);
+                 }
+ 
+-                this.func_70097_a(DamageSource.field_76369_e, 2);
++                // CraftBukkit start
++                EntityDamageEvent event = new EntityDamageEvent(this.getBukkitEntity(), EntityDamageEvent.DamageCause.DROWNING, 2);
++                this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++                if (!event.isCancelled() && event.getDamage() != 0)
++                {
++                    event.getEntity().setLastDamageCause(event);
++                    this.func_70097_a(DamageSource.field_76369_e, event.getDamage());
++                }
++
++                // CraftBukkit end
+             }
+ 
+             this.func_70066_B();
+         }
+         else
+         {
+-            this.func_70050_g(300);
++            // CraftBukkit start - only set if needed to work around a datawatcher inefficiency
++            if (this.func_70086_ai() != 300)
++            {
++                this.func_70050_g(maxAirTicks);
++            }
++
++            // CraftBukkit end
+         }
+ 
+         this.field_70727_aS = this.field_70726_aT;
+@@ -491,26 +533,53 @@
+         this.field_70170_p.field_72984_F.func_76319_b();
+     }
+ 
++    // CraftBukkit start
++    public int getExpReward()
++    {
++        int exp = this.func_70693_a(this.field_70717_bb);
++
++        if (!this.field_70170_p.field_72995_K && (this.field_70718_bc > 0 || this.func_70684_aJ()) && !this.func_70631_g_())
++        {
++            return exp;
++        }
++        else
++        {
++            return 0;
++        }
++    }
++
++    public int getScaledHealth()
++    {
++        if (this.maxHealth != this.func_70667_aM() && this.func_70630_aN() > 0)
++        {
++            return this.func_70630_aN() * this.func_70667_aM() / this.maxHealth + 1;
++        }
++        else
++        {
++            return this.func_70630_aN();
++        }
++    }
++    // CraftBukkit end
++
+     protected void func_70609_aI()
+     {
+         ++this.field_70725_aQ;
+ 
+-        if (this.field_70725_aQ == 20)
++        if (this.field_70725_aQ >= 20 && !this.field_70128_L)   // CraftBukkit - (this.deathTicks == 20) -> (this.deathTicks >= 20 && !this.dead)
+         {
+             int i;
+-
+-            if (!this.field_70170_p.field_72995_K && (this.field_70718_bc > 0 || this.func_70684_aJ()) && !this.func_70631_g_() && this.field_70170_p.func_82736_K().func_82766_b("doMobLoot"))
+-            {
+-                i = this.func_70693_a(this.field_70717_bb);
+-
+-                while (i > 0)
+-                {
+-                    int j = EntityXPOrb.func_70527_a(i);
+-                    i -= j;
+-                    this.field_70170_p.func_72838_d(new EntityXPOrb(this.field_70170_p, this.field_70165_t, this.field_70163_u, this.field_70161_v, j));
+-                }
+-            }
+-
++            // CraftBukkit start - update getExpReward() above if the removed if() changes!
++            i = this.expToDrop;
++
++            while (i > 0)
++            {
++                int j = EntityXPOrb.func_70527_a(i);
++                i -= j;
++                this.field_70170_p.func_72838_d(new EntityXPOrb(this.field_70170_p, this.field_70165_t, this.field_70163_u, this.field_70161_v, j));
++            }
++
++            this.expToDrop = 0;
++            // CraftBukkit end
+             this.func_70106_y();
+ 
+             for (i = 0; i < 20; ++i)
+@@ -591,7 +660,7 @@
+ 
+                 if (!ItemStack.func_77989_b(itemstack, this.field_82180_bT[i]))
+                 {
+-                    ((WorldServer)this.field_70170_p).func_73039_n().func_72784_a(this, new Packet5PlayerInventory(this.field_70157_k, i, itemstack));
++                    ((WorldServer) this.field_70170_p).func_73039_n().func_72784_a((Entity) this, (Packet)(new Packet5PlayerInventory(this.field_70157_k, i, itemstack)));
+                     this.field_82180_bT[i] = itemstack == null ? null : itemstack.func_77946_l();
+                 }
+             }
+@@ -627,7 +696,8 @@
+         {
+             f3 = 1.0F;
+             f2 = (float)Math.sqrt((double)f) * 3.0F;
+-            f1 = (float)Math.atan2(d1, d0) * 180.0F / (float)Math.PI - 90.0F;
++            // CraftBukkit - Math -> TrigMath
++            f1 = (float) org.bukkit.craftbukkit.TrigMath.atan2(d1, d0) * 180.0F / (float)Math.PI - 90.0F;
+         }
+ 
+         if (this.field_70733_aJ > 0.0F)
+@@ -724,15 +794,29 @@
+         this.field_70764_aw += f2;
+     }
+ 
++    // CraftBukkit start - delegate so we can handle providing a reason for health being regained
+     public void func_70691_i(int p_70691_1_)
+     {
++        heal(p_70691_1_, EntityRegainHealthEvent.RegainReason.CUSTOM);
++    }
++
++    public void heal(int i, EntityRegainHealthEvent.RegainReason regainReason)
++    {
+         if (this.field_70734_aK > 0)
+         {
+-            this.func_70606_j(this.func_70630_aN() + p_70691_1_);
+-
+-            if (this.field_70734_aK > this.func_70667_aM())
+-            {
+-                this.func_70606_j(this.func_70667_aM());
++            EntityRegainHealthEvent event = new EntityRegainHealthEvent(this.getBukkitEntity(), i, regainReason);
++            this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++            if (!event.isCancelled())
++            {
++                this.field_70734_aK += event.getAmount();
++            }
++
++            // this.getMaxHealth() -> this.maxHealth
++            if (this.field_70734_aK > this.maxHealth)
++            {
++                this.field_70734_aK = this.maxHealth;
++                // CraftBukkit end
+             }
+ 
+             this.field_70172_ad = this.field_70771_an / 2;
+@@ -788,6 +872,21 @@
+ 
+                 this.field_70721_aZ = 1.5F;
+                 boolean flag = true;
++
++                // CraftBukkit start
++                if (p_70097_1_ instanceof EntityDamageSource)
++                {
++                    EntityDamageEvent event = CraftEventFactory.handleEntityDamageEvent(this, p_70097_1_, p_70097_2_);
++
++                    if (event.isCancelled())
++                    {
++                        return false;
++                    }
++
++                    p_70097_2_ = event.getDamage();
++                }
++
++                // CraftBukkit end
+ 
+                 if ((float)this.field_70172_ad > (float)this.field_70771_an / 2.0F)
+                 {
+@@ -1045,7 +1144,7 @@
+                 this.func_70628_a(this.field_70718_bc > 0, i);
+                 this.func_82160_b(this.field_70718_bc > 0, i);
+ 
+-                if (this.field_70718_bc > 0)
++                if (false && this.field_70718_bc > 0)   // CraftBukkit - move rare item drop call to dropDeathLoot
+                 {
+                     int j = this.field_70146_Z.nextInt(200) - i;
+ 
+@@ -1055,15 +1154,26 @@
+                     }
+                 }
+             }
++            else     // CraftBukkit
++            {
++                CraftEventFactory.callEntityDeathEvent(this); // CraftBukkit
++            }
+         }
+ 
+         this.field_70170_p.func_72960_a(this, (byte)3);
+     }
+ 
+-    protected void func_70600_l(int p_70600_1_) {}
++    // CraftBukkit start - change return type to ItemStack
++    protected ItemStack func_70600_l(int i)
++    {
++        return null;
++    }
++    // CraftBukkit end
+ 
+     protected void func_70628_a(boolean p_70628_1_, int p_70628_2_)
+     {
++        // CraftBukkit start - whole method
++        List<org.bukkit.inventory.ItemStack> loot = new java.util.ArrayList<org.bukkit.inventory.ItemStack>();
+         int j = this.func_70633_aT();
+ 
+         if (j > 0)
+@@ -1075,11 +1185,30 @@
+                 k += this.field_70146_Z.nextInt(p_70628_2_ + 1);
+             }
+ 
+-            for (int l = 0; l < k; ++l)
+-            {
+-                this.func_70025_b(j, 1);
+-            }
+-        }
++            if (k > 0)
++            {
++                loot.add(new org.bukkit.inventory.ItemStack(j, k));
++            }
++        }
++
++        // Determine rare item drops and add them to the loot
++        if (this.field_70718_bc > 0)
++        {
++            int k = this.field_70146_Z.nextInt(200) - p_70628_2_;
++
++            if (k < 5)
++            {
++                ItemStack itemstack = this.func_70600_l(k <= 0 ? 1 : 0);
++
++                if (itemstack != null)
++                {
++                    loot.add(org.bukkit.craftbukkit.inventory.CraftItemStack.asCraftMirror(itemstack));
++                }
++            }
++        }
++
++        CraftEventFactory.callEntityDeathEvent(this, loot); // raise event even for those times when the entity does not drop loot
++        // CraftBukkit end
+     }
+ 
+     protected int func_70633_aT()
+@@ -1094,16 +1223,28 @@
+ 
+         if (i > 0)
+         {
+-            if (i > 4)
+-            {
+-                this.func_85030_a("damage.fallbig", 1.0F, 1.0F);
+-            }
+-            else
+-            {
+-                this.func_85030_a("damage.fallsmall", 1.0F, 1.0F);
+-            }
+-
+-            this.func_70097_a(DamageSource.field_76379_h, i);
++            // CraftBukkit start
++            EntityDamageEvent event = new EntityDamageEvent(this.getBukkitEntity(), EntityDamageEvent.DamageCause.FALL, i);
++            this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++            if (!event.isCancelled() && event.getDamage() != 0)
++            {
++                i = event.getDamage();
++
++                if (i > 4)
++                {
++                    this.func_85030_a("damage.fallbig", 1.0F, 1.0F);
++                }
++                else
++                {
++                    this.func_85030_a("damage.fallsmall", 1.0F, 1.0F);
++                }
++
++                this.getBukkitEntity().setLastDamageCause(event);
++                this.func_70097_a(DamageSource.field_76379_h, i);
++            }
++
++            // CraftBukkit end
+             int j = this.field_70170_p.func_72798_a(MathHelper.func_76128_c(this.field_70165_t), MathHelper.func_76128_c(this.field_70163_u - 0.20000000298023224D - (double)this.field_70129_M), MathHelper.func_76128_c(this.field_70161_v));
+ 
+             if (j > 0)
+@@ -1342,22 +1483,43 @@
+         p_70014_1_.func_74782_a("DropChances", nbttaglist1);
+         p_70014_1_.func_74778_a("CustomName", this.func_94057_bL());
+         p_70014_1_.func_74757_a("CustomNameVisible", this.func_94062_bN());
++        p_70014_1_.func_74768_a("Bukkit.MaxHealth", this.maxHealth); // CraftBukkit
+     }
+ 
+     public void func_70037_a(NBTTagCompound p_70037_1_)
+     {
+         this.field_70734_aK = p_70037_1_.func_74765_d("Health");
+ 
++        // CraftBukkit start
++        if (p_70037_1_.func_74764_b("Bukkit.MaxHealth"))
++        {
++            this.maxHealth = p_70037_1_.func_74762_e("Bukkit.MaxHealth");
++        }
++
+         if (!p_70037_1_.func_74764_b("Health"))
+         {
+-            this.field_70734_aK = this.func_70667_aM();
++            this.field_70734_aK = this.maxHealth; // CraftBukkit - this.getMaxHealth() -> this.maxHealth
+         }
+ 
+         this.field_70737_aN = p_70037_1_.func_74765_d("HurtTime");
+         this.field_70725_aQ = p_70037_1_.func_74765_d("DeathTime");
+         this.field_70724_aR = p_70037_1_.func_74765_d("AttackTime");
+-        this.func_98053_h(p_70037_1_.func_74767_n("CanPickUpLoot"));
+-        this.field_82179_bU = p_70037_1_.func_74767_n("PersistenceRequired");
++        // CraftBukkit start - if looting or persistence is false only use it if it was set after we started using it
++        boolean data = p_70037_1_.func_74767_n("CanPickUpLoot");
++
++        if (isLevelAtLeast(p_70037_1_, 1) || data)
++        {
++            this.field_82172_bs = data;
++        }
++
++        data = p_70037_1_.func_74767_n("PersistenceRequired");
++
++        if (isLevelAtLeast(p_70037_1_, 1) || data)
++        {
++            this.field_82179_bU = data;
++        }
++
++        // CraftBukkit end
+ 
+         if (p_70037_1_.func_74764_b("CustomName") && p_70037_1_.func_74779_i("CustomName").length() > 0)
+         {
+@@ -1531,7 +1693,8 @@
+         this.field_70170_p.field_72984_F.func_76319_b();
+         this.field_70170_p.field_72984_F.func_76320_a("looting");
+ 
+-        if (!this.field_70170_p.field_72995_K && this.func_98052_bS() && !this.field_70729_aU && this.field_70170_p.func_82736_K().func_82766_b("mobGriefing"))
++        // CraftBukkit - Don't run mob pickup code on players
++        if (!this.field_70170_p.field_72995_K && !(this instanceof EntityPlayerMP) && this.func_98052_bS() && !this.field_70729_aU && this.field_70170_p.func_82736_K().func_82766_b("mobGriefing"))
+         {
+             List list = this.field_70170_p.func_72872_a(EntityItem.class, this.field_70121_D.func_72314_b(1.0D, 0.0D, 1.0D));
+             Iterator iterator = list.iterator();
+@@ -1702,12 +1865,12 @@
+                 double d2 = entityplayer.field_70161_v - this.field_70161_v;
+                 double d3 = d0 * d0 + d1 * d1 + d2 * d2;
+ 
+-                if (this.func_70692_ba() && d3 > 16384.0D)
++                if (d3 > 16384.0D)   // CraftBukkit - remove isTypeNotPersistent() check
+                 {
+                     this.func_70106_y();
+                 }
+ 
+-                if (this.field_70708_bq > 600 && this.field_70146_Z.nextInt(800) == 0 && d3 > 1024.0D && this.func_70692_ba())
++                if (this.field_70708_bq > 600 && this.field_70146_Z.nextInt(800) == 0 && d3 > 1024.0D)   // CraftBukkit - remove isTypeNotPersistent() check
+                 {
+                     this.func_70106_y();
+                 }
+@@ -1716,7 +1879,15 @@
+                     this.field_70708_bq = 0;
+                 }
+             }
+-        }
++
++            // CraftBukkit start
++        }
++        else
++        {
++            this.field_70708_bq = 0;
++        }
++
++        // CraftBukkit end
+     }
+ 
+     protected void func_70619_bc()
+@@ -1780,7 +1951,7 @@
+         {
+             this.func_70625_a(this.field_70776_bF, 10.0F, (float)this.func_70646_bf());
+ 
+-            if (this.field_70700_bx-- <= 0 || this.field_70776_bF.field_70128_L || this.field_70776_bF.func_70068_e(this) > (double)(f * f))
++            if (this.field_70700_bx-- <= 0 || this.field_70776_bF.field_70128_L || this.field_70776_bF.func_70068_e((Entity) this) > (double)(f * f))
+             {
+                 this.field_70776_bF = null;
+             }
+@@ -1879,7 +2050,18 @@
+ 
+     protected void func_70076_C()
+     {
+-        this.func_70097_a(DamageSource.field_76380_i, 4);
++        // CraftBukkit start
++        EntityDamageByBlockEvent event = new EntityDamageByBlockEvent(null, this.getBukkitEntity(), EntityDamageEvent.DamageCause.VOID, 4);
++        this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++        if (event.isCancelled() || event.getDamage() == 0)
++        {
++            return;
++        }
++
++        event.getEntity().setLastDamageCause(event);
++        this.func_70097_a(DamageSource.field_76380_i, event.getDamage());
++        // CraftBukkit end
+     }
+ 
+     public Vec3 func_70040_Z()
+@@ -2163,7 +2345,7 @@
+         }
+         else
+         {
+-            int i = (int)((float)this.field_70734_aK - (float)this.func_70667_aM() * 0.33F);
++            int i = (int)((float) this.field_70734_aK - (float) this.maxHealth * 0.33F);  // this.getMaxHealth() -> this.maxHealth
+             i -= (3 - this.field_70170_p.field_73013_u) * 4;
+ 
+             if (i < 0)
+@@ -2284,17 +2466,17 @@
+ 
+             if (p_71001_1_ instanceof EntityItem)
+             {
+-                entitytracker.func_72784_a(p_71001_1_, new Packet22Collect(p_71001_1_.field_70157_k, this.field_70157_k));
++                entitytracker.func_72784_a(p_71001_1_, (Packet)(new Packet22Collect(p_71001_1_.field_70157_k, this.field_70157_k)));
+             }
+ 
+             if (p_71001_1_ instanceof EntityArrow)
+             {
+-                entitytracker.func_72784_a(p_71001_1_, new Packet22Collect(p_71001_1_.field_70157_k, this.field_70157_k));
++                entitytracker.func_72784_a(p_71001_1_, (Packet)(new Packet22Collect(p_71001_1_.field_70157_k, this.field_70157_k)));
+             }
+ 
+             if (p_71001_1_ instanceof EntityXPOrb)
+             {
+-                entitytracker.func_72784_a(p_71001_1_, new Packet22Collect(p_71001_1_.field_70157_k, this.field_70157_k));
++                entitytracker.func_72784_a(p_71001_1_, (Packet)(new Packet22Collect(p_71001_1_.field_70157_k, this.field_70157_k)));
+             }
+         }
+     }
+@@ -2453,7 +2635,7 @@
+ 
+             if (this.field_70170_p instanceof WorldServer)
+             {
+-                ((WorldServer)this.field_70170_p).func_73039_n().func_72784_a(this, new Packet18Animation(this, 1));
++                ((WorldServer) this.field_70170_p).func_73039_n().func_72784_a((Entity) this, (Packet)(new Packet18Animation(this, 1)));
+             }
+         }
+     }

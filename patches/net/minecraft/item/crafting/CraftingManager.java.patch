@@ -1,0 +1,129 @@
+--- ../net/minecraft/item/crafting/CraftingManager.java
++++ ../net/minecraft/item/crafting/CraftingManager.java
+@@ -10,17 +10,24 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.world.World;
+ 
++import org.bukkit.craftbukkit.event.CraftEventFactory; // CraftBukkit
++
+ public class CraftingManager
+ {
+     private static final CraftingManager field_77598_a = new CraftingManager();
+-    private List field_77597_b = new ArrayList();
++    // CraftBukkit start
++    public List field_77597_b = new ArrayList(); // private -> public
++    public IRecipe lastRecipe;
++    public org.bukkit.inventory.InventoryView lastCraftView;
++    // CraftBukkit end
+ 
+     public static final CraftingManager func_77594_a()
+     {
+         return field_77598_a;
+     }
+ 
+-    private CraftingManager()
++    // CraftBukkit - private -> public
++    public CraftingManager()
+     {
+         (new RecipesTools()).func_77586_a(this);
+         (new RecipesWeapons()).func_77583_a(this);
+@@ -139,10 +146,19 @@
+         this.func_77596_b(new ItemStack(Item.field_77811_bE, 3), new Object[] {Item.field_77677_M, Item.field_77722_bw, new ItemStack(Item.field_77705_m, 1, 1)});
+         this.func_92103_a(new ItemStack(Block.field_94344_cp), new Object[] {"GGG", "QQQ", "WWW", 'G', Block.field_71946_M, 'Q', Item.field_94583_ca, 'W', Block.field_72092_bO});
+         this.func_92103_a(new ItemStack(Block.field_94340_cs), new Object[] {"I I", "ICI", " I ", 'I', Item.field_77703_o, 'C', Block.field_72077_au});
++        // Collections.sort(this.recipes, new RecipeSorter(this)); // CraftBukkit - moved below
++        this.sort(); // CraftBukkit - call new sort method
++        System.out.println(this.field_77597_b.size() + " recipes");
++    }
++
++    // CraftBukkit start
++    public void sort()
++    {
+         Collections.sort(this.field_77597_b, new RecipeSorter(this));
+-        System.out.println(this.field_77597_b.size() + " recipes");
+-    }
+-
++    }
++    // CraftBukkit end
++
++    // CraftBukkit - default -> public
+     public ShapedRecipes func_92103_a(ItemStack p_92103_1_, Object ... p_92103_2_)
+     {
+         String s = "";
+@@ -217,32 +233,33 @@
+         return shapedrecipes;
+     }
+ 
++    // CraftBukkit - default -> public
+     public void func_77596_b(ItemStack p_77596_1_, Object ... p_77596_2_)
+     {
+         ArrayList arraylist = new ArrayList();
+-        Object[] aobject = p_77596_2_;
++        Object[] aobject1 = p_77596_2_;
+         int i = p_77596_2_.length;
+ 
+         for (int j = 0; j < i; ++j)
+         {
+-            Object object1 = aobject[j];
+-
+-            if (object1 instanceof ItemStack)
+-            {
+-                arraylist.add(((ItemStack)object1).func_77946_l());
+-            }
+-            else if (object1 instanceof Item)
+-            {
+-                arraylist.add(new ItemStack((Item)object1));
++            Object object = aobject1[j];
++
++            if (object instanceof ItemStack)
++            {
++                arraylist.add(((ItemStack) object).func_77946_l());
++            }
++            else if (object instanceof Item)
++            {
++                arraylist.add(new ItemStack((Item) object));
+             }
+             else
+             {
+-                if (!(object1 instanceof Block))
++                if (!(object instanceof Block))
+                 {
+                     throw new RuntimeException("Invalid shapeless recipy!");
+                 }
+ 
+-                arraylist.add(new ItemStack((Block)object1));
++                arraylist.add(new ItemStack((Block) object));
+             }
+         }
+ 
+@@ -289,7 +306,16 @@
+                 j1 = 0;
+             }
+ 
+-            return new ItemStack(itemstack.field_77993_c, 1, j1);
++            // CraftBukkit start - construct a dummy repair recipe
++            ItemStack result = new ItemStack(itemstack.field_77993_c, 1, j1);
++            List<ItemStack> ingredients = new ArrayList<ItemStack>();
++            ingredients.add(itemstack.func_77946_l());
++            ingredients.add(itemstack1.func_77946_l());
++            ShapelessRecipes recipe = new ShapelessRecipes(result.func_77946_l(), ingredients);
++            p_82787_1_.currentRecipe = recipe;
++            result = CraftEventFactory.callPreCraftEvent(p_82787_1_, result, lastCraftView, true);
++            return result;
++            // CraftBukkit end
+         }
+         else
+         {
+@@ -299,7 +325,11 @@
+ 
+                 if (irecipe.func_77569_a(p_82787_1_, p_82787_2_))
+                 {
+-                    return irecipe.func_77572_b(p_82787_1_);
++                    // CraftBukkit start - INVENTORY_PRE_CRAFT event
++                    p_82787_1_.currentRecipe = irecipe;
++                    ItemStack result = irecipe.func_77572_b(p_82787_1_);
++                    return CraftEventFactory.callPreCraftEvent(p_82787_1_, result, lastCraftView, false);
++                    // CraftBukkit end
+                 }
+             }
+ 

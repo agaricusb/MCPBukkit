@@ -1,0 +1,57 @@
+--- ../net/minecraft/entity/item/EntityTNTPrimed.java
++++ ../net/minecraft/entity/item/EntityTNTPrimed.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.entity.item;
+ 
++import org.bukkit.event.entity.ExplosionPrimeEvent; // CraftBukkit
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.nbt.NBTTagCompound;
+@@ -9,6 +10,8 @@
+ {
+     public int field_70516_a;
+     private EntityLiving field_94084_b;
++    public float yield = 4; // CraftBukkit
++    public boolean isIncendiary = false; // CraftBukkit
+ 
+     public EntityTNTPrimed(World p_i3543_1_)
+     {
+@@ -66,12 +69,14 @@
+ 
+         if (this.field_70516_a-- <= 0)
+         {
+-            this.func_70106_y();
+-
++            // CraftBukkit start - Need to reverse the order of the explosion and the entity death so we have a location for the event
+             if (!this.field_70170_p.field_72995_K)
+             {
+                 this.func_70515_d();
+             }
++
++            this.func_70106_y();
++            // CraftBukkit end
+         }
+         else
+         {
+@@ -81,8 +86,19 @@
+ 
+     private void func_70515_d()
+     {
+-        float f = 4.0F;
+-        this.field_70170_p.func_72876_a(this, this.field_70165_t, this.field_70163_u, this.field_70161_v, f, true);
++        // CraftBukkit start
++        // float f = 4.0F;
++        org.bukkit.craftbukkit.CraftServer server = this.field_70170_p.getServer();
++        ExplosionPrimeEvent event = new ExplosionPrimeEvent((org.bukkit.entity.Explosive) org.bukkit.craftbukkit.entity.CraftEntity.getEntity(server, this));
++        server.getPluginManager().callEvent(event);
++
++        if (!event.isCancelled())
++        {
++            // give 'this' instead of (Entity) null so we know what causes the damage
++            this.field_70170_p.func_72885_a(this, this.field_70165_t, this.field_70163_u, this.field_70161_v, event.getRadius(), event.getFire(), true);
++        }
++
++        // CraftBukkit end
+     }
+ 
+     protected void func_70014_b(NBTTagCompound p_70014_1_)

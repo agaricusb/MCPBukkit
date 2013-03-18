@@ -1,0 +1,55 @@
+--- ../net/minecraft/network/packet/Packet20NamedEntitySpawn.java
++++ ../net/minecraft/network/packet/Packet20NamedEntitySpawn.java
+@@ -2,12 +2,13 @@
+ 
+ import java.io.DataInputStream;
+ import java.io.DataOutputStream;
+-import java.io.IOException;
+ import java.util.List;
+ import net.minecraft.entity.DataWatcher;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.util.MathHelper;
++
++import java.io.IOException; // CraftBukkit
+ 
+ public class Packet20NamedEntitySpawn extends Packet
+ {
+@@ -27,7 +28,18 @@
+     public Packet20NamedEntitySpawn(EntityPlayer p_i3296_1_)
+     {
+         this.field_73516_a = p_i3296_1_.field_70157_k;
+-        this.field_73514_b = p_i3296_1_.field_71092_bJ;
++
++        // CraftBukkit start - limit name length to 16 characters
++        if (p_i3296_1_.field_71092_bJ.length() > 16)
++        {
++            this.field_73514_b = p_i3296_1_.field_71092_bJ.substring(0, 16);
++        }
++        else
++        {
++            this.field_73514_b = p_i3296_1_.field_71092_bJ;
++        }
++
++        // CraftBukkit end
+         this.field_73515_c = MathHelper.func_76128_c(p_i3296_1_.field_70165_t * 32.0D);
+         this.field_73512_d = MathHelper.func_76128_c(p_i3296_1_.field_70163_u * 32.0D);
+         this.field_73513_e = MathHelper.func_76128_c(p_i3296_1_.field_70161_v * 32.0D);
+@@ -38,7 +50,7 @@
+         this.field_73519_i = p_i3296_1_.func_70096_w();
+     }
+ 
+-    public void func_73267_a(DataInputStream p_73267_1_) throws IOException
++    public void func_73267_a(DataInputStream p_73267_1_) throws IOException   // CraftBukkit
+     {
+         this.field_73516_a = p_73267_1_.readInt();
+         this.field_73514_b = func_73282_a(p_73267_1_, 16);
+@@ -51,7 +63,7 @@
+         this.field_73517_j = DataWatcher.func_75686_a(p_73267_1_);
+     }
+ 
+-    public void func_73273_a(DataOutputStream p_73273_1_) throws IOException
++    public void func_73273_a(DataOutputStream p_73273_1_) throws IOException   // CraftBukkit
+     {
+         p_73273_1_.writeInt(this.field_73516_a);
+         func_73271_a(this.field_73514_b, p_73273_1_);

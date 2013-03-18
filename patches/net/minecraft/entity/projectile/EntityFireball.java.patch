@@ -1,0 +1,90 @@
+--- ../net/minecraft/entity/projectile/EntityFireball.java
++++ ../net/minecraft/entity/projectile/EntityFireball.java
+@@ -12,6 +12,8 @@
+ import net.minecraft.util.MovingObjectPosition;
+ import net.minecraft.util.Vec3;
+ import net.minecraft.world.World;
++
++import org.bukkit.event.entity.ProjectileHitEvent; // CraftBukkit
+ 
+ public abstract class EntityFireball extends Entity
+ {
+@@ -26,6 +28,8 @@
+     public double field_70232_b;
+     public double field_70233_c;
+     public double field_70230_d;
++    public float yield = 1; // CraftBukkit
++    public boolean isIncendiary = true; // CraftBukkit
+ 
+     public EntityFireball(World p_i3571_1_)
+     {
+@@ -56,6 +60,13 @@
+         this.func_70107_b(this.field_70165_t, this.field_70163_u, this.field_70161_v);
+         this.field_70129_M = 0.0F;
+         this.field_70159_w = this.field_70181_x = this.field_70179_y = 0.0D;
++        // CraftBukkit start - (added setDirection method)
++        this.setDirection(p_i3573_3_, p_i3573_5_, p_i3573_7_);
++    }
++
++    public void setDirection(double p_i3573_3_, double p_i3573_5_, double p_i3573_7_)
++    {
++        // CraftBukkit end
+         p_i3573_3_ += this.field_70146_Z.nextGaussian() * 0.4D;
+         p_i3573_5_ += this.field_70146_Z.nextGaussian() * 0.4D;
+         p_i3573_7_ += this.field_70146_Z.nextGaussian() * 0.4D;
+@@ -131,7 +142,7 @@
+ 
+                     if (movingobjectposition1 != null)
+                     {
+-                        double d1 = vec3.func_72438_d(movingobjectposition1.field_72307_f);
++                        double d1 = vec3.func_72436_e(movingobjectposition1.field_72307_f); // CraftBukkit - distance efficiency
+ 
+                         if (d1 < d0 || d0 == 0.0D)
+                         {
+@@ -150,6 +161,15 @@
+             if (movingobjectposition != null)
+             {
+                 this.func_70227_a(movingobjectposition);
++
++                // CraftBukkit start
++                if (this.field_70128_L)
++                {
++                    ProjectileHitEvent phe = new ProjectileHitEvent((org.bukkit.entity.Projectile) this.getBukkitEntity());
++                    this.field_70170_p.getServer().getPluginManager().callEvent(phe);
++                }
++
++                // CraftBukkit end
+             }
+ 
+             this.field_70165_t += this.field_70159_w;
+@@ -218,7 +238,8 @@
+         p_70014_1_.func_74777_a("zTile", (short)this.field_70229_g);
+         p_70014_1_.func_74774_a("inTile", (byte)this.field_70237_h);
+         p_70014_1_.func_74774_a("inGround", (byte)(this.field_70238_i ? 1 : 0));
+-        p_70014_1_.func_74782_a("direction", this.func_70087_a(new double[] {this.field_70159_w, this.field_70181_x, this.field_70179_y}));
++        // CraftBukkit - Fix direction being mismapped to invalid variables
++        p_70014_1_.func_74782_a("power", this.func_70087_a(new double[] { this.field_70232_b, this.field_70233_c, this.field_70230_d}));
+     }
+ 
+     public void func_70037_a(NBTTagCompound p_70037_1_)
+@@ -229,12 +250,14 @@
+         this.field_70237_h = p_70037_1_.func_74771_c("inTile") & 255;
+         this.field_70238_i = p_70037_1_.func_74771_c("inGround") == 1;
+ 
+-        if (p_70037_1_.func_74764_b("direction"))
+-        {
+-            NBTTagList nbttaglist = p_70037_1_.func_74761_m("direction");
+-            this.field_70159_w = ((NBTTagDouble)nbttaglist.func_74743_b(0)).field_74755_a;
+-            this.field_70181_x = ((NBTTagDouble)nbttaglist.func_74743_b(1)).field_74755_a;
+-            this.field_70179_y = ((NBTTagDouble)nbttaglist.func_74743_b(2)).field_74755_a;
++        // CraftBukkit - direction -> power
++        if (p_70037_1_.func_74764_b("power"))
++        {
++            NBTTagList nbttaglist = p_70037_1_.func_74761_m("power");
++            this.field_70232_b = ((NBTTagDouble) nbttaglist.func_74743_b(0)).field_74755_a;
++            this.field_70233_c = ((NBTTagDouble) nbttaglist.func_74743_b(1)).field_74755_a;
++            this.field_70230_d = ((NBTTagDouble) nbttaglist.func_74743_b(2)).field_74755_a;
++            // CraftBukkit end
+         }
+         else
+         {

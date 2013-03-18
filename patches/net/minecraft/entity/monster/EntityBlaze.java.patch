@@ -1,0 +1,32 @@
+--- ../net/minecraft/entity/monster/EntityBlaze.java
++++ ../net/minecraft/entity/monster/EntityBlaze.java
+@@ -7,7 +7,6 @@
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
+-
+ public class EntityBlaze extends EntityMob
+ {
+     private float field_70847_d = 0.5F;
+@@ -162,12 +161,17 @@
+     {
+         if (p_70628_1_)
+         {
++            // CraftBukkit start
++            java.util.List<org.bukkit.inventory.ItemStack> loot = new java.util.ArrayList<org.bukkit.inventory.ItemStack>();
+             int j = this.field_70146_Z.nextInt(2 + p_70628_2_);
+ 
+-            for (int k = 0; k < j; ++k)
+-            {
+-                this.func_70025_b(Item.field_77731_bo.field_77779_bT, 1);
+-            }
++            if (j > 0)
++            {
++                loot.add(new org.bukkit.inventory.ItemStack(Item.field_77731_bo.field_77779_bT, j));
++            }
++
++            org.bukkit.craftbukkit.event.CraftEventFactory.callEntityDeathEvent(this, loot);
++            // CraftBukkit end
+         }
+     }
+ 

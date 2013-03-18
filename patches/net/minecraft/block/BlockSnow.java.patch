@@ -1,0 +1,16 @@
+--- ../net/minecraft/block/BlockSnow.java
++++ ../net/minecraft/block/BlockSnow.java
+@@ -105,6 +105,13 @@
+     {
+         if (p_71847_1_.func_72972_b(EnumSkyBlock.Block, p_71847_2_, p_71847_3_, p_71847_4_) > 11)
+         {
++            // CraftBukkit start
++            if (org.bukkit.craftbukkit.event.CraftEventFactory.callBlockFadeEvent(p_71847_1_.getWorld().getBlockAt(p_71847_2_, p_71847_3_, p_71847_4_), 0).isCancelled())
++            {
++                return;
++            }
++
++            // CraftBukkit end
+             this.func_71897_c(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, p_71847_1_.func_72805_g(p_71847_2_, p_71847_3_, p_71847_4_), 0);
+             p_71847_1_.func_94571_i(p_71847_2_, p_71847_3_, p_71847_4_);
+         }

@@ -1,0 +1,67 @@
+--- ../net/minecraft/entity/monster/EntitySpider.java
++++ ../net/minecraft/entity/monster/EntitySpider.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.entity.monster;
+ 
++import org.bukkit.event.entity.EntityTargetEvent; // CraftBukkit
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EnumCreatureAttribute;
+ import net.minecraft.item.Item;
+@@ -85,7 +86,25 @@
+ 
+         if (f1 > 0.5F && this.field_70146_Z.nextInt(100) == 0)
+         {
+-            this.field_70789_a = null;
++            // CraftBukkit start
++            EntityTargetEvent event = new EntityTargetEvent(this.getBukkitEntity(), null, EntityTargetEvent.TargetReason.FORGOT_TARGET);
++            this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++            if (!event.isCancelled())
++            {
++                if (event.getTarget() == null)
++                {
++                    this.field_70789_a = null;
++                }
++                else
++                {
++                    this.field_70789_a = ((org.bukkit.craftbukkit.entity.CraftEntity) event.getTarget()).getHandle();
++                }
++
++                return;
++            }
++
++            // CraftBukkit end
+         }
+         else
+         {
+@@ -115,12 +134,27 @@
+ 
+     protected void func_70628_a(boolean p_70628_1_, int p_70628_2_)
+     {
+-        super.func_70628_a(p_70628_1_, p_70628_2_);
++        // CraftBukkit start - whole method; adapted from super.dropDeathLoot.
++        java.util.List<org.bukkit.inventory.ItemStack> loot = new java.util.ArrayList<org.bukkit.inventory.ItemStack>();
++        int k = this.field_70146_Z.nextInt(3);
++
++        if (p_70628_2_ > 0)
++        {
++            k += this.field_70146_Z.nextInt(p_70628_2_ + 1);
++        }
++
++        if (k > 0)
++        {
++            loot.add(new org.bukkit.inventory.ItemStack(Item.field_77683_K.field_77779_bT, k));
++        }
+ 
+         if (p_70628_1_ && (this.field_70146_Z.nextInt(3) == 0 || this.field_70146_Z.nextInt(1 + p_70628_2_) > 0))
+         {
+-            this.func_70025_b(Item.field_77728_bu.field_77779_bT, 1);
+-        }
++            loot.add(new org.bukkit.inventory.ItemStack(Item.field_77728_bu.field_77779_bT, 1));
++        }
++
++        org.bukkit.craftbukkit.event.CraftEventFactory.callEntityDeathEvent(this, loot); // raise event even for those times when the entity does not drop loot
++        // CraftBukkit end
+     }
+ 
+     public boolean func_70617_f_()

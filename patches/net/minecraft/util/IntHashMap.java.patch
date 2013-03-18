@@ -1,0 +1,31 @@
+--- ../net/minecraft/util/IntHashMap.java
++++ ../net/minecraft/util/IntHashMap.java
+@@ -10,7 +10,9 @@
+     private int field_76054_c = 12;
+     private final float field_76051_d = 0.75F;
+     private transient volatile int field_76052_e;
+-    private Set field_76050_f = new HashSet();
++    // private Set f = new HashSet(); // CraftBukkit - expensive and unused
++
++    public IntHashMap() {}
+ 
+     private static int func_76044_g(int p_76044_0_)
+     {
+@@ -60,7 +62,7 @@
+ 
+     public void func_76038_a(int p_76038_1_, Object p_76038_2_)
+     {
+-        this.field_76050_f.add(Integer.valueOf(p_76038_1_));
++        // this.f.add(Integer.valueOf(i)); // CraftBukkit
+         int j = func_76044_g(p_76038_1_);
+         int k = func_76043_a(j, this.field_76055_a.length);
+ 
+@@ -124,7 +126,7 @@
+ 
+     public Object func_76049_d(int p_76049_1_)
+     {
+-        this.field_76050_f.remove(Integer.valueOf(p_76049_1_));
++        // this.f.remove(Integer.valueOf(i)); // CraftBukkit
+         IntHashMapEntry inthashmapentry = this.func_76036_e(p_76049_1_);
+         return inthashmapentry == null ? null : inthashmapentry.field_76033_b;
+     }

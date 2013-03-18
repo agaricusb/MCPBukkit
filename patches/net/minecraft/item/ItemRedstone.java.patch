@@ -1,0 +1,37 @@
+--- ../net/minecraft/item/ItemRedstone.java
++++ ../net/minecraft/item/ItemRedstone.java
+@@ -4,7 +4,6 @@
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.world.World;
+-
+ public class ItemRedstone extends Item
+ {
+     public ItemRedstone(int p_i3678_1_)
+@@ -15,6 +14,8 @@
+ 
+     public boolean func_77648_a(ItemStack p_77648_1_, EntityPlayer p_77648_2_, World p_77648_3_, int p_77648_4_, int p_77648_5_, int p_77648_6_, int p_77648_7_, float p_77648_8_, float p_77648_9_, float p_77648_10_)
+     {
++        final int clickedX = p_77648_4_, clickedY = p_77648_5_, clickedZ = p_77648_6_; // CraftBukkit
++
+         if (p_77648_3_.func_72798_a(p_77648_4_, p_77648_5_, p_77648_6_) != Block.field_72037_aS.field_71990_ca)
+         {
+             if (p_77648_7_ == 0)
+@@ -61,8 +62,15 @@
+         {
+             if (Block.field_72075_av.func_71930_b(p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_))
+             {
+-                --p_77648_1_.field_77994_a;
+-                p_77648_3_.func_94575_c(p_77648_4_, p_77648_5_, p_77648_6_, Block.field_72075_av.field_71990_ca);
++                // CraftBukkit start
++                // --itemstack.count;
++                // world.setTypeIdUpdate(i, j, k, Block.REDSTONE_WIRE.id);
++                if (!ItemBlock.processBlockPlace(p_77648_3_, p_77648_2_, p_77648_1_, p_77648_4_, p_77648_5_, p_77648_6_, Block.field_72075_av.field_71990_ca, 0, clickedX, clickedY, clickedZ))
++                {
++                    return false;
++                }
++
++                // CraftBukkit end
+             }
+ 
+             return true;

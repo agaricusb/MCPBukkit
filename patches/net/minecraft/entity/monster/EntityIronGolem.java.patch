@@ -1,0 +1,42 @@
+--- ../net/minecraft/entity/monster/EntityIronGolem.java
++++ ../net/minecraft/entity/monster/EntityIronGolem.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.entity.monster;
+ 
++import org.bukkit.craftbukkit.inventory.CraftItemStack; // CraftBukkit
+ import net.minecraft.block.Block;
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLiving;
+@@ -194,20 +195,25 @@
+ 
+     protected void func_70628_a(boolean p_70628_1_, int p_70628_2_)
+     {
++        // CraftBukkit start
++        java.util.List<org.bukkit.inventory.ItemStack> loot = new java.util.ArrayList<org.bukkit.inventory.ItemStack>();
+         int j = this.field_70146_Z.nextInt(3);
+         int k;
+ 
+-        for (k = 0; k < j; ++k)
+-        {
+-            this.func_70025_b(Block.field_72107_ae.field_71990_ca, 1);
++        if (j > 0)
++        {
++            loot.add(CraftItemStack.asNewCraftStack(Item.field_77698_e[Block.field_72107_ae.field_71990_ca], j));
+         }
+ 
+         k = 3 + this.field_70146_Z.nextInt(3);
+ 
+-        for (int l = 0; l < k; ++l)
+-        {
+-            this.func_70025_b(Item.field_77703_o.field_77779_bT, 1);
+-        }
++        if (k > 0)
++        {
++            loot.add(CraftItemStack.asNewCraftStack(Item.field_77703_o, k));
++        }
++
++        org.bukkit.craftbukkit.event.CraftEventFactory.callEntityDeathEvent(this, loot);
++        // CraftBukkit end
+     }
+ 
+     public int func_70853_p()

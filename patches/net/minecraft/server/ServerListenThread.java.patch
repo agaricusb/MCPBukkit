@@ -1,0 +1,61 @@
+--- ../net/minecraft/server/ServerListenThread.java
++++ ../net/minecraft/server/ServerListenThread.java
+@@ -21,7 +21,9 @@
+     private final InetAddress field_71772_g;
+     private final int field_71778_h;
+ 
+-    public ServerListenThread(NetworkListenThread p_i3384_1_, InetAddress p_i3384_2_, int p_i3384_3_) throws IOException
++    long connectionThrottle; // CraftBukkit
++
++    public ServerListenThread(NetworkListenThread p_i3384_1_, InetAddress p_i3384_2_, int p_i3384_3_) throws IOException   // CraftBukkit - added throws
+     {
+         super("Listen thread");
+         this.field_71771_f = p_i3384_1_;
+@@ -48,7 +50,7 @@
+                 catch (Exception exception)
+                 {
+                     netloginhandler.func_72527_a("Internal server error");
+-                    this.field_71771_f.func_71746_d().func_98033_al().func_98235_b("Failed to handle packet for " + netloginhandler.func_72528_e() + ": " + exception, exception);
++                    this.field_71771_f.func_71746_d().func_98033_al().func_98235_b("Failed to handle packet for " + netloginhandler.func_72528_e() + ": " + exception, (Throwable) exception);
+                 }
+ 
+                 if (netloginhandler.field_72539_c)
+@@ -72,9 +74,19 @@
+                 long i = System.currentTimeMillis();
+                 HashMap hashmap = this.field_71776_c;
+ 
++                // CraftBukkit start
++                if (((MinecraftServer) this.field_71771_f.func_71746_d()).server == null)
++                {
++                    socket.close();
++                    continue;
++                }
++
++                connectionThrottle = ((MinecraftServer) this.field_71771_f.func_71746_d()).server.getConnectionThrottle();
++                // CraftBukkit end
++
+                 synchronized (this.field_71776_c)
+                 {
+-                    if (this.field_71776_c.containsKey(inetaddress) && !func_71770_b(inetaddress) && i - ((Long)this.field_71776_c.get(inetaddress)).longValue() < 4000L)
++                    if (this.field_71776_c.containsKey(inetaddress) && !func_71770_b(inetaddress) && i - ((Long) this.field_71776_c.get(inetaddress)).longValue() < connectionThrottle)
+                     {
+                         this.field_71776_c.put(inetaddress, Long.valueOf(i));
+                         socket.close();
+@@ -89,7 +101,7 @@
+             }
+             catch (IOException ioexception)
+             {
+-                ioexception.printStackTrace();
++                this.field_71771_f.func_71746_d().func_98033_al().func_98236_b("DSCT: " + ioexception.getMessage()); // CraftBukkit
+             }
+         }
+ 
+@@ -100,7 +112,7 @@
+     {
+         if (p_71764_1_ == null)
+         {
+-            throw new IllegalArgumentException("Got null pendingconnection!");
++            throw new IllegalArgumentException("Got null netloginhandler!");
+         }
+         else
+         {

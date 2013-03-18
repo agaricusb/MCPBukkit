@@ -1,0 +1,124 @@
+--- ../net/minecraft/entity/EntityHanging.java
++++ ../net/minecraft/entity/EntityHanging.java
+@@ -3,12 +3,21 @@
+ import java.util.Iterator;
+ import java.util.List;
+ import net.minecraft.block.material.Material;
++import net.minecraft.entity.item.EntityPainting;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.Direction;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
++
++// CraftBukkit start
++import org.bukkit.entity.Hanging;
++import org.bukkit.entity.Painting;
++import org.bukkit.event.hanging.HangingBreakByEntityEvent;
++import org.bukkit.event.hanging.HangingBreakEvent;
++import org.bukkit.event.painting.PaintingBreakEvent;
++// CraftBukkit end
+ 
+ public abstract class EntityHanging extends Entity
+ {
+@@ -122,6 +131,38 @@
+ 
+             if (!this.field_70128_L && !this.func_70518_d())
+             {
++                // CraftBukkit start
++                Material material = this.field_70170_p.func_72803_f((int) this.field_70165_t, (int) this.field_70163_u, (int) this.field_70161_v);
++                HangingBreakEvent.RemoveCause cause;
++
++                if (!material.equals(Material.field_76249_a))
++                {
++                    // TODO: This feels insufficient to catch 100% of suffocation cases
++                    cause = HangingBreakEvent.RemoveCause.OBSTRUCTION;
++                }
++                else
++                {
++                    cause = HangingBreakEvent.RemoveCause.PHYSICS;
++                }
++
++                HangingBreakEvent event = new HangingBreakEvent((Hanging) this.getBukkitEntity(), cause);
++                this.field_70170_p.getServer().getPluginManager().callEvent(event);
++                PaintingBreakEvent paintingEvent = null;
++
++                if (this instanceof EntityPainting)
++                {
++                    // Fire old painting event until it can be removed
++                    paintingEvent = new PaintingBreakEvent((Painting) this.getBukkitEntity(), PaintingBreakEvent.RemoveCause.valueOf(cause.name()));
++                    paintingEvent.setCancelled(event.isCancelled());
++                    this.field_70170_p.getServer().getPluginManager().callEvent(paintingEvent);
++                }
++
++                if (field_70128_L || event.isCancelled() || (paintingEvent != null && paintingEvent.isCancelled()))
++                {
++                    return;
++                }
++
++                // CraftBukkit end
+                 this.func_70106_y();
+                 this.func_82331_h();
+             }
+@@ -225,6 +266,39 @@
+         {
+             if (!this.field_70128_L && !this.field_70170_p.field_72995_K)
+             {
++                // CraftBukkit start
++                HangingBreakEvent event = new HangingBreakEvent((Hanging) this.getBukkitEntity(), HangingBreakEvent.RemoveCause.DEFAULT);
++                PaintingBreakEvent paintingEvent = null;
++
++                if (p_70097_1_.func_76346_g() != null)
++                {
++                    event = new HangingBreakByEntityEvent((Hanging) this.getBukkitEntity(), p_70097_1_.func_76346_g() == null ? null : p_70097_1_.func_76346_g().getBukkitEntity());
++
++                    if (this instanceof EntityPainting)
++                    {
++                        // Fire old painting event until it can be removed
++                        paintingEvent = new org.bukkit.event.painting.PaintingBreakByEntityEvent((Painting) this.getBukkitEntity(), p_70097_1_.func_76346_g() == null ? null : p_70097_1_.func_76346_g().getBukkitEntity());
++                    }
++                }
++                else if (p_70097_1_.func_94541_c())
++                {
++                    event = new HangingBreakEvent((Hanging) this.getBukkitEntity(), HangingBreakEvent.RemoveCause.EXPLOSION);
++                }
++
++                this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++                if (paintingEvent != null)
++                {
++                    paintingEvent.setCancelled(event.isCancelled());
++                    this.field_70170_p.getServer().getPluginManager().callEvent(paintingEvent);
++                }
++
++                if (field_70128_L || event.isCancelled() || (paintingEvent != null && paintingEvent.isCancelled()))
++                {
++                    return true;
++                }
++
++                // CraftBukkit end
+                 this.func_70106_y();
+                 this.func_70018_K();
+                 EntityPlayer entityplayer = null;
+@@ -250,6 +324,11 @@
+     {
+         if (!this.field_70170_p.field_72995_K && !this.field_70128_L && p_70091_1_ * p_70091_1_ + p_70091_3_ * p_70091_3_ + p_70091_5_ * p_70091_5_ > 0.0D)
+         {
++            if (field_70128_L)
++            {
++                return;    // CraftBukkit
++            }
++
+             this.func_70106_y();
+             this.func_82331_h();
+         }
+@@ -257,7 +336,7 @@
+ 
+     public void func_70024_g(double p_70024_1_, double p_70024_3_, double p_70024_5_)
+     {
+-        if (!this.field_70170_p.field_72995_K && !this.field_70128_L && p_70024_1_ * p_70024_1_ + p_70024_3_ * p_70024_3_ + p_70024_5_ * p_70024_5_ > 0.0D)
++        if (false && !this.field_70170_p.field_72995_K && !this.field_70128_L && p_70024_1_ * p_70024_1_ + p_70024_3_ * p_70024_3_ + p_70024_5_ * p_70024_5_ > 0.0D)   // CraftBukkit - not needed
+         {
+             this.func_70106_y();
+             this.func_82331_h();

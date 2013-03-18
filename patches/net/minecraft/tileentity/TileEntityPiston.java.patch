@@ -1,0 +1,14 @@
+--- ../net/minecraft/tileentity/TileEntityPiston.java
++++ ../net/minecraft/tileentity/TileEntityPiston.java
+@@ -112,6 +112,11 @@
+ 
+     public void func_70316_g()
+     {
++        if (this.field_70331_k == null)
++        {
++            return;    // CraftBukkit
++        }
++
+         this.field_70343_g = this.field_70342_f;
+ 
+         if (this.field_70343_g >= 1.0F)

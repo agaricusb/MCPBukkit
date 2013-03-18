@@ -1,0 +1,80 @@
+--- ../net/minecraft/entity/passive/EntityPig.java
++++ ../net/minecraft/entity/passive/EntityPig.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.entity.passive;
+ 
++import org.bukkit.craftbukkit.event.CraftEventFactory; // CraftBukkit
+ import net.minecraft.entity.EntityAgeable;
+ import net.minecraft.entity.ai.EntityAIControlledByPlayer;
+ import net.minecraft.entity.ai.EntityAIFollowParent;
+@@ -17,6 +18,7 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.stats.AchievementList;
++import net.minecraft.stats.StatBase;
+ import net.minecraft.world.World;
+ 
+ public class EntityPig extends EntityAnimal
+@@ -125,24 +127,29 @@
+ 
+     protected void func_70628_a(boolean p_70628_1_, int p_70628_2_)
+     {
++        // CraftBukkit start
++        java.util.List<org.bukkit.inventory.ItemStack> loot = new java.util.ArrayList<org.bukkit.inventory.ItemStack>();
+         int j = this.field_70146_Z.nextInt(3) + 1 + this.field_70146_Z.nextInt(1 + p_70628_2_);
+ 
+-        for (int k = 0; k < j; ++k)
++        if (j > 0)
+         {
+             if (this.func_70027_ad())
+             {
+-                this.func_70025_b(Item.field_77782_ar.field_77779_bT, 1);
++                loot.add(new org.bukkit.inventory.ItemStack(Item.field_77782_ar.field_77779_bT, j));
+             }
+             else
+             {
+-                this.func_70025_b(Item.field_77784_aq.field_77779_bT, 1);
++                loot.add(new org.bukkit.inventory.ItemStack(Item.field_77784_aq.field_77779_bT, j));
+             }
+         }
+ 
+         if (this.func_70901_n())
+         {
+-            this.func_70025_b(Item.field_77765_aA.field_77779_bT, 1);
+-        }
++            loot.add(new org.bukkit.inventory.ItemStack(Item.field_77765_aA.field_77779_bT, 1));
++        }
++
++        CraftEventFactory.callEntityDeathEvent(this, loot);
++        // CraftBukkit end
+     }
+ 
+     public boolean func_70901_n()
+@@ -167,8 +174,17 @@
+         if (!this.field_70170_p.field_72995_K)
+         {
+             EntityPigZombie entitypigzombie = new EntityPigZombie(this.field_70170_p);
++
++            // CraftBukkit start
++            if (CraftEventFactory.callPigZapEvent(this, p_70077_1_, entitypigzombie).isCancelled())
++            {
++                return;
++            }
++
++            // CraftBukkit end
+             entitypigzombie.func_70012_b(this.field_70165_t, this.field_70163_u, this.field_70161_v, this.field_70177_z, this.field_70125_A);
+-            this.field_70170_p.func_72838_d(entitypigzombie);
++            // CraftBukkit - added a reason for spawning this creature
++            this.field_70170_p.addEntity(entitypigzombie, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.LIGHTNING);
+             this.func_70106_y();
+         }
+     }
+@@ -179,7 +195,7 @@
+ 
+         if (p_70069_1_ > 5.0F && this.field_70153_n instanceof EntityPlayer)
+         {
+-            ((EntityPlayer)this.field_70153_n).func_71029_a(AchievementList.field_76021_u);
++            ((EntityPlayer) this.field_70153_n).func_71029_a((StatBase) AchievementList.field_76021_u);
+         }
+     }
+ 

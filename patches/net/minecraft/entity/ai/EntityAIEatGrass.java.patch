@@ -1,0 +1,48 @@
+--- ../net/minecraft/entity/ai/EntityAIEatGrass.java
++++ ../net/minecraft/entity/ai/EntityAIEatGrass.java
+@@ -1,9 +1,13 @@
+ package net.minecraft.entity.ai;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.Material;
+ import net.minecraft.block.Block;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
++// CraftBukkit end
+ 
+ public class EntityAIEatGrass extends EntityAIBase
+ {
+@@ -67,14 +71,26 @@
+ 
+             if (this.field_75364_c.func_72798_a(i, j, k) == Block.field_71962_X.field_71990_ca)
+             {
+-                this.field_75364_c.func_94578_a(i, j, k, false);
+-                this.field_75363_b.func_70615_aA();
++                // CraftBukkit start
++                if (!CraftEventFactory.callEntityChangeBlockEvent(this.field_75363_b.getBukkitEntity(), this.field_75363_b.field_70170_p.getWorld().getBlockAt(i, j, k), Material.AIR).isCancelled())
++                {
++                    this.field_75364_c.func_94578_a(i, j, k, false);
++                    this.field_75363_b.func_70615_aA();
++                }
++
++                // CraftBukkit end
+             }
+             else if (this.field_75364_c.func_72798_a(i, j - 1, k) == Block.field_71980_u.field_71990_ca)
+             {
+-                this.field_75364_c.func_72926_e(2001, i, j - 1, k, Block.field_71980_u.field_71990_ca);
+-                this.field_75364_c.func_72832_d(i, j - 1, k, Block.field_71979_v.field_71990_ca, 0, 2);
+-                this.field_75363_b.func_70615_aA();
++                // CraftBukkit start
++                if (!CraftEventFactory.callEntityChangeBlockEvent(this.field_75363_b.getBukkitEntity(), this.field_75363_b.field_70170_p.getWorld().getBlockAt(i, j - 1, k), Material.DIRT).isCancelled())
++                {
++                    this.field_75364_c.func_72926_e(2001, i, j - 1, k, Block.field_71980_u.field_71990_ca);
++                    this.field_75364_c.func_72832_d(i, j - 1, k, Block.field_71979_v.field_71990_ca, 0, 2);
++                    this.field_75363_b.func_70615_aA();
++                }
++
++                // CraftBukkit end
+             }
+         }
+     }

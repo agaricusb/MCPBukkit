@@ -1,0 +1,116 @@
+--- ../net/minecraft/entity/monster/EntityPigZombie.java
++++ ../net/minecraft/entity/monster/EntityPigZombie.java
+@@ -9,9 +9,14 @@
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.world.World;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.event.entity.EntityTargetEvent;
++// CraftBukkit end
++
+ public class EntityPigZombie extends EntityZombie
+ {
+-    private int field_70837_d = 0;
++    public int field_70837_d = 0; // CraftBukkit - private -> public
+     private int field_70838_e = 0;
+ 
+     public EntityPigZombie(World p_i3553_1_)
+@@ -95,6 +100,24 @@
+ 
+     private void func_70835_c(Entity p_70835_1_)
+     {
++        // CraftBukkit start
++        org.bukkit.entity.Entity bukkitTarget = p_70835_1_ == null ? null : p_70835_1_.getBukkitEntity();
++        EntityTargetEvent event = new EntityTargetEvent(this.getBukkitEntity(), bukkitTarget, EntityTargetEvent.TargetReason.PIG_ZOMBIE_TARGET);
++        this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++        if (event.isCancelled())
++        {
++            return;
++        }
++
++        if (event.getTarget() == null)
++        {
++            this.field_70789_a = null;
++            return;
++        }
++
++        p_70835_1_ = ((org.bukkit.craftbukkit.entity.CraftEntity) event.getTarget()).getHandle();
++        // CraftBukkit end
+         this.field_70789_a = p_70835_1_;
+         this.field_70837_d = 400 + this.field_70146_Z.nextInt(400);
+         this.field_70838_e = this.field_70146_Z.nextInt(40);
+@@ -117,20 +140,40 @@
+ 
+     protected void func_70628_a(boolean p_70628_1_, int p_70628_2_)
+     {
++        // CraftBukkit start
++        List<org.bukkit.inventory.ItemStack> loot = new java.util.ArrayList<org.bukkit.inventory.ItemStack>();
+         int j = this.field_70146_Z.nextInt(2 + p_70628_2_);
+-        int k;
+-
+-        for (k = 0; k < j; ++k)
+-        {
+-            this.func_70025_b(Item.field_77737_bm.field_77779_bT, 1);
++
++        if (j > 0)
++        {
++            loot.add(CraftItemStack.asNewCraftStack(Item.field_77737_bm, j));
+         }
+ 
+         j = this.field_70146_Z.nextInt(2 + p_70628_2_);
+ 
+-        for (k = 0; k < j; ++k)
+-        {
+-            this.func_70025_b(Item.field_77733_bq.field_77779_bT, 1);
+-        }
++        if (j > 0)
++        {
++            loot.add(CraftItemStack.asNewCraftStack(Item.field_77733_bq, j));
++        }
++
++        // Determine rare item drops and add them to the loot
++        if (this.field_70718_bc > 0)
++        {
++            int k = this.field_70146_Z.nextInt(200) - p_70628_2_;
++
++            if (k < 5)
++            {
++                ItemStack itemstack = this.func_70600_l(k <= 0 ? 1 : 0);
++
++                if (itemstack != null)
++                {
++                    loot.add(CraftItemStack.asCraftMirror(itemstack));
++                }
++            }
++        }
++
++        org.bukkit.craftbukkit.event.CraftEventFactory.callEntityDeathEvent(this, loot);
++        // CraftBukkit end
+     }
+ 
+     public boolean func_70085_c(EntityPlayer p_70085_1_)
+@@ -138,9 +181,10 @@
+         return false;
+     }
+ 
+-    protected void func_70600_l(int p_70600_1_)
+-    {
+-        this.func_70025_b(Item.field_77717_p.field_77779_bT, 1);
++    // CraftBukkit start - return rare dropped item instead of dropping it
++    protected ItemStack func_70600_l(int i)
++    {
++        return new ItemStack(Item.field_77717_p.field_77779_bT, 1, 0);
+     }
+ 
+     protected int func_70633_aT()
+@@ -166,7 +210,7 @@
+ 
+         if (itemstack != null)
+         {
+-            i += itemstack.func_77971_a(this);
++            i += itemstack.func_77971_a((Entity) this);
+         }
+ 
+         return i;

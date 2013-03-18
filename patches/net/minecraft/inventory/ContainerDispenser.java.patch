@@ -1,0 +1,64 @@
+--- ../net/minecraft/inventory/ContainerDispenser.java
++++ ../net/minecraft/inventory/ContainerDispenser.java
+@@ -1,16 +1,29 @@
+ package net.minecraft.inventory;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.inventory.CraftInventory;
++import org.bukkit.craftbukkit.inventory.CraftInventoryView;
+ import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.entity.player.InventoryPlayer;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.tileentity.TileEntityDispenser;
++// CraftBukkit end
+ 
+ public class ContainerDispenser extends Container
+ {
+-    private TileEntityDispenser field_75182_e;
++    public TileEntityDispenser field_75182_e; // CraftBukkit - private -> public
++    // CraftBukkit start
++    private CraftInventoryView bukkitEntity = null;
++    private InventoryPlayer player;
++    // CraftBukkit end
+ 
+     public ContainerDispenser(IInventory p_i3617_1_, TileEntityDispenser p_i3617_2_)
+     {
+         this.field_75182_e = p_i3617_2_;
++        // CraftBukkit start - save player
++        // TODO: Should we check to make sure it really is an InventoryPlayer?
++        this.player = (InventoryPlayer)p_i3617_1_;
++        // CraftBukkit end
+         int i;
+         int j;
+ 
+@@ -38,6 +51,11 @@
+ 
+     public boolean func_75145_c(EntityPlayer p_75145_1_)
+     {
++        if (!this.checkReachable)
++        {
++            return true;    // CraftBukkit
++        }
++
+         return this.field_75182_e.func_70300_a(p_75145_1_);
+     }
+ 
+@@ -82,4 +100,18 @@
+ 
+         return itemstack;
+     }
++
++    // CraftBukkit start
++    public CraftInventoryView getBukkitView()
++    {
++        if (bukkitEntity != null)
++        {
++            return bukkitEntity;
++        }
++
++        CraftInventory inventory = new CraftInventory(this.field_75182_e);
++        bukkitEntity = new CraftInventoryView(this.player.field_70458_d.getBukkitEntity(), inventory, this);
++        return bukkitEntity;
++    }
++    // CraftBukkit end
+ }

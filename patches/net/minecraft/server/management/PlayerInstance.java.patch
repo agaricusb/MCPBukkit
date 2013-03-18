@@ -1,0 +1,86 @@
+--- ../net/minecraft/server/management/PlayerInstance.java
++++ ../net/minecraft/server/management/PlayerInstance.java
+@@ -17,6 +17,7 @@
+     private short[] field_73261_d;
+     private int field_73262_e;
+     private int field_73260_f;
++    private boolean loaded = false; // CraftBukkit
+ 
+     final PlayerManager field_73265_a;
+ 
+@@ -27,10 +28,17 @@
+         this.field_73261_d = new short[64];
+         this.field_73262_e = 0;
+         this.field_73264_c = new ChunkCoordIntPair(p_i3391_2_, p_i3391_3_);
+-        p_i3391_1_.func_72688_a().field_73059_b.func_73158_c(p_i3391_2_, p_i3391_3_);
+-    }
+-
+-    public void func_73255_a(EntityPlayerMP p_73255_1_)
++        // CraftBukkit start
++        p_i3391_1_.func_72688_a().field_73059_b.getChunkAt(p_i3391_2_, p_i3391_3_, new Runnable()
++        {
++            public void run()
++            {
++                PlayerInstance.this.loaded = true;
++            }
++        });
++    }
++
++    public void func_73255_a(final EntityPlayerMP p_73255_1_)   // CraftBukkit - added final to argument
+     {
+         if (this.field_73263_b.contains(p_73255_1_))
+         {
+@@ -39,7 +47,25 @@
+         else
+         {
+             this.field_73263_b.add(p_73255_1_);
+-            p_73255_1_.field_71129_f.add(this.field_73264_c);
++
++            // CraftBukkit start
++            if (this.loaded)
++            {
++                p_73255_1_.field_71129_f.add(this.field_73264_c);
++            }
++            else
++            {
++                // Abuse getChunkAt to add another callback
++                this.field_73265_a.func_72688_a().field_73059_b.getChunkAt(this.field_73264_c.field_77276_a, this.field_73264_c.field_77275_b, new Runnable()
++                {
++                    public void run()
++                    {
++                        p_73255_1_.field_71129_f.add(PlayerInstance.this.field_73264_c);
++                    }
++                });
++            }
++
++            // CraftBukkit end
+         }
+     }
+ 
+@@ -58,7 +84,7 @@
+ 
+                 if (this.field_73262_e > 0)
+                 {
+-                    PlayerManager.func_72682_c(this.field_73265_a).remove(this);
++                    PlayerManager.c(this.field_73265_a).remove(this);
+                 }
+ 
+                 this.field_73265_a.func_72688_a().field_73059_b.func_73241_b(this.field_73264_c.field_77276_a, this.field_73264_c.field_77275_b);
+@@ -70,7 +96,7 @@
+     {
+         if (this.field_73262_e == 0)
+         {
+-            PlayerManager.func_72682_c(this.field_73265_a).add(this);
++            PlayerManager.c(this.field_73265_a).add(this);
+         }
+ 
+         this.field_73260_f |= 1 << (p_73259_2_ >> 4);
+@@ -132,7 +158,7 @@
+                 {
+                     i = this.field_73264_c.field_77276_a * 16;
+                     j = this.field_73264_c.field_77275_b * 16;
+-                    this.func_73256_a(new Packet51MapChunk(PlayerManager.func_72692_a(this.field_73265_a).func_72964_e(this.field_73264_c.field_77276_a, this.field_73264_c.field_77275_b), false, this.field_73260_f));
++                    this.func_73256_a(new Packet51MapChunk(PlayerManager.func_72692_a(this.field_73265_a).func_72964_e(this.field_73264_c.field_77276_a, this.field_73264_c.field_77275_b), (this.field_73260_f == 0xFFFF), this.field_73260_f)); // CraftBukkit - send everything (including biome) if all sections flagged
+ 
+                     for (k = 0; k < 16; ++k)
+                     {

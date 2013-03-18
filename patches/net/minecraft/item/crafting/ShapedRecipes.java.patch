@@ -1,0 +1,94 @@
+--- ../net/minecraft/item/crafting/ShapedRecipes.java
++++ ../net/minecraft/item/crafting/ShapedRecipes.java
+@@ -1,9 +1,13 @@
+ package net.minecraft.item.crafting;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.inventory.CraftShapedRecipe;
+ import net.minecraft.inventory.InventoryCrafting;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.world.World;
++// CraftBukkit end
+ 
+ public class ShapedRecipes implements IRecipe
+ {
+@@ -23,6 +27,77 @@
+         this.field_77575_e = p_i3700_4_;
+     }
+ 
++    // CraftBukkit start
++    public org.bukkit.inventory.ShapedRecipe toBukkitRecipe()
++    {
++        CraftItemStack result = CraftItemStack.asCraftMirror(this.field_77575_e);
++        CraftShapedRecipe recipe = new CraftShapedRecipe(result, this);
++
++        switch (this.field_77577_c)
++        {
++            case 1:
++                switch (this.field_77576_b)
++                {
++                    case 1:
++                        recipe.shape("a");
++                        break;
++                    case 2:
++                        recipe.shape("ab");
++                        break;
++                    case 3:
++                        recipe.shape("abc");
++                        break;
++                }
++
++                break;
++            case 2:
++                switch (this.field_77576_b)
++                {
++                    case 1:
++                        recipe.shape("a", "b");
++                        break;
++                    case 2:
++                        recipe.shape("ab", "cd");
++                        break;
++                    case 3:
++                        recipe.shape("abc", "def");
++                        break;
++                }
++
++                break;
++            case 3:
++                switch (this.field_77576_b)
++                {
++                    case 1:
++                        recipe.shape("a", "b", "c");
++                        break;
++                    case 2:
++                        recipe.shape("ab", "cd", "ef");
++                        break;
++                    case 3:
++                        recipe.shape("abc", "def", "ghi");
++                        break;
++                }
++
++                break;
++        }
++
++        char c = 'a';
++
++        for (ItemStack stack : this.field_77574_d)
++        {
++            if (stack != null)
++            {
++                recipe.setIngredient(c, org.bukkit.Material.getMaterial(stack.field_77993_c), stack.func_77960_j());
++            }
++
++            c++;
++        }
++
++        return recipe;
++    }
++    // CraftBukkit end
++
+     public ItemStack func_77571_b()
+     {
+         return this.field_77575_e;

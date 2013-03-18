@@ -1,0 +1,32 @@
+--- ../net/minecraft/item/ItemSnow.java
++++ ../net/minecraft/item/ItemSnow.java
+@@ -3,7 +3,6 @@
+ import net.minecraft.block.Block;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.world.World;
+-
+ public class ItemSnow extends ItemBlockWithMetadata
+ {
+     public ItemSnow(int p_i10058_1_, Block p_i10058_2_)
+@@ -13,6 +12,8 @@
+ 
+     public boolean func_77648_a(ItemStack p_77648_1_, EntityPlayer p_77648_2_, World p_77648_3_, int p_77648_4_, int p_77648_5_, int p_77648_6_, int p_77648_7_, float p_77648_8_, float p_77648_9_, float p_77648_10_)
+     {
++        final int clickedX = p_77648_4_, clickedY = p_77648_5_, clickedZ = p_77648_6_;
++
+         if (p_77648_1_.field_77994_a == 0)
+         {
+             return false;
+@@ -31,8 +32,11 @@
+                 int j1 = p_77648_3_.func_72805_g(p_77648_4_, p_77648_5_, p_77648_6_);
+                 int k1 = j1 & 7;
+ 
+-                if (k1 <= 6 && p_77648_3_.func_72855_b(block.func_71872_e(p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_)) && p_77648_3_.func_72921_c(p_77648_4_, p_77648_5_, p_77648_6_, k1 + 1 | j1 & -8, 2))
++                // CraftBukkit start
++                // if (k1 <= 6 && world.b(block.b(world, i, j, k)) && world.setData(i, j, k, k1 + 1 | j1 & -8, 2)) {
++                if (k1 <= 6 && p_77648_3_.func_72855_b(block.func_71872_e(p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_)) && processBlockPlace(p_77648_3_, p_77648_2_, p_77648_1_, p_77648_4_, p_77648_5_, p_77648_6_, Block.field_72037_aS.field_71990_ca, k1 + 1 | j1 & -8, clickedX, clickedY, clickedZ))
+                 {
++                    // CraftBukkit end
+                     p_77648_3_.func_72908_a((double)((float)p_77648_4_ + 0.5F), (double)((float)p_77648_5_ + 0.5F), (double)((float)p_77648_6_ + 0.5F), block.field_72020_cn.func_82593_b(), (block.field_72020_cn.func_72677_b() + 1.0F) / 2.0F, block.field_72020_cn.func_72678_c() * 0.8F);
+                     --p_77648_1_.field_77994_a;
+                     return true;

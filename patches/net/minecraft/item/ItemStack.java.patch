@@ -1,0 +1,53 @@
+--- ../net/minecraft/item/ItemStack.java
++++ ../net/minecraft/item/ItemStack.java
+@@ -60,7 +60,7 @@
+         this.field_82843_f = null;
+         this.field_77993_c = p_i3666_1_;
+         this.field_77994_a = p_i3666_2_;
+-        this.field_77991_e = p_i3666_3_;
++        this.func_77964_b(p_i3666_3_); // CraftBukkit
+ 
+         if (this.field_77991_e < 0)
+         {
+@@ -134,7 +134,7 @@
+ 
+         if (this.field_77990_d != null)
+         {
+-            p_77955_1_.func_74782_a("tag", this.field_77990_d);
++            p_77955_1_.func_74782_a("tag", this.field_77990_d.func_74737_b()); // CraftBukkit - make defensive copy, data is going to another thread
+         }
+ 
+         return p_77955_1_;
+@@ -153,7 +153,8 @@
+ 
+         if (p_77963_1_.func_74764_b("tag"))
+         {
+-            this.field_77990_d = p_77963_1_.func_74775_l("tag");
++            // CraftBukkit - clear name from compound and make defensive copy as this data may be coming from the save thread
++            this.field_77990_d = (NBTTagCompound) p_77963_1_.func_74775_l("tag").func_74737_b().func_74738_o("");
+         }
+     }
+ 
+@@ -263,6 +264,13 @@
+                         this.field_77994_a = 0;
+                     }
+ 
++                    // CraftBukkit start - Check for item breaking
++                    if (this.field_77994_a == 0 && p_77972_2_ instanceof EntityPlayer)
++                    {
++                        org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerItemBreakEvent((EntityPlayer) p_77972_2_, this);
++                    }
++
++                    // CraftBukkit end
+                     this.field_77991_e = 0;
+                 }
+             }
+@@ -271,7 +279,7 @@
+ 
+     public void func_77961_a(EntityLiving p_77961_1_, EntityPlayer p_77961_2_)
+     {
+-        boolean flag = Item.field_77698_e[this.field_77993_c].func_77644_a(this, p_77961_1_, p_77961_2_);
++        boolean flag = Item.field_77698_e[this.field_77993_c].func_77644_a(this, p_77961_1_, (EntityLiving) p_77961_2_);
+ 
+         if (flag)
+         {

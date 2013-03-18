@@ -1,0 +1,141 @@
+--- ../net/minecraft/entity/monster/EntityCreeper.java
++++ ../net/minecraft/entity/monster/EntityCreeper.java
+@@ -1,5 +1,8 @@
+ package net.minecraft.entity.monster;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.event.entity.ExplosionPrimeEvent;
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.ai.EntityAIAttackOnCollide;
+ import net.minecraft.entity.ai.EntityAIAvoidEntity;
+@@ -17,6 +20,7 @@
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.world.World;
++// CraftBukkit end
+ 
+ public class EntityCreeper extends EntityMob
+ {
+@@ -24,6 +28,7 @@
+     private int field_70833_d;
+     private int field_82225_f = 30;
+     private int field_82226_g = 3;
++    private int record = -1; // CraftBukkit
+ 
+     public EntityCreeper(World p_i3547_1_)
+     {
+@@ -128,17 +133,22 @@
+                 if (!this.field_70170_p.field_72995_K)
+                 {
+                     boolean flag = this.field_70170_p.func_82736_K().func_82766_b("mobGriefing");
+-
+-                    if (this.func_70830_n())
++                    // CraftBukkit start
++                    float radius = this.func_70830_n() ? 6.0F : 3.0F;
++                    ExplosionPrimeEvent event = new ExplosionPrimeEvent(this.getBukkitEntity(), radius, false);
++                    this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++                    if (!event.isCancelled())
+                     {
+-                        this.field_70170_p.func_72876_a(this, this.field_70165_t, this.field_70163_u, this.field_70161_v, (float)(this.field_82226_g * 2), flag);
++                        this.field_70170_p.func_72885_a(this, this.field_70165_t, this.field_70163_u, this.field_70161_v, event.getRadius(), event.getFire(), flag);
++                        this.func_70106_y();
+                     }
+                     else
+                     {
+-                        this.field_70170_p.func_72876_a(this, this.field_70165_t, this.field_70163_u, this.field_70161_v, (float)this.field_82226_g, flag);
++                        this.field_70833_d = 0;
+                     }
+ 
+-                    this.func_70106_y();
++                    // CraftBukkit end
+                 }
+             }
+         }
+@@ -158,14 +168,49 @@
+ 
+     public void func_70645_a(DamageSource p_70645_1_)
+     {
++        // CraftBukkit start - rearranged the method (super call to end, drop to dropDeathLoot)
++        if (p_70645_1_.func_76346_g() instanceof EntitySkeleton)
++        {
++            int i = Item.field_77819_bI.field_77779_bT + this.field_70146_Z.nextInt(Item.field_85180_cf.field_77779_bT - Item.field_77819_bI.field_77779_bT + 1);
++            // this.b(i, 1); // CraftBukkit
++            this.record = i;
++        }
++
+         super.func_70645_a(p_70645_1_);
+-
+-        if (p_70645_1_.func_76346_g() instanceof EntitySkeleton)
+-        {
+-            int i = Item.field_77819_bI.field_77779_bT + this.field_70146_Z.nextInt(Item.field_85180_cf.field_77779_bT - Item.field_77819_bI.field_77779_bT + 1);
+-            this.func_70025_b(i, 1);
+-        }
+-    }
++        // CraftBukkit end
++    }
++
++    // CraftBukkit start - whole method
++    protected void func_70628_a(boolean flag, int i)
++    {
++        int j = this.func_70633_aT();
++        java.util.List<org.bukkit.inventory.ItemStack> loot = new java.util.ArrayList<org.bukkit.inventory.ItemStack>();
++
++        if (j > 0)
++        {
++            int k = this.field_70146_Z.nextInt(3);
++
++            if (i > 0)
++            {
++                k += this.field_70146_Z.nextInt(i + 1);
++            }
++
++            if (k > 0)
++            {
++                loot.add(new org.bukkit.inventory.ItemStack(j, k));
++            }
++        }
++
++        // Drop a music disc?
++        if (this.record != -1)
++        {
++            loot.add(new org.bukkit.inventory.ItemStack(this.record, 1));
++            this.record = -1;
++        }
++
++        CraftEventFactory.callEntityDeathEvent(this, loot); // raise event even for those times when the entity does not drop loot
++    }
++    // CraftBukkit end
+ 
+     public boolean func_70652_k(Entity p_70652_1_)
+     {
+@@ -195,6 +240,27 @@
+     public void func_70077_a(EntityLightningBolt p_70077_1_)
+     {
+         super.func_70077_a(p_70077_1_);
+-        this.field_70180_af.func_75692_b(17, Byte.valueOf((byte)1));
++
++        // CraftBukkit start
++        if (CraftEventFactory.callCreeperPowerEvent(this, p_70077_1_, org.bukkit.event.entity.CreeperPowerEvent.PowerCause.LIGHTNING).isCancelled())
++        {
++            return;
++        }
++
++        this.setPowered(true);
++    }
++
++    public void setPowered(boolean powered)
++    {
++        if (!powered)
++        {
++            this.field_70180_af.func_75692_b(17, Byte.valueOf((byte) 0));
++        }
++        else
++        {
++            this.field_70180_af.func_75692_b(17, Byte.valueOf((byte) 1));
++        }
++
++        // CraftBukkit end
+     }
+ }

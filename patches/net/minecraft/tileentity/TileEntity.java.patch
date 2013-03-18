@@ -1,0 +1,82 @@
+--- ../net/minecraft/tileentity/TileEntity.java
++++ ../net/minecraft/tileentity/TileEntity.java
+@@ -2,12 +2,15 @@
+ 
+ import java.util.HashMap;
+ import java.util.Map;
++import java.util.concurrent.Callable;
+ import net.minecraft.block.Block;
+ import net.minecraft.crash.CrashReportCategory;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.network.packet.Packet;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.world.World;
++
++import org.bukkit.inventory.InventoryHolder; // CraftBukkit
+ 
+ public class TileEntity
+ {
+@@ -21,7 +24,9 @@
+     public int field_70325_p = -1;
+     public Block field_70324_q;
+ 
+-    public static void func_70306_a(Class p_70306_0_, String p_70306_1_)
++    public TileEntity() {}
++
++    private static void func_70306_a(Class p_70306_0_, String p_70306_1_)
+     {
+         if (field_70326_a.containsKey(p_70306_1_))
+         {
+@@ -34,14 +39,14 @@
+         }
+     }
+ 
++    public void func_70308_a(World p_70308_1_)
++    {
++        this.field_70331_k = p_70308_1_;
++    }
++
+     public World func_70314_l()
+     {
+         return this.field_70331_k;
+-    }
+-
+-    public void func_70308_a(World p_70308_1_)
+-    {
+-        this.field_70331_k = p_70308_1_;
+     }
+ 
+     public boolean func_70309_m()
+@@ -172,10 +177,10 @@
+ 
+     public void func_85027_a(CrashReportCategory p_85027_1_)
+     {
+-        p_85027_1_.func_71500_a("Name", new CallableTileEntityName(this));
++        p_85027_1_.func_71500_a("Name", (Callable)(new CallableTileEntityName(this)));
+         CrashReportCategory.func_85068_a(p_85027_1_, this.field_70329_l, this.field_70330_m, this.field_70327_n, this.func_70311_o().field_71990_ca, this.func_70322_n());
+-        p_85027_1_.func_71500_a("Actual block type", new CallableTileEntityID(this));
+-        p_85027_1_.func_71500_a("Actual block data value", new CallableTileEntityData(this));
++        p_85027_1_.func_71500_a("Actual block type", (Callable)(new CallableTileEntityID(this)));
++        p_85027_1_.func_71500_a("Actual block data value", (Callable)(new CallableTileEntityData(this)));
+     }
+ 
+     static Map func_85028_t()
+@@ -205,4 +210,18 @@
+         func_70306_a(TileEntityHopper.class, "Hopper");
+         func_70306_a(TileEntityComparator.class, "Comparator");
+     }
++
++    // CraftBukkit start
++    public InventoryHolder getOwner()
++    {
++        org.bukkit.block.BlockState state = field_70331_k.getWorld().getBlockAt(field_70329_l, field_70330_m, field_70327_n).getState();
++
++        if (state instanceof InventoryHolder)
++        {
++            return (InventoryHolder) state;
++        }
++
++        return null;
++    }
++    // CraftBukkit end
+ }

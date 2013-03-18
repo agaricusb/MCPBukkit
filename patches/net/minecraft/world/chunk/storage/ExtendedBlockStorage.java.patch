@@ -1,0 +1,161 @@
+--- ../net/minecraft/world/chunk/storage/ExtendedBlockStorage.java
++++ ../net/minecraft/world/chunk/storage/ExtendedBlockStorage.java
+@@ -2,7 +2,6 @@
+ 
+ import net.minecraft.block.Block;
+ import net.minecraft.world.chunk.NibbleArray;
+-
+ public class ExtendedBlockStorage
+ {
+     private int field_76684_a;
+@@ -27,6 +26,29 @@
+         }
+     }
+ 
++    // CraftBukkit start
++    public ExtendedBlockStorage(int y, boolean flag, byte[] blkIds, byte[] extBlkIds)
++    {
++        this.field_76684_a = y;
++        this.field_76680_d = blkIds;
++
++        if (extBlkIds != null)
++        {
++            this.field_76681_e = new NibbleArray(extBlkIds, 4);
++        }
++
++        this.field_76678_f = new NibbleArray(this.field_76680_d.length, 4);
++        this.field_76679_g = new NibbleArray(this.field_76680_d.length, 4);
++
++        if (flag)
++        {
++            this.field_76685_h = new NibbleArray(this.field_76680_d.length, 4);
++        }
++
++        this.func_76672_e();
++    }
++    // CraftBukkit end
++
+     public int func_76656_a(int p_76656_1_, int p_76656_2_, int p_76656_3_)
+     {
+         int l = this.field_76680_d[p_76656_2_ << 8 | p_76656_3_ << 4 | p_76656_1_] & 255;
+@@ -133,6 +155,95 @@
+ 
+     public void func_76672_e()
+     {
++        // CraftBukkit start - optimize for speed
++        byte[] blkIds = this.field_76680_d;
++        int cntNonEmpty = 0;
++        int cntTicking = 0;
++
++        if (this.field_76681_e == null)   // No extended block IDs?  Don't waste time messing with them
++        {
++            for (int off = 0; off < blkIds.length; off++)
++            {
++                int l = blkIds[off] & 0xFF;
++
++                if (l > 0)
++                {
++                    if (Block.field_71973_m[l] == null)
++                    {
++                        blkIds[off] = 0;
++                    }
++                    else
++                    {
++                        ++cntNonEmpty;
++
++                        if (Block.field_71973_m[l].func_71881_r())
++                        {
++                            ++cntTicking;
++                        }
++                    }
++                }
++            }
++        }
++        else
++        {
++            byte[] ext = this.field_76681_e.field_76585_a;
++
++            for (int off = 0, off2 = 0; off < blkIds.length;)
++            {
++                byte extid = ext[off2];
++                int l = (blkIds[off] & 0xFF) | ((extid & 0xF) << 8); // Even data
++
++                if (l > 0)
++                {
++                    if (Block.field_71973_m[l] == null)
++                    {
++                        blkIds[off] = 0;
++                        ext[off2] &= 0xF0;
++                    }
++                    else
++                    {
++                        ++cntNonEmpty;
++
++                        if (Block.field_71973_m[l].func_71881_r())
++                        {
++                            ++cntTicking;
++                        }
++                    }
++                }
++
++                off++;
++                l = (blkIds[off] & 0xFF) | ((extid & 0xF0) << 4); // Odd data
++
++                if (l > 0)
++                {
++                    if (Block.field_71973_m[l] == null)
++                    {
++                        blkIds[off] = 0;
++                        ext[off2] &= 0x0F;
++                    }
++                    else
++                    {
++                        ++cntNonEmpty;
++
++                        if (Block.field_71973_m[l].func_71881_r())
++                        {
++                            ++cntTicking;
++                        }
++                    }
++                }
++
++                off++;
++                off2++;
++            }
++        }
++
++        this.field_76682_b = cntNonEmpty;
++        this.field_76683_c = cntTicking;
++    }
++
++    public void old_recalcBlockCounts()
++    {
++        // CraftBukkit end
+         this.field_76682_b = 0;
+         this.field_76683_c = 0;
+ 
+@@ -202,6 +313,24 @@
+ 
+     public void func_76673_a(NibbleArray p_76673_1_)
+     {
++        // CraftBukkit start - don't hang on to an empty nibble array
++        boolean empty = true;
++
++        for (int i = 0; i < p_76673_1_.field_76585_a.length; i++)
++        {
++            if (p_76673_1_.field_76585_a[i] != 0)
++            {
++                empty = false;
++                break;
++            }
++        }
++
++        if (empty)
++        {
++            return;
++        }
++
++        // CraftBukkit end
+         this.field_76681_e = p_76673_1_;
+     }
+ 

@@ -1,0 +1,110 @@
+--- ../net/minecraft/entity/projectile/EntityFishHook.java
++++ ../net/minecraft/entity/projectile/EntityFishHook.java
+@@ -16,6 +16,11 @@
+ import net.minecraft.util.MovingObjectPosition;
+ import net.minecraft.util.Vec3;
+ import net.minecraft.world.World;
++
++// CraftBukkit start
++import org.bukkit.entity.Player;
++import org.bukkit.event.player.PlayerFishEvent;
++// CraftBukkit end
+ 
+ public class EntityFishHook extends Entity
+ {
+@@ -191,7 +196,7 @@
+ 
+                     if (movingobjectposition1 != null)
+                     {
+-                        d5 = vec3.func_72438_d(movingobjectposition1.field_72307_f);
++                        d5 = vec3.func_72436_e(movingobjectposition1.field_72307_f); // CraftBukkit - distance efficiency
+ 
+                         if (d5 < d4 || d4 == 0.0D)
+                         {
+@@ -293,8 +298,8 @@
+                             this.field_70181_x -= 0.20000000298023224D;
+                             this.func_85030_a("random.splash", 0.25F, 1.0F + (this.field_70146_Z.nextFloat() - this.field_70146_Z.nextFloat()) * 0.4F);
+                             float f3 = (float)MathHelper.func_76128_c(this.field_70121_D.field_72338_b);
++                            float f4;
+                             int l;
+-                            float f4;
+                             float f5;
+ 
+                             for (l = 0; (float)l < 1.0F + this.field_70130_N * 20.0F; ++l)
+@@ -368,6 +373,18 @@
+ 
+             if (this.field_70205_c != null)
+             {
++                // CraftBukkit start
++                PlayerFishEvent playerFishEvent = new PlayerFishEvent((Player) this.field_70204_b.getBukkitEntity(), this.field_70205_c.getBukkitEntity(), PlayerFishEvent.State.CAUGHT_ENTITY);
++                this.field_70170_p.getServer().getPluginManager().callEvent(playerFishEvent);
++
++                if (playerFishEvent.isCancelled())
++                {
++                    this.func_70106_y();
++                    this.field_70204_b.field_71104_cf = null;
++                    return 0;
++                }
++
++                // CraftBukkit end
+                 double d0 = this.field_70204_b.field_70165_t - this.field_70165_t;
+                 double d1 = this.field_70204_b.field_70163_u - this.field_70163_u;
+                 double d2 = this.field_70204_b.field_70161_v - this.field_70161_v;
+@@ -381,6 +398,19 @@
+             else if (this.field_70219_an > 0)
+             {
+                 EntityItem entityitem = new EntityItem(this.field_70170_p, this.field_70165_t, this.field_70163_u, this.field_70161_v, new ItemStack(Item.field_77754_aU));
++                // CraftBukkit start
++                PlayerFishEvent playerFishEvent = new PlayerFishEvent((Player) this.field_70204_b.getBukkitEntity(), entityitem.getBukkitEntity(), PlayerFishEvent.State.CAUGHT_FISH);
++                playerFishEvent.setExpToDrop(this.field_70146_Z.nextInt(6) + 1);
++                this.field_70170_p.getServer().getPluginManager().callEvent(playerFishEvent);
++
++                if (playerFishEvent.isCancelled())
++                {
++                    this.func_70106_y();
++                    this.field_70204_b.field_71104_cf = null;
++                    return 0;
++                }
++
++                // CraftBukkit end
+                 double d5 = this.field_70204_b.field_70165_t - this.field_70165_t;
+                 double d6 = this.field_70204_b.field_70163_u - this.field_70163_u;
+                 double d7 = this.field_70204_b.field_70161_v - this.field_70161_v;
+@@ -391,15 +421,36 @@
+                 entityitem.field_70179_y = d7 * d9;
+                 this.field_70170_p.func_72838_d(entityitem);
+                 this.field_70204_b.func_71064_a(StatList.field_75933_B, 1);
+-                this.field_70204_b.field_70170_p.func_72838_d(new EntityXPOrb(this.field_70204_b.field_70170_p, this.field_70204_b.field_70165_t, this.field_70204_b.field_70163_u + 0.5D, this.field_70204_b.field_70161_v + 0.5D, this.field_70146_Z.nextInt(6) + 1));
++                // CraftBukkit - this.random.nextInt(6) + 1 -> playerFishEvent.getExpToDrop()
++                this.field_70204_b.field_70170_p.func_72838_d(new EntityXPOrb(this.field_70204_b.field_70170_p, this.field_70204_b.field_70165_t, this.field_70204_b.field_70163_u + 0.5D, this.field_70204_b.field_70161_v + 0.5D, playerFishEvent.getExpToDrop()));
+                 b0 = 1;
+             }
+ 
+             if (this.field_70214_h)
+             {
++                // CraftBukkit start
++                PlayerFishEvent playerFishEvent = new PlayerFishEvent((Player) this.field_70204_b.getBukkitEntity(), null, PlayerFishEvent.State.IN_GROUND);
++                this.field_70170_p.getServer().getPluginManager().callEvent(playerFishEvent);
++
++                if (playerFishEvent.isCancelled())
++                {
++                    this.func_70106_y();
++                    this.field_70204_b.field_71104_cf = null;
++                    return 0;
++                }
++
++                // CraftBukkit end
+                 b0 = 2;
+             }
+ 
++            // CraftBukkit start
++            if (b0 == 0)
++            {
++                PlayerFishEvent playerFishEvent = new PlayerFishEvent((Player) this.field_70204_b.getBukkitEntity(), null, PlayerFishEvent.State.FAILED_ATTEMPT);
++                this.field_70170_p.getServer().getPluginManager().callEvent(playerFishEvent);
++            }
++
++            // CraftBukkit end
+             this.func_70106_y();
+             this.field_70204_b.field_71104_cf = null;
+             return b0;

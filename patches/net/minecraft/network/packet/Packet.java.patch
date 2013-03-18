@@ -1,0 +1,153 @@
+--- ../net/minecraft/network/packet/Packet.java
++++ ../net/minecraft/network/packet/Packet.java
+@@ -28,6 +28,14 @@
+     public static long field_73290_p;
+     public static long field_73289_q;
+     public boolean field_73287_r = false;
++    // CraftBukkit start - calculate packet ID once - used a bunch of times
++    private int packetID;
++
++    public Packet()
++    {
++        packetID = ((Integer) field_73291_a.get(this.getClass())).intValue();
++    }
++    // CraftBukkit end
+ 
+     static void func_73285_a(int p_73285_0_, boolean p_73285_1_, boolean p_73285_2_, Class p_73285_3_)
+     {
+@@ -71,13 +79,13 @@
+         }
+     }
+ 
+-    public static void func_73274_a(DataOutputStream p_73274_0_, byte[] p_73274_1_) throws IOException
++    public static void func_73274_a(DataOutputStream p_73274_0_, byte[] p_73274_1_) throws IOException   // CraftBukkit - throws IOException
+     {
+         p_73274_0_.writeShort(p_73274_1_.length);
+         p_73274_0_.write(p_73274_1_);
+     }
+ 
+-    public static byte[] func_73280_b(DataInputStream p_73280_0_) throws IOException
++    public static byte[] func_73280_b(DataInputStream p_73280_0_) throws IOException   // CraftBukkit - throws IOException
+     {
+         short short1 = p_73280_0_.readShort();
+ 
+@@ -95,10 +103,10 @@
+ 
+     public final int func_73281_k()
+     {
+-        return ((Integer)field_73291_a.get(this.getClass())).intValue();
+-    }
+-
+-    public static Packet func_73272_a(ILogAgent p_73272_0_, DataInputStream p_73272_1_, boolean p_73272_2_, Socket p_73272_3_) throws IOException
++        return packetID; // ((Integer) a.get(this.getClass())).intValue(); // CraftBukkit
++    }
++
++    public static Packet func_73272_a(ILogAgent p_73272_0_, DataInputStream p_73272_1_, boolean p_73272_2_, Socket p_73272_3_) throws IOException   // CraftBukkit - throws IOException
+     {
+         boolean flag1 = false;
+         Packet packet = null;
+@@ -142,7 +150,19 @@
+             p_73272_0_.func_98232_c("Reached end of stream");
+             return null;
+         }
+-
++        // CraftBukkit start
++        catch (java.net.SocketTimeoutException exception)
++        {
++            p_73272_0_.func_98232_c("Read timed out");
++            return null;
++        }
++        catch (java.net.SocketException exception)
++        {
++            p_73272_0_.func_98232_c("Connection reset");
++            return null;
++        }
++
++        // CraftBukkit end
+         PacketCount.func_76118_a(j, (long)packet.func_73284_a());
+         ++field_73292_n;
+         field_73293_o += (long)packet.func_73284_a();
+@@ -150,7 +170,7 @@
+         return packet;
+     }
+ 
+-    public static void func_73266_a(Packet p_73266_0_, DataOutputStream p_73266_1_) throws IOException
++    public static void func_73266_a(Packet p_73266_0_, DataOutputStream p_73266_1_) throws IOException   // CraftBukkit - throws IOException
+     {
+         p_73266_1_.write(p_73266_0_.func_73281_k());
+         p_73266_0_.func_73273_a(p_73266_1_);
+@@ -158,7 +178,7 @@
+         field_73289_q += (long)p_73266_0_.func_73284_a();
+     }
+ 
+-    public static void func_73271_a(String p_73271_0_, DataOutputStream p_73271_1_) throws IOException
++    public static void func_73271_a(String p_73271_0_, DataOutputStream p_73271_1_) throws IOException   // CraftBukkit - throws IOException
+     {
+         if (p_73271_0_.length() > 32767)
+         {
+@@ -171,7 +191,7 @@
+         }
+     }
+ 
+-    public static String func_73282_a(DataInputStream p_73282_0_, int p_73282_1_) throws IOException
++    public static String func_73282_a(DataInputStream p_73282_0_, int p_73282_1_) throws IOException   // CraftBukkit - throws IOException
+     {
+         short short1 = p_73282_0_.readShort();
+ 
+@@ -196,11 +216,11 @@
+         }
+     }
+ 
+-    public abstract void func_73267_a(DataInputStream datainputstream) throws IOException;
+-
+-    public abstract void func_73273_a(DataOutputStream dataoutputstream) throws IOException;
+-
+-    public abstract void func_73279_a(NetHandler nethandler);
++    public abstract void func_73267_a(DataInputStream datainputstream) throws IOException; // CraftBukkit - throws IOException
++
++    public abstract void func_73273_a(DataOutputStream dataoutputstream) throws IOException; // CraftBukkit - throws IOException
++
++    public abstract void func_73279_a(NetHandler connection);
+ 
+     public abstract int func_73284_a();
+ 
+@@ -225,7 +245,7 @@
+         return s;
+     }
+ 
+-    public static ItemStack func_73276_c(DataInputStream p_73276_0_) throws IOException
++    public static ItemStack func_73276_c(DataInputStream p_73276_0_) throws IOException   // CraftBukkit - throws IOException
+     {
+         ItemStack itemstack = null;
+         short short1 = p_73276_0_.readShort();
+@@ -241,9 +261,9 @@
+         return itemstack;
+     }
+ 
+-    public static void func_73270_a(ItemStack p_73270_0_, DataOutputStream p_73270_1_) throws IOException
+-    {
+-        if (p_73270_0_ == null)
++    public static void func_73270_a(ItemStack p_73270_0_, DataOutputStream p_73270_1_) throws IOException   // CraftBukkit - throws IOException
++    {
++        if (p_73270_0_ == null || p_73270_0_.func_77973_b() == null)   // CraftBukkit - NPE fix itemstack.getItem()
+         {
+             p_73270_1_.writeShort(-1);
+         }
+@@ -263,7 +283,7 @@
+         }
+     }
+ 
+-    public static NBTTagCompound func_73283_d(DataInputStream p_73283_0_) throws IOException
++    public static NBTTagCompound func_73283_d(DataInputStream p_73283_0_) throws IOException   // CraftBukkit - throws IOException
+     {
+         short short1 = p_73283_0_.readShort();
+ 
+@@ -279,7 +299,7 @@
+         }
+     }
+ 
+-    protected static void func_73275_a(NBTTagCompound p_73275_0_, DataOutputStream p_73275_1_) throws IOException
++    protected static void func_73275_a(NBTTagCompound p_73275_0_, DataOutputStream p_73275_1_) throws IOException   // CraftBukkit - throws IOException
+     {
+         if (p_73275_0_ == null)
+         {

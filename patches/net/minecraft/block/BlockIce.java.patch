@@ -1,0 +1,17 @@
+--- ../net/minecraft/block/BlockIce.java
++++ ../net/minecraft/block/BlockIce.java
+@@ -62,6 +62,14 @@
+     {
+         if (p_71847_1_.func_72972_b(EnumSkyBlock.Block, p_71847_2_, p_71847_3_, p_71847_4_) > 11 - Block.field_71971_o[this.field_71990_ca])
+         {
++            // CraftBukkit start
++            if (org.bukkit.craftbukkit.event.CraftEventFactory.callBlockFadeEvent(p_71847_1_.getWorld().getBlockAt(p_71847_2_, p_71847_3_, p_71847_4_), Block.field_71943_B.field_71990_ca).isCancelled())
++            {
++                return;
++            }
++
++            // CraftBukkit end
++
+             if (p_71847_1_.field_73011_w.field_76575_d)
+             {
+                 p_71847_1_.func_94571_i(p_71847_2_, p_71847_3_, p_71847_4_);

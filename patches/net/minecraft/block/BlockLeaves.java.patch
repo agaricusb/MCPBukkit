@@ -1,0 +1,28 @@
+--- ../net/minecraft/block/BlockLeaves.java
++++ ../net/minecraft/block/BlockLeaves.java
+@@ -10,6 +10,8 @@
+ import net.minecraft.util.Icon;
+ import net.minecraft.world.World;
+ 
++import org.bukkit.event.block.LeavesDecayEvent; // CraftBukkit
++
+ public class BlockLeaves extends BlockLeavesBase
+ {
+     public static final String[] field_72136_a = new String[] {"oak", "spruce", "birch", "jungle"};
+@@ -163,6 +165,16 @@
+ 
+     private void func_72132_l(World p_72132_1_, int p_72132_2_, int p_72132_3_, int p_72132_4_)
+     {
++        // CraftBukkit start
++        LeavesDecayEvent event = new LeavesDecayEvent(p_72132_1_.getWorld().getBlockAt(p_72132_2_, p_72132_3_, p_72132_4_));
++        p_72132_1_.getServer().getPluginManager().callEvent(event);
++
++        if (event.isCancelled())
++        {
++            return;
++        }
++
++        // CraftBukkit end
+         this.func_71897_c(p_72132_1_, p_72132_2_, p_72132_3_, p_72132_4_, p_72132_1_.func_72805_g(p_72132_2_, p_72132_3_, p_72132_4_), 0);
+         p_72132_1_.func_94571_i(p_72132_2_, p_72132_3_, p_72132_4_);
+     }

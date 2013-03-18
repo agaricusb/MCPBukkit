@@ -1,0 +1,86 @@
+--- ../net/minecraft/tileentity/TileEntityBrewingStand.java
++++ ../net/minecraft/tileentity/TileEntityBrewingStand.java
+@@ -10,13 +10,51 @@
+ import net.minecraft.nbt.NBTTagList;
+ import net.minecraft.potion.PotionHelper;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
++import org.bukkit.event.inventory.BrewEvent;
++// CraftBukkit end
++
+ public class TileEntityBrewingStand extends TileEntity implements ISidedInventory
+ {
+-    private ItemStack[] field_70359_a = new ItemStack[4];
+-    private int field_70357_b;
++    public ItemStack[] field_70359_a = new ItemStack[4]; // CraftBukkit private -> public
++    public int field_70357_b; // CraftBukkit private -> public
+     private int field_70358_c;
+     private int field_70356_d;
+     private String field_94132_e;
++
++    public TileEntityBrewingStand() {}
++
++    // CraftBukkit start
++    public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
++    private int maxStack = 64;
++
++    public void onOpen(CraftHumanEntity who)
++    {
++        transaction.add(who);
++    }
++
++    public void onClose(CraftHumanEntity who)
++    {
++        transaction.remove(who);
++    }
++
++    public List<HumanEntity> getViewers()
++    {
++        return transaction;
++    }
++
++    public ItemStack[] getContents()
++    {
++        return this.field_70359_a;
++    }
++
++    public void setMaxStackSize(int size)
++    {
++        maxStack = size;
++    }
++    // CraftBukkit end
+ 
+     public String func_70303_b()
+     {
+@@ -134,6 +172,20 @@
+         if (this.func_70350_k())
+         {
+             ItemStack itemstack = this.field_70359_a[3];
++
++            // CraftBukkit start - fire BREW event
++            if (getOwner() != null)
++            {
++                BrewEvent event = new BrewEvent(field_70331_k.getWorld().getBlockAt(field_70329_l, field_70330_m, field_70327_n), (org.bukkit.inventory.BrewerInventory) this.getOwner().getInventory());
++                org.bukkit.Bukkit.getPluginManager().callEvent(event);
++
++                if (event.isCancelled())
++                {
++                    return;
++                }
++            }
++
++            // CraftBukkit end
+ 
+             for (int i = 0; i < 3; ++i)
+             {
+@@ -272,7 +324,7 @@
+ 
+     public int func_70297_j_()
+     {
+-        return 64;
++        return this.maxStack; // CraftBukkit
+     }
+ 
+     public boolean func_70300_a(EntityPlayer p_70300_1_)

@@ -1,0 +1,151 @@
+--- ../net/minecraft/tileentity/TileEntityCommandBlock.java
++++ ../net/minecraft/tileentity/TileEntityCommandBlock.java
+@@ -1,19 +1,33 @@
+ package net.minecraft.tileentity;
+ 
+-import net.minecraft.command.ICommandManager;
++// CraftBukkit start
++import java.util.ArrayList;
++import java.util.Arrays;
++import com.google.common.base.Joiner;
+ import net.minecraft.command.ICommandSender;
++import net.minecraft.command.PlayerSelector;
++import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.network.packet.Packet;
+ import net.minecraft.network.packet.Packet132TileEntityData;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.util.ChunkCoordinates;
+ import net.minecraft.world.World;
++// CraftBukkit end
+ 
+ public class TileEntityCommandBlock extends TileEntity implements ICommandSender
+ {
+     private int field_96106_a = 0;
+     private String field_82354_a = "";
+     private String field_96105_c = "@";
++    // CraftBukkit start
++    private final org.bukkit.command.BlockCommandSender sender;
++
++    public TileEntityCommandBlock()
++    {
++        sender = new org.bukkit.craftbukkit.command.CraftBlockCommandSender(this);
++    }
++    // CraftBukkit end
+ 
+     public void func_82352_b(String p_82352_1_)
+     {
+@@ -33,8 +47,79 @@
+ 
+             if (minecraftserver != null && minecraftserver.func_82356_Z())
+             {
+-                ICommandManager icommandmanager = minecraftserver.func_71187_D();
+-                return icommandmanager.func_71556_a(this, this.field_82354_a);
++                // CraftBukkit start - handle command block as console
++                org.bukkit.command.SimpleCommandMap commandMap = minecraftserver.server.getCommandMap();
++                Joiner joiner = Joiner.on(" ");
++                String command = this.field_82354_a;
++
++                if (this.field_82354_a.startsWith("/"))
++                {
++                    command = this.field_82354_a.substring(1);
++                }
++
++                String[] args = command.split(" ");
++                ArrayList<String[]> commands = new ArrayList<String[]>();
++
++                // block disallowed commands
++                if (args[0].equalsIgnoreCase("stop") || args[0].equalsIgnoreCase("kick") || args[0].equalsIgnoreCase("op") ||
++                        args[0].equalsIgnoreCase("deop") || args[0].equalsIgnoreCase("ban") || args[0].equalsIgnoreCase("ban-ip") ||
++                        args[0].equalsIgnoreCase("pardon") || args[0].equalsIgnoreCase("pardon-ip") || args[0].equalsIgnoreCase("reload"))
++                {
++                    return 0;
++                }
++
++                // make sure this is a valid command
++                if (commandMap.getCommand(args[0]) == null)
++                {
++                    return 0;
++                }
++
++                // if the world has no players don't run
++                if (this.field_70331_k.field_73010_i.isEmpty())
++                {
++                    return 0;
++                }
++
++                commands.add(args);
++                // find positions of command block syntax, if any
++                ArrayList<String[]> newCommands = new ArrayList<String[]>();
++
++                for (int i = 0; i < args.length; i++)
++                {
++                    if (PlayerSelector.func_82378_b(args[i]))
++                    {
++                        for (int j = 0; j < commands.size(); j++)
++                        {
++                            newCommands.addAll(this.buildCommands(commands.get(j), i));
++                        }
++
++                        ArrayList<String[]> temp = commands;
++                        commands = newCommands;
++                        newCommands = temp;
++                        newCommands.clear();
++                    }
++                }
++
++                int completed = 0;
++
++                // now dispatch all of the commands we ended up with
++                for (int i = 0; i < commands.size(); i++)
++                {
++                    try
++                    {
++                        if (commandMap.dispatch(sender, joiner.join(Arrays.asList(commands.get(i)))))
++                        {
++                            completed++;
++                        }
++                    }
++                    catch (Throwable exception)
++                    {
++                        minecraftserver.func_98033_al().func_98235_b(String.format("CommandBlock at (%d,%d,%d) failed to handle command", this.field_70329_l, this.field_70330_m, this.field_70327_n), exception);
++                    }
++                }
++
++                // CraftBukkit end
++                return completed;
+             }
+             else
+             {
+@@ -43,6 +128,31 @@
+         }
+     }
+ 
++    // CraftBukkit start
++    private ArrayList<String[]> buildCommands(String[] args, int pos)
++    {
++        ArrayList<String[]> commands = new ArrayList<String[]>();
++        EntityPlayerMP[] players = PlayerSelector.func_82380_c(this, args[pos]);
++
++        if (players != null)
++        {
++            for (EntityPlayerMP player : players)
++            {
++                if (player.field_70170_p != this.field_70331_k)
++                {
++                    continue;
++                }
++
++                String[] command = args.clone();
++                command[pos] = player.func_70023_ak();
++                commands.add(command);
++            }
++        }
++
++        return commands;
++    }
++    // CraftBukkit end
++
+     public String func_70005_c_()
+     {
+         return this.field_96105_c;

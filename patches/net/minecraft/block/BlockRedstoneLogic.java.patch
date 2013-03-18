@@ -1,0 +1,52 @@
+--- ../net/minecraft/block/BlockRedstoneLogic.java
++++ ../net/minecraft/block/BlockRedstoneLogic.java
+@@ -9,6 +9,8 @@
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
+ 
++import org.bukkit.craftbukkit.event.CraftEventFactory; // CraftBukkit
++
+ public abstract class BlockRedstoneLogic extends BlockDirectional
+ {
+     protected final boolean field_72222_c;
+@@ -39,16 +41,30 @@
+     {
+         int l = p_71847_1_.func_72805_g(p_71847_2_, p_71847_3_, p_71847_4_);
+ 
+-        if (!this.func_94476_e(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, l))
++        if (!this.func_94476_e((IBlockAccess) p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, l))
+         {
+             boolean flag = this.func_94478_d(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, l);
+ 
+             if (this.field_72222_c && !flag)
+             {
++                // CraftBukkit start
++                if (CraftEventFactory.callRedstoneChange(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, 15, 0).getNewCurrent() != 0)
++                {
++                    return;
++                }
++
++                // CraftBukkit end
+                 p_71847_1_.func_72832_d(p_71847_2_, p_71847_3_, p_71847_4_, this.func_94484_i().field_71990_ca, l, 2);
+             }
+             else if (!this.field_72222_c)
+             {
++                // CraftBukkit start
++                if (CraftEventFactory.callRedstoneChange(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, 0, 15).getNewCurrent() != 15)
++                {
++                    return;
++                }
++
++                // CraftBukkit end
+                 p_71847_1_.func_72832_d(p_71847_2_, p_71847_3_, p_71847_4_, this.func_94485_e().field_71990_ca, l, 2);
+ 
+                 if (!flag)
+@@ -112,7 +128,7 @@
+     {
+         int i1 = p_94479_1_.func_72805_g(p_94479_2_, p_94479_3_, p_94479_4_);
+ 
+-        if (!this.func_94476_e(p_94479_1_, p_94479_2_, p_94479_3_, p_94479_4_, i1))
++        if (!this.func_94476_e((IBlockAccess) p_94479_1_, p_94479_2_, p_94479_3_, p_94479_4_, i1))
+         {
+             boolean flag = this.func_94478_d(p_94479_1_, p_94479_2_, p_94479_3_, p_94479_4_, i1);
+ 

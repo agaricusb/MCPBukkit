@@ -1,0 +1,18 @@
+--- ../net/minecraft/item/ItemBoat.java
++++ ../net/minecraft/item/ItemBoat.java
+@@ -80,6 +80,15 @@
+                     i = movingobjectposition.field_72311_b;
+                     int j = movingobjectposition.field_72312_c;
+                     int k = movingobjectposition.field_72309_d;
++                    // CraftBukkit start - Boat placement
++                    org.bukkit.event.player.PlayerInteractEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerInteractEvent(p_77659_3_, org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK, i, j, k, movingobjectposition.field_72310_e, p_77659_1_);
++
++                    if (event.isCancelled())
++                    {
++                        return p_77659_1_;
++                    }
++
++                    // CraftBukkit end
+ 
+                     if (p_77659_2_.func_72798_a(i, j, k) == Block.field_72037_aS.field_71990_ca)
+                     {

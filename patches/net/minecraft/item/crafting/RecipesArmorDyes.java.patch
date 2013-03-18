@@ -1,0 +1,19 @@
+--- ../net/minecraft/item/crafting/RecipesArmorDyes.java
++++ ../net/minecraft/item/crafting/RecipesArmorDyes.java
+@@ -10,8 +10,15 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.world.World;
+ 
+-public class RecipesArmorDyes implements IRecipe
++public class RecipesArmorDyes extends ShapelessRecipes implements IRecipe   // CraftBukkit - added extends
+ {
++    // CraftBukkit start - delegate to new parent class with bogus info
++    public RecipesArmorDyes()
++    {
++        super(new ItemStack(Item.field_77687_V, 0, 0), java.util.Arrays.asList(new ItemStack(Item.field_77756_aW, 0, 5)));
++    }
++    // CraftBukkit end
++
+     public boolean func_77569_a(InventoryCrafting p_77569_1_, World p_77569_2_)
+     {
+         ItemStack itemstack = null;

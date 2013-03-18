@@ -1,0 +1,128 @@
+--- ../net/minecraft/world/chunk/Chunk.java
++++ ../net/minecraft/world/chunk/Chunk.java
+@@ -8,10 +8,12 @@
+ import java.util.Map;
+ import java.util.Random;
+ import net.minecraft.block.Block;
++import net.minecraft.block.BlockContainer;
+ import net.minecraft.block.ITileEntityProvider;
+ import net.minecraft.block.material.Material;
+ import net.minecraft.command.IEntitySelector;
+ import net.minecraft.entity.Entity;
++import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.tileentity.TileEntity;
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.util.MathHelper;
+@@ -22,6 +24,11 @@
+ import net.minecraft.world.biome.BiomeGenBase;
+ import net.minecraft.world.biome.WorldChunkManager;
+ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
++
++// CraftBukkit start
++import org.bukkit.Bukkit;
++import org.bukkit.Location;
++// CraftBukkit end
+ 
+ public class Chunk
+ {
+@@ -71,12 +78,22 @@
+ 
+         for (int k = 0; k < this.field_76645_j.length; ++k)
+         {
+-            this.field_76645_j[k] = new ArrayList();
++            this.field_76645_j[k] = new org.bukkit.craftbukkit.util.UnsafeList(); // CraftBukkit - ArrayList -> UnsafeList
+         }
+ 
+         Arrays.fill(this.field_76638_b, -999);
+         Arrays.fill(this.field_76651_r, (byte) - 1);
+-    }
++
++        // CraftBukkit start
++        if (!(this instanceof EmptyChunk))
++        {
++            this.bukkitChunk = new org.bukkit.craftbukkit.CraftChunk(this);
++        }
++    }
++
++    public org.bukkit.Chunk bukkitChunk;
++    public boolean mustSave;
++    // CraftBukkit end
+ 
+     public Chunk(World p_i3772_1_, byte[] p_i3772_2_, int p_i3772_3_, int p_i3772_4_)
+     {
+@@ -525,13 +542,21 @@
+ 
+                 if (p_76592_4_ != 0)
+                 {
+-                    if (!this.field_76637_e.field_72995_K)
++                    // CraftBukkit - Don't place while processing the BlockPlaceEvent, unless it's a BlockContainer
++                    if (!this.field_76637_e.field_72995_K && (!this.field_76637_e.callingPlaceEvent || (Block.field_71973_m[p_76592_4_] instanceof BlockContainer)))
+                     {
+                         Block.field_71973_m[p_76592_4_].func_71861_g(this.field_76637_e, j2, p_76592_2_, k2);
+                     }
+ 
+                     if (Block.field_71973_m[p_76592_4_] instanceof ITileEntityProvider)
+                     {
++                        // CraftBukkit start - don't create tile entity if placement failed
++                        if (this.func_76610_a(p_76592_1_, p_76592_2_, p_76592_3_) != p_76592_4_)
++                        {
++                            return false;
++                        }
++
++                        // CraftBukkit end
+                         tileentity = this.func_76597_e(p_76592_1_, p_76592_2_, p_76592_3_);
+ 
+                         if (tileentity == null)
+@@ -668,8 +693,11 @@
+ 
+         if (i != this.field_76635_g || j != this.field_76647_h)
+         {
+-            this.field_76637_e.func_98180_V().func_98232_c("Wrong location! " + p_76612_1_);
+-            Thread.dumpStack();
++            // CraftBukkit start
++            Bukkit.getLogger().warning("Wrong location for " + p_76612_1_ + " in world '" + field_76637_e.getWorld().getName() + "'!");
++            // Thread.dumpStack();
++            Bukkit.getLogger().warning("Entity is at " + p_76612_1_.field_70165_t + "," + p_76612_1_.field_70161_v + " (chunk " + i + "," + j + ") but was stored in chunk " + this.field_76635_g + "," + this.field_76647_h);
++            // CraftBukkit end
+         }
+ 
+         int k = MathHelper.func_76128_c(p_76612_1_.field_70163_u / 16.0D);
+@@ -780,6 +808,15 @@
+ 
+             p_76604_4_.func_70312_q();
+             this.field_76648_i.put(chunkposition, p_76604_4_);
++            // CraftBukkit start
++        }
++        else
++        {
++            System.out.println("Attempted to place a tile entity (" + p_76604_4_ + ") at " + p_76604_4_.field_70329_l + "," + p_76604_4_.field_70330_m + "," + p_76604_4_.field_70327_n
++                    + " (" + org.bukkit.Material.getMaterial(func_76610_a(p_76604_1_, p_76604_2_, p_76604_3_)) + ") where there was no entity tile!");
++            System.out.println("Chunk coordinates: " + (this.field_76635_g * 16) + "," + (this.field_76647_h * 16));
++            new Exception().printStackTrace();
++            // CraftBukkit end
+         }
+     }
+ 
+@@ -822,6 +859,22 @@
+ 
+         for (int i = 0; i < this.field_76645_j.length; ++i)
+         {
++            // CraftBukkit start
++            java.util.Iterator<Object> iter = this.field_76645_j[i].iterator();
++
++            while (iter.hasNext())
++            {
++                Entity entity = (Entity) iter.next();
++
++                // Do not pass along players, as doing so can get them stuck outside of time.
++                // (which for example disables inventory icon updates and prevents block breaking)
++                if (entity instanceof EntityPlayerMP)
++                {
++                    iter.remove();
++                }
++            }
++
++            // CraftBukkit end
+             this.field_76637_e.func_72828_b(this.field_76645_j[i]);
+         }
+     }

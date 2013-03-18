@@ -1,0 +1,62 @@
+--- ../net/minecraft/entity/passive/EntityWolf.java
++++ ../net/minecraft/entity/passive/EntityWolf.java
+@@ -27,7 +27,6 @@
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
+-
+ public class EntityWolf extends EntityTameable
+ {
+     private float field_70926_e;
+@@ -77,7 +76,7 @@
+ 
+     protected void func_70629_bd()
+     {
+-        this.field_70180_af.func_75692_b(18, Integer.valueOf(this.func_70630_aN()));
++        this.field_70180_af.func_75692_b(18, Integer.valueOf(this.getScaledHealth())); // CraftBukkit - this.getHealth() -> this.getScaledHealth()
+     }
+ 
+     public int func_70667_aM()
+@@ -118,12 +117,14 @@
+ 
+     protected boolean func_70692_ba()
+     {
+-        return this.func_70919_bu();
++        // CraftBukkit - added && !this.isTamed()
++        return this.func_70919_bu() && !this.func_70909_n();
+     }
+ 
+     protected String func_70639_aQ()
+     {
+-        return this.func_70919_bu() ? "mob.wolf.growl" : (this.field_70146_Z.nextInt(3) == 0 ? (this.func_70909_n() && this.field_70180_af.func_75679_c(18) < 10 ? "mob.wolf.whine" : "mob.wolf.panting") : "mob.wolf.bark");
++        // CraftBukkit - getInt(18) < 10 -> < this.maxHealth / 2
++        return this.func_70919_bu() ? "mob.wolf.growl" : (this.field_70146_Z.nextInt(3) == 0 ? (this.func_70909_n() && this.field_70180_af.func_75679_c(18) < this.maxHealth / 2 ? "mob.wolf.whine" : "mob.wolf.panting") : "mob.wolf.bark");
+     }
+ 
+     protected String func_70621_aR()
+@@ -322,13 +323,23 @@
+ 
+             if (!this.field_70170_p.field_72995_K)
+             {
+-                if (this.field_70146_Z.nextInt(3) == 0)
++                // CraftBukkit - added event call and isCancelled check.
++                if (this.field_70146_Z.nextInt(3) == 0 && !org.bukkit.craftbukkit.event.CraftEventFactory.callEntityTameEvent(this, p_70085_1_).isCancelled())
+                 {
++                    boolean updateMaxHealth = this.func_70667_aM() == this.maxHealth; // CraftBukkit
+                     this.func_70903_f(true);
+                     this.func_70778_a((PathEntity)null);
+                     this.func_70624_b((EntityLiving)null);
+                     this.field_70911_d.func_75270_a(true);
+-                    this.func_70606_j(20);
++
++                    // CraftBukkit start
++                    if (updateMaxHealth)
++                    {
++                        this.maxHealth = this.func_70667_aM();
++                    }
++
++                    this.func_70606_j(this.maxHealth);
++                    // CraftBukkit end
+                     this.func_70910_a(p_70085_1_.field_71092_bJ);
+                     this.func_70908_e(true);
+                     this.field_70170_p.func_72960_a(this, (byte)7);

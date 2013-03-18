@@ -1,0 +1,33 @@
+--- ../net/minecraft/tileentity/TileEntityNote.java
++++ ../net/minecraft/tileentity/TileEntityNote.java
+@@ -4,11 +4,12 @@
+ import net.minecraft.block.material.Material;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.world.World;
+-
+ public class TileEntityNote extends TileEntity
+ {
+     public byte field_70416_a = 0;
+     public boolean field_70415_b = false;
++
++    public TileEntityNote() {}
+ 
+     public void func_70310_b(NBTTagCompound p_70310_1_)
+     {
+@@ -65,7 +66,15 @@
+                 b0 = 4;
+             }
+ 
+-            p_70414_1_.func_72965_b(p_70414_2_, p_70414_3_, p_70414_4_, Block.field_71960_R.field_71990_ca, b0, this.field_70416_a);
++            // CraftBukkit start
++            org.bukkit.event.block.NotePlayEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callNotePlayEvent(this.field_70331_k, p_70414_2_, p_70414_3_, p_70414_4_, b0, this.field_70416_a);
++
++            if (!event.isCancelled())
++            {
++                this.field_70331_k.func_72965_b(p_70414_2_, p_70414_3_, p_70414_4_, Block.field_71960_R.field_71990_ca, event.getInstrument().getType(), event.getNote().getId());
++            }
++
++            // CraftBukkit end
+         }
+     }
+ }

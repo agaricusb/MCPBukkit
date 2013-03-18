@@ -1,0 +1,70 @@
+--- ../net/minecraft/tileentity/TileEntityHopper.java
++++ ../net/minecraft/tileentity/TileEntityHopper.java
+@@ -18,12 +18,49 @@
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
++// CraftBukkit end
++
+ public class TileEntityHopper extends TileEntity implements Hopper
+ {
+     private ItemStack[] field_94124_b = new ItemStack[5];
+     private String field_94123_d;
+     private int field_98048_c = -1;
+ 
++    // CraftBukkit start
++    public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
++    private int maxStack = MAX_STACK;
++
++    public ItemStack[] getContents()
++    {
++        return this.field_94124_b;
++    }
++
++    public void onOpen(CraftHumanEntity who)
++    {
++        transaction.add(who);
++    }
++
++    public void onClose(CraftHumanEntity who)
++    {
++        transaction.remove(who);
++    }
++
++    public List<HumanEntity> getViewers()
++    {
++        return transaction;
++    }
++
++    public void setMaxStackSize(int size)
++    {
++        maxStack = size;
++    }
++    // CraftBukkit end
++
++    public TileEntityHopper() {}
++
+     public void func_70307_a(NBTTagCompound p_70307_1_)
+     {
+         super.func_70307_a(p_70307_1_);
+@@ -197,7 +234,7 @@
+         {
+             if (!this.func_98047_l() && BlockHopper.func_94452_d(this.func_70322_n()))
+             {
+-                boolean flag = this.func_94116_j() | func_96116_a(this);
++                boolean flag = this.func_94116_j() | func_96116_a((Hopper) this);
+ 
+                 if (flag)
+                 {
+@@ -289,7 +326,7 @@
+ 
+             if (entityitem != null)
+             {
+-                flag |= func_96114_a(p_96116_0_, entityitem);
++                flag |= func_96114_a((IInventory) p_96116_0_, entityitem);
+             }
+         }
+ 

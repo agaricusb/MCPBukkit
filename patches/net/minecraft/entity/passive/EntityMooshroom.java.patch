@@ -1,0 +1,26 @@
+--- ../net/minecraft/entity/passive/EntityMooshroom.java
++++ ../net/minecraft/entity/passive/EntityMooshroom.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.entity.passive;
+ 
++import org.bukkit.event.player.PlayerShearEntityEvent; // CraftBukkit
+ import net.minecraft.block.Block;
+ import net.minecraft.entity.EntityAgeable;
+ import net.minecraft.entity.item.EntityItem;
+@@ -38,6 +39,16 @@
+ 
+         if (itemstack != null && itemstack.field_77993_c == Item.field_77745_be.field_77779_bT && this.func_70874_b() >= 0)
+         {
++            // CraftBukkit start
++            PlayerShearEntityEvent event = new PlayerShearEntityEvent((org.bukkit.entity.Player) p_70085_1_.getBukkitEntity(), this.getBukkitEntity());
++            this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++            if (event.isCancelled())
++            {
++                return false;
++            }
++
++            // CraftBukkit end
+             this.func_70106_y();
+             this.field_70170_p.func_72869_a("largeexplode", this.field_70165_t, this.field_70163_u + (double)(this.field_70131_O / 2.0F), this.field_70161_v, 0.0D, 0.0D, 0.0D);
+ 

@@ -1,0 +1,38 @@
+--- ../net/minecraft/block/BlockRedstoneWire.java
++++ ../net/minecraft/block/BlockRedstoneWire.java
+@@ -12,6 +12,8 @@
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
+ 
++import org.bukkit.event.block.BlockRedstoneEvent; // CraftBukkit
++
+ public class BlockRedstoneWire extends Block
+ {
+     private boolean field_72175_a = true;
+@@ -137,6 +139,16 @@
+         {
+             l1 = i2;
+         }
++
++        // CraftBukkit start
++        if (k1 != l1)
++        {
++            BlockRedstoneEvent event = new BlockRedstoneEvent(p_72171_1_.getWorld().getBlockAt(p_72171_2_, p_72171_3_, p_72171_4_), k1, l1);
++            p_72171_1_.getServer().getPluginManager().callEvent(event);
++            l1 = event.getNewCurrent();
++        }
++
++        // CraftBukkit end
+ 
+         if (k1 != l1)
+         {
+@@ -273,7 +285,8 @@
+         }
+     }
+ 
+-    private int func_72170_e(World p_72170_1_, int p_72170_2_, int p_72170_3_, int p_72170_4_, int p_72170_5_)
++    // CraftBukkit - private -> public
++    public int func_72170_e(World p_72170_1_, int p_72170_2_, int p_72170_3_, int p_72170_4_, int p_72170_5_)
+     {
+         if (p_72170_1_.func_72798_a(p_72170_2_, p_72170_3_, p_72170_4_) != this.field_71990_ca)
+         {

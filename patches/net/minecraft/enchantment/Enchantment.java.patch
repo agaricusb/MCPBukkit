@@ -1,0 +1,19 @@
+--- ../net/minecraft/enchantment/Enchantment.java
++++ ../net/minecraft/enchantment/Enchantment.java
+@@ -8,6 +8,7 @@
+ 
+ public abstract class Enchantment
+ {
++    // CraftBukkit - update CraftEnchant.getName(i) if this changes
+     public static final Enchantment[] field_77331_b = new Enchantment[256];
+     public static final Enchantment[] field_92090_c;
+     public static final Enchantment field_77332_c = new EnchantmentProtection(0, 10, 0);
+@@ -51,6 +52,8 @@
+         {
+             field_77331_b[p_i3709_1_] = this;
+         }
++
++        org.bukkit.enchantments.Enchantment.registerEnchantment(new org.bukkit.craftbukkit.enchantments.CraftEnchantment(this)); // CraftBukkit
+     }
+ 
+     public int func_77324_c()

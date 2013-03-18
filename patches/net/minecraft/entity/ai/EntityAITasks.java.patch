@@ -1,0 +1,89 @@
+--- ../net/minecraft/entity/ai/EntityAITasks.java
++++ ../net/minecraft/entity/ai/EntityAITasks.java
+@@ -5,10 +5,14 @@
+ import java.util.List;
+ import net.minecraft.profiler.Profiler;
+ 
++import org.bukkit.craftbukkit.util.UnsafeList; // CraftBukkit
++
+ public class EntityAITasks
+ {
+-    public List field_75782_a = new ArrayList();
+-    private List field_75780_b = new ArrayList();
++    // CraftBukkit start - ArrayList -> UnsafeList
++    private List field_75782_a = new UnsafeList();
++    private List field_75780_b = new UnsafeList();
++    // CraftBukkit end
+     private final Profiler field_75781_c;
+     private int field_75778_d = 0;
+     private int field_75779_e = 3;
+@@ -47,7 +51,7 @@
+ 
+     public void func_75774_a()
+     {
+-        ArrayList arraylist = new ArrayList();
++        // ArrayList arraylist = new ArrayList(); // CraftBukkit - remove usage
+         Iterator iterator;
+         EntityAITaskEntry entityaitaskentry;
+ 
+@@ -73,7 +77,10 @@
+ 
+                 if (this.func_75775_b(entityaitaskentry) && entityaitaskentry.field_75733_a.func_75250_a())
+                 {
+-                    arraylist.add(entityaitaskentry);
++                    // CraftBukkit start - call method now instead of queueing
++                    // arraylist.add(entityaitaskentry);
++                    entityaitaskentry.field_75733_a.func_75249_e();
++                    // CraftBukkit end
+                     this.field_75780_b.add(entityaitaskentry);
+                 }
+             }
+@@ -95,16 +102,16 @@
+         }
+ 
+         this.field_75781_c.func_76320_a("goalStart");
+-        iterator = arraylist.iterator();
++        // CraftBukkit start - removed usage of arraylist
++        /*iterator = arraylist.iterator();
+ 
+-        while (iterator.hasNext())
+-        {
+-            entityaitaskentry = (EntityAITaskEntry)iterator.next();
+-            this.field_75781_c.func_76320_a(entityaitaskentry.field_75733_a.getClass().getSimpleName());
+-            entityaitaskentry.field_75733_a.func_75249_e();
+-            this.field_75781_c.func_76319_b();
+-        }
+-
++        while (iterator.hasNext()) {
++            entityaitaskentry = (PathfinderGoalSelectorItem) iterator.next();
++            this.c.a(entityaitaskentry.a.getClass().getSimpleName());
++            entityaitaskentry.a.c();
++            this.c.b();
++        }*/
++        // CraftBukkit end
+         this.field_75781_c.func_76319_b();
+         this.field_75781_c.func_76320_a("goalTick");
+         iterator = this.field_75780_b.iterator();
+@@ -139,15 +146,20 @@
+             {
+                 if (p_75775_1_.field_75731_b >= entityaitaskentry1.field_75731_b)
+                 {
+-                    if (this.field_75780_b.contains(entityaitaskentry1) && !this.func_75777_a(p_75775_1_, entityaitaskentry1))
++                    // CraftBukkit - switch order
++                    if (!this.func_75777_a(p_75775_1_, entityaitaskentry1) && this.field_75780_b.contains(entityaitaskentry1))
+                     {
+                         this.field_75781_c.func_76319_b();
++                        ((UnsafeList.Itr) iterator).valid = false; // CraftBukkit - mark iterator for reuse
+                         return false;
+                     }
++
++                    // CraftBukkit - switch order
+                 }
+-                else if (this.field_75780_b.contains(entityaitaskentry1) && !entityaitaskentry1.field_75733_a.func_75252_g())
++                else if (!entityaitaskentry1.field_75733_a.func_75252_g() && this.field_75780_b.contains(entityaitaskentry1))
+                 {
+                     this.field_75781_c.func_76319_b();
++                    ((UnsafeList.Itr) iterator).valid = false; // CraftBukkit - mark iterator for reuse
+                     return false;
+                 }
+             }

@@ -1,0 +1,98 @@
+--- ../net/minecraft/world/chunk/storage/RegionFile.java
++++ ../net/minecraft/world/chunk/storage/RegionFile.java
+@@ -101,6 +101,61 @@
+         }
+     }
+ 
++    // CraftBukkit start - this is a copy (sort of) of the method below it, make sure they stay in sync
++
++    public synchronized boolean chunkExists(int i, int j)
++    {
++        if (this.func_76705_d(i, j))
++        {
++            return false;
++        }
++        else
++        {
++            try
++            {
++                int k = this.func_76707_e(i, j);
++
++                if (k == 0)
++                {
++                    return false;
++                }
++                else
++                {
++                    int l = k >> 8;
++                    int i1 = k & 255;
++
++                    if (l + i1 > this.field_76714_f.size())
++                    {
++                        return false;
++                    }
++
++                    this.field_76719_c.seek((long)(l * 4096));
++                    int j1 = this.field_76719_c.readInt();
++
++                    if (j1 > 4096 * i1 || j1 <= 0)
++                    {
++                        return false;
++                    }
++
++                    byte b0 = this.field_76719_c.readByte();
++
++                    if (b0 == 1 || b0 == 2)
++                    {
++                        return true;
++                    }
++                }
++            }
++            catch (IOException ioexception)
++            {
++                return false;
++            }
++        }
++
++        return false;
++    }
++
++    // CraftBukkit end
++
+     public synchronized DataInputStream func_76704_a(int p_76704_1_, int p_76704_2_)
+     {
+         if (this.func_76705_d(p_76704_1_, p_76704_2_))
+@@ -272,7 +327,7 @@
+         }
+     }
+ 
+-    private void func_76712_a(int p_76712_1_, byte[] p_76712_2_, int p_76712_3_) throws IOException
++    private void func_76712_a(int p_76712_1_, byte[] p_76712_2_, int p_76712_3_) throws IOException   // CraftBukkit - added throws
+     {
+         this.field_76719_c.seek((long)(p_76712_1_ * 4096));
+         this.field_76719_c.writeInt(p_76712_3_ + 1);
+@@ -295,21 +350,21 @@
+         return this.func_76707_e(p_76709_1_, p_76709_2_) != 0;
+     }
+ 
+-    private void func_76711_a(int p_76711_1_, int p_76711_2_, int p_76711_3_) throws IOException
++    private void func_76711_a(int p_76711_1_, int p_76711_2_, int p_76711_3_) throws IOException   // CraftBukkit - added throws
+     {
+         this.field_76716_d[p_76711_1_ + p_76711_2_ * 32] = p_76711_3_;
+         this.field_76719_c.seek((long)((p_76711_1_ + p_76711_2_ * 32) * 4));
+         this.field_76719_c.writeInt(p_76711_3_);
+     }
+ 
+-    private void func_76713_b(int p_76713_1_, int p_76713_2_, int p_76713_3_) throws IOException
++    private void func_76713_b(int p_76713_1_, int p_76713_2_, int p_76713_3_) throws IOException   // CraftBukkit - added throws
+     {
+         this.field_76717_e[p_76713_1_ + p_76713_2_ * 32] = p_76713_3_;
+         this.field_76719_c.seek((long)(4096 + (p_76713_1_ + p_76713_2_ * 32) * 4));
+         this.field_76719_c.writeInt(p_76713_3_);
+     }
+ 
+-    public void func_76708_c() throws IOException
++    public void func_76708_c() throws IOException   // CraftBukkit - added throws
+     {
+         if (this.field_76719_c != null)
+         {

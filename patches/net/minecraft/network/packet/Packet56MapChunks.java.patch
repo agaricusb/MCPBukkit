@@ -1,0 +1,81 @@
+--- ../net/minecraft/network/packet/Packet56MapChunks.java
++++ ../net/minecraft/network/packet/Packet56MapChunks.java
+@@ -19,7 +19,18 @@
+     private byte[][] field_73584_f;
+     private int field_73585_g;
+     private boolean field_92076_h;
+-    private static byte[] field_73591_h = new byte[0];
++    private byte[] field_73591_h = new byte[0]; // CraftBukkit - remove static
++    // CraftBukkit start
++    static final ThreadLocal<Deflater> localDeflater = new ThreadLocal<Deflater>()
++    {
++        @Override
++        protected Deflater initialValue()
++        {
++            // Don't use higher compression level, slows things down too much
++            return new Deflater(6);
++        }
++    };
++    // CraftBukkit end
+ 
+     public Packet56MapChunks() {}
+ 
+@@ -55,22 +66,38 @@
+             this.field_73584_f[k] = packet51mapchunkdata.field_74582_a;
+         }
+ 
++        /* CraftBukkit start - moved to compress()
+         Deflater deflater = new Deflater(-1);
+ 
+-        try
+-        {
+-            deflater.setInput(field_73591_h, 0, j);
++        try {
++            deflater.setInput(buildBuffer, 0, j);
+             deflater.finish();
+-            this.field_73587_e = new byte[j];
+-            this.field_73585_g = deflater.deflate(this.field_73587_e);
+-        }
+-        finally
+-        {
++            this.buffer = new byte[j];
++            this.size = deflater.deflate(this.buffer);
++        } finally {
+             deflater.end();
+         }
++        */
+     }
+ 
+-    public void func_73267_a(DataInputStream p_73267_1_) throws IOException
++    // Add compression method
++    public void compress()
++    {
++        if (this.field_73587_e != null)
++        {
++            return;
++        }
++
++        Deflater deflater = localDeflater.get();
++        deflater.reset();
++        deflater.setInput(this.field_73591_h);
++        deflater.finish();
++        this.field_73587_e = new byte[this.field_73591_h.length + 100];
++        this.field_73585_g = deflater.deflate(this.field_73587_e);
++    }
++    // CraftBukkit end
++
++    public void func_73267_a(DataInputStream p_73267_1_) throws IOException   // CraftBukkit - throws IOException
+     {
+         short short1 = p_73267_1_.readShort();
+         this.field_73585_g = p_73267_1_.readInt();
+@@ -136,8 +163,9 @@
+         }
+     }
+ 
+-    public void func_73273_a(DataOutputStream p_73273_1_) throws IOException
++    public void func_73273_a(DataOutputStream p_73273_1_) throws IOException   // CraftBukkit - throws IOException
+     {
++        compress(); // CraftBukkit
+         p_73273_1_.writeShort(this.field_73589_c.length);
+         p_73273_1_.writeInt(this.field_73585_g);
+         p_73273_1_.writeBoolean(this.field_92076_h);

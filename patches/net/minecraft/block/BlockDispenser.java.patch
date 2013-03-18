@@ -1,0 +1,28 @@
+--- ../net/minecraft/block/BlockDispenser.java
++++ ../net/minecraft/block/BlockDispenser.java
+@@ -26,6 +26,7 @@
+ {
+     public static final IRegistry field_82527_a = new RegistryDefaulted(new BehaviorDefaultDispenseItem());
+     protected Random field_72284_a = new Random();
++    public static boolean eventFired = false; // CraftBukkit
+ 
+     protected BlockDispenser(int p_i3938_1_)
+     {
+@@ -97,7 +98,8 @@
+         }
+     }
+ 
+-    protected void func_82526_n(World p_82526_1_, int p_82526_2_, int p_82526_3_, int p_82526_4_)
++    // CraftBukkit - private -> public
++    public void func_82526_n(World p_82526_1_, int p_82526_2_, int p_82526_3_, int p_82526_4_)
+     {
+         BlockSourceImpl blocksourceimpl = new BlockSourceImpl(p_82526_1_, p_82526_2_, p_82526_3_, p_82526_4_);
+         TileEntityDispenser tileentitydispenser = (TileEntityDispenser)blocksourceimpl.func_82619_j();
+@@ -118,6 +120,7 @@
+                 if (ibehaviordispenseitem != IBehaviorDispenseItem.field_82483_a)
+                 {
+                     ItemStack itemstack1 = ibehaviordispenseitem.func_82482_a(blocksourceimpl, itemstack);
++                    eventFired = false; // CraftBukkit - reset event status
+                     tileentitydispenser.func_70299_a(l, itemstack1.field_77994_a == 0 ? null : itemstack1);
+                 }
+             }

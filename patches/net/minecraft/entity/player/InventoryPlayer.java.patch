@@ -1,0 +1,137 @@
+--- ../net/minecraft/entity/player/InventoryPlayer.java
++++ ../net/minecraft/entity/player/InventoryPlayer.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.entity.player;
+ 
++import java.util.concurrent.Callable;
+ import net.minecraft.block.Block;
+ import net.minecraft.crash.CrashReport;
+ import net.minecraft.crash.CrashReportCategory;
+@@ -11,6 +12,13 @@
+ import net.minecraft.nbt.NBTTagList;
+ import net.minecraft.util.ReportedException;
+ 
++// CraftBukkit start
++import java.util.List;
++
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
++// CraftBukkit end
++
+ public class InventoryPlayer implements IInventory
+ {
+     public ItemStack[] field_70462_a = new ItemStack[36];
+@@ -20,6 +28,46 @@
+     private ItemStack field_70457_g;
+     public boolean field_70459_e = false;
+ 
++    // CraftBukkit start
++    public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
++    private int maxStack = MAX_STACK;
++
++    public ItemStack[] getContents()
++    {
++        return this.field_70462_a;
++    }
++
++    public ItemStack[] getArmorContents()
++    {
++        return this.field_70460_b;
++    }
++
++    public void onOpen(CraftHumanEntity who)
++    {
++        transaction.add(who);
++    }
++
++    public void onClose(CraftHumanEntity who)
++    {
++        transaction.remove(who);
++    }
++
++    public List<HumanEntity> getViewers()
++    {
++        return transaction;
++    }
++
++    public org.bukkit.inventory.InventoryHolder getOwner()
++    {
++        return this.field_70458_d.getBukkitEntity();
++    }
++
++    public void setMaxStackSize(int size)
++    {
++        maxStack = size;
++    }
++    // CraftBukkit end
++
+     public InventoryPlayer(EntityPlayer p_i3562_1_)
+     {
+         this.field_70458_d = p_i3562_1_;
+@@ -60,6 +108,34 @@
+ 
+         return -1;
+     }
++
++    // CraftBukkit start - watch method above! :D
++    public int canHold(ItemStack itemstack)
++    {
++        int remains = itemstack.field_77994_a;
++
++        for (int i = 0; i < this.field_70462_a.length; ++i)
++        {
++            if (this.field_70462_a[i] == null)
++            {
++                return itemstack.field_77994_a;
++            }
++
++            // Taken from firstPartial(ItemStack)
++            if (this.field_70462_a[i] != null && this.field_70462_a[i].field_77993_c == itemstack.field_77993_c && this.field_70462_a[i].func_77985_e() && this.field_70462_a[i].field_77994_a < this.field_70462_a[i].func_77976_d() && this.field_70462_a[i].field_77994_a < this.func_70297_j_() && (!this.field_70462_a[i].func_77981_g() || this.field_70462_a[i].func_77960_j() == itemstack.func_77960_j()))
++            {
++                remains -= (this.field_70462_a[i].func_77976_d() < this.func_70297_j_() ? this.field_70462_a[i].func_77976_d() : this.func_70297_j_()) - this.field_70462_a[i].field_77994_a;
++            }
++
++            if (remains <= 0)
++            {
++                return itemstack.field_77994_a;
++            }
++        }
++
++        return itemstack.field_77994_a - remains;
++    }
++    // CraftBukkit end
+ 
+     public int func_70447_i()
+     {
+@@ -276,7 +352,7 @@
+                 CrashReportCategory crashreportcategory = crashreport.func_85058_a("Item being added");
+                 crashreportcategory.func_71507_a("Item ID", Integer.valueOf(p_70441_1_.field_77993_c));
+                 crashreportcategory.func_71507_a("Item data", Integer.valueOf(p_70441_1_.func_77960_j()));
+-                crashreportcategory.func_71500_a("Item name", new CallableItemName(this, p_70441_1_));
++                crashreportcategory.func_71500_a("Item name", (Callable)(new CallableItemName(this, p_70441_1_)));
+                 throw new ReportedException(crashreport);
+             }
+         }
+@@ -453,7 +529,7 @@
+ 
+     public int func_70297_j_()
+     {
+-        return 64;
++        return maxStack;
+     }
+ 
+     public int func_70444_a(Entity p_70444_1_)
+@@ -554,6 +630,13 @@
+ 
+     public ItemStack func_70445_o()
+     {
++        // CraftBukkit start
++        if (this.field_70457_g != null && this.field_70457_g.field_77994_a == 0)
++        {
++            this.func_70437_b(null);
++        }
++
++        // CraftBukkit end
+         return this.field_70457_g;
+     }
+ 

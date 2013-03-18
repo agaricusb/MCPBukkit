@@ -1,0 +1,11 @@
+--- ../net/minecraft/block/BlockCocoa.java
++++ ../net/minecraft/block/BlockCocoa.java
+@@ -36,7 +36,7 @@
+             if (i1 < 2)
+             {
+                 ++i1;
+-                p_71847_1_.func_72921_c(p_71847_2_, p_71847_3_, p_71847_4_, i1 << 2 | func_72217_d(l), 2);
++                org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockGrowEvent(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, this.field_71990_ca, i1 << 2 | func_72217_d(l)); // CraftBukkit
+             }
+         }
+     }

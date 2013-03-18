@@ -1,0 +1,22 @@
+--- ../net/minecraft/block/BlockEndPortal.java
++++ ../net/minecraft/block/BlockEndPortal.java
+@@ -9,6 +9,8 @@
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
++
++import org.bukkit.event.entity.EntityPortalEnterEvent; // CraftBukkit
+ 
+ public class BlockEndPortal extends BlockContainer
+ {
+@@ -52,6 +54,10 @@
+     {
+         if (p_71869_5_.field_70154_o == null && p_71869_5_.field_70153_n == null && !p_71869_1_.field_72995_K)
+         {
++            // CraftBukkit start - Entity in portal
++            EntityPortalEnterEvent event = new EntityPortalEnterEvent(p_71869_5_.getBukkitEntity(), new org.bukkit.Location(p_71869_1_.getWorld(), p_71869_2_, p_71869_3_, p_71869_4_));
++            p_71869_1_.getServer().getPluginManager().callEvent(event);
++            // CraftBukkit end
+             p_71869_5_.func_71027_c(1);
+         }
+     }

@@ -1,0 +1,61 @@
+--- ../net/minecraft/inventory/ContainerBrewingStand.java
++++ ../net/minecraft/inventory/ContainerBrewingStand.java
+@@ -1,18 +1,27 @@
+ package net.minecraft.inventory;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.inventory.CraftInventoryBrewer;
++import org.bukkit.craftbukkit.inventory.CraftInventoryView;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.entity.player.InventoryPlayer;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.tileentity.TileEntityBrewingStand;
++// CraftBukkit end
+ 
+ public class ContainerBrewingStand extends Container
+ {
+     private TileEntityBrewingStand field_75188_e;
+     private final Slot field_75186_f;
+     private int field_75187_g = 0;
++    // CraftBukkit start
++    private CraftInventoryView bukkitEntity = null;
++    private InventoryPlayer player;
++    // CraftBukkit end
+ 
+     public ContainerBrewingStand(InventoryPlayer p_i3600_1_, TileEntityBrewingStand p_i3600_2_)
+     {
++        player = p_i3600_1_; // CraftBukkit
+         this.field_75188_e = p_i3600_2_;
+         this.func_75146_a(new SlotBrewingStandPotion(p_i3600_1_.field_70458_d, p_i3600_2_, 0, 56, 46));
+         this.func_75146_a(new SlotBrewingStandPotion(p_i3600_1_.field_70458_d, p_i3600_2_, 1, 79, 53));
+@@ -59,6 +68,11 @@
+ 
+     public boolean func_75145_c(EntityPlayer p_75145_1_)
+     {
++        if (!this.checkReachable)
++        {
++            return true;    // CraftBukkit
++        }
++
+         return this.field_75188_e.func_70300_a(p_75145_1_);
+     }
+ 
+@@ -136,4 +150,18 @@
+ 
+         return itemstack;
+     }
++
++    // CraftBukkit start
++    public CraftInventoryView getBukkitView()
++    {
++        if (bukkitEntity != null)
++        {
++            return bukkitEntity;
++        }
++
++        CraftInventoryBrewer inventory = new CraftInventoryBrewer(this.field_75188_e);
++        bukkitEntity = new CraftInventoryView(this.player.field_70458_d.getBukkitEntity(), inventory, this);
++        return bukkitEntity;
++    }
++    // CraftBukkit end
+ }

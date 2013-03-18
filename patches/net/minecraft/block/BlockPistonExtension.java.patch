@@ -1,0 +1,28 @@
+--- ../net/minecraft/block/BlockPistonExtension.java
++++ ../net/minecraft/block/BlockPistonExtension.java
+@@ -24,6 +24,12 @@
+     public void func_71852_a(World p_71852_1_, int p_71852_2_, int p_71852_3_, int p_71852_4_, int p_71852_5_, int p_71852_6_)
+     {
+         super.func_71852_a(p_71852_1_, p_71852_2_, p_71852_3_, p_71852_4_, p_71852_5_, p_71852_6_);
++
++        if ((p_71852_6_ & 7) >= Facing.field_71588_a.length)
++        {
++            return;    // CraftBukkit - fix a piston AIOOBE issue
++        }
++
+         int j1 = Facing.field_71588_a[func_72121_f(p_71852_6_)];
+         p_71852_2_ += Facing.field_71586_b[j1];
+         p_71852_3_ += Facing.field_71587_c[j1];
+@@ -147,6 +153,12 @@
+     public void func_71863_a(World p_71863_1_, int p_71863_2_, int p_71863_3_, int p_71863_4_, int p_71863_5_)
+     {
+         int i1 = func_72121_f(p_71863_1_.func_72805_g(p_71863_2_, p_71863_3_, p_71863_4_));
++
++        if ((i1 & 7) >= Facing.field_71588_a.length)
++        {
++            return;    // CraftBukkit - fix a piston AIOOBE issue
++        }
++
+         int j1 = p_71863_1_.func_72798_a(p_71863_2_ - Facing.field_71586_b[i1], p_71863_3_ - Facing.field_71587_c[i1], p_71863_4_ - Facing.field_71585_d[i1]);
+ 
+         if (j1 != Block.field_71963_Z.field_71990_ca && j1 != Block.field_71956_V.field_71990_ca)

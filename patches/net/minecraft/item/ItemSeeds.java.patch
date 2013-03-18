@@ -1,0 +1,39 @@
+--- ../net/minecraft/item/ItemSeeds.java
++++ ../net/minecraft/item/ItemSeeds.java
+@@ -3,7 +3,6 @@
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.world.World;
+-
+ public class ItemSeeds extends Item
+ {
+     private int field_77839_a;
+@@ -19,17 +18,26 @@
+ 
+     public boolean func_77648_a(ItemStack p_77648_1_, EntityPlayer p_77648_2_, World p_77648_3_, int p_77648_4_, int p_77648_5_, int p_77648_6_, int p_77648_7_, float p_77648_8_, float p_77648_9_, float p_77648_10_)
+     {
++        final int clickedX = p_77648_4_, clickedY = p_77648_5_, clickedZ = p_77648_6_; // CraftBukkit
++
+         if (p_77648_7_ != 1)
+         {
+             return false;
+         }
+-        else if (p_77648_2_.func_82247_a(p_77648_4_, p_77648_5_, p_77648_6_, p_77648_7_, p_77648_1_) && p_77648_2_.func_82247_a(p_77648_4_, p_77648_5_ + 1, p_77648_6_, p_77648_7_, p_77648_1_))
++        else if (p_77648_2_.func_82246_f(p_77648_4_, p_77648_5_, p_77648_6_) && p_77648_2_.func_82246_f(p_77648_4_, p_77648_5_ + 1, p_77648_6_))
+         {
+             int i1 = p_77648_3_.func_72798_a(p_77648_4_, p_77648_5_, p_77648_6_);
+ 
+             if (i1 == this.field_77838_b && p_77648_3_.func_72799_c(p_77648_4_, p_77648_5_ + 1, p_77648_6_))
+             {
+-                p_77648_3_.func_94575_c(p_77648_4_, p_77648_5_ + 1, p_77648_6_, this.field_77839_a);
++                // CraftBukkit start - seeds
++                // world.setTypeIdUpdate(i, j + 1, k, this.id);
++                if (!ItemBlock.processBlockPlace(p_77648_3_, p_77648_2_, null, p_77648_4_, p_77648_5_ + 1, p_77648_6_, this.field_77839_a, 0, clickedX, clickedY, clickedZ))
++                {
++                    return false;
++                }
++
++                // CraftBukkit end
+                 --p_77648_1_.field_77994_a;
+                 return true;
+             }

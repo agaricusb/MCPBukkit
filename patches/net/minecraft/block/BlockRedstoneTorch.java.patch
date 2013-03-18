@@ -1,0 +1,62 @@
+--- ../net/minecraft/block/BlockRedstoneTorch.java
++++ ../net/minecraft/block/BlockRedstoneTorch.java
+@@ -9,6 +9,8 @@
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
+ 
++import org.bukkit.event.block.BlockRedstoneEvent; // CraftBukkit
++
+ public class BlockRedstoneTorch extends BlockTorch
+ {
+     private boolean field_72130_a = false;
+@@ -121,10 +123,30 @@
+             list.remove(0);
+         }
+ 
++        // CraftBukkit start
++        org.bukkit.plugin.PluginManager manager = p_71847_1_.getServer().getPluginManager();
++        org.bukkit.block.Block block = p_71847_1_.getWorld().getBlockAt(p_71847_2_, p_71847_3_, p_71847_4_);
++        int oldCurrent = this.field_72130_a ? 15 : 0;
++        BlockRedstoneEvent event = new BlockRedstoneEvent(block, oldCurrent, oldCurrent);
++        // CraftBukkit end
++
+         if (this.field_72130_a)
+         {
+             if (flag)
+             {
++                // CraftBukkit start
++                if (oldCurrent != 0)
++                {
++                    event.setNewCurrent(0);
++                    manager.callEvent(event);
++
++                    if (event.getNewCurrent() != 0)
++                    {
++                        return;
++                    }
++                }
++
++                // CraftBukkit end
+                 p_71847_1_.func_72832_d(p_71847_2_, p_71847_3_, p_71847_4_, Block.field_72049_aP.field_71990_ca, p_71847_1_.func_72805_g(p_71847_2_, p_71847_3_, p_71847_4_), 3);
+ 
+                 if (this.func_72127_a(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, true))
+@@ -143,6 +165,19 @@
+         }
+         else if (!flag && !this.func_72127_a(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, false))
+         {
++            // CraftBukkit start
++            if (oldCurrent != 15)
++            {
++                event.setNewCurrent(15);
++                manager.callEvent(event);
++
++                if (event.getNewCurrent() != 15)
++                {
++                    return;
++                }
++            }
++
++            // CraftBukkit end
+             p_71847_1_.func_72832_d(p_71847_2_, p_71847_3_, p_71847_4_, Block.field_72035_aQ.field_71990_ca, p_71847_1_.func_72805_g(p_71847_2_, p_71847_3_, p_71847_4_), 3);
+         }
+     }

@@ -1,0 +1,247 @@
+--- ../net/minecraft/item/ItemDye.java
++++ ../net/minecraft/item/ItemDye.java
+@@ -1,5 +1,8 @@
+ package net.minecraft.item;
+ 
++// CraftBukkit start
++import org.bukkit.entity.Player;
++import org.bukkit.event.entity.SheepDyeWoolEvent;
+ import net.minecraft.block.Block;
+ import net.minecraft.block.BlockCloth;
+ import net.minecraft.block.BlockCocoa;
+@@ -13,8 +16,10 @@
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.entity.passive.EntitySheep;
+ import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
++// CraftBukkit end
+ 
+ public class ItemDye extends Item
+ {
+@@ -46,7 +51,7 @@
+         {
+             if (p_77648_1_.func_77960_j() == 15)
+             {
+-                if (func_96604_a(p_77648_1_, p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_))
++                if (a(p_77648_1_, p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_, p_77648_2_))
+                 {
+                     if (!p_77648_3_.field_72995_K)
+                     {
+@@ -112,20 +117,30 @@
+         }
+     }
+ 
++    // CraftBukkit start
+     public static boolean func_96604_a(ItemStack p_96604_0_, World p_96604_1_, int p_96604_2_, int p_96604_3_, int p_96604_4_)
+     {
+-        int l = p_96604_1_.func_72798_a(p_96604_2_, p_96604_3_, p_96604_4_);
++        return a(p_96604_0_, p_96604_1_, p_96604_2_, p_96604_3_, p_96604_4_, null);
++    }
++
++    public static boolean a(ItemStack itemstack, World world, int i, int j, int k, EntityPlayer entityplayer)
++    {
++        // CraftBukkit end
++        int l = world.func_72798_a(i, j, k);
+ 
+         if (l == Block.field_71987_y.field_71990_ca)
+         {
+-            if (!p_96604_1_.field_72995_K)
+-            {
+-                if ((double)p_96604_1_.field_73012_v.nextFloat() < 0.45D)
+-                {
+-                    ((BlockSapling)Block.field_71987_y).func_96477_c(p_96604_1_, p_96604_2_, p_96604_3_, p_96604_4_, p_96604_1_.field_73012_v);
+-                }
+-
+-                --p_96604_0_.field_77994_a;
++            if (!world.field_72995_K)
++            {
++                if ((double) world.field_73012_v.nextFloat() < 0.45D)
++                {
++                    // CraftBukkit start
++                    Player player = (entityplayer instanceof EntityPlayerMP) ? (Player) entityplayer.getBukkitEntity() : null;
++                    ((BlockSapling) Block.field_71987_y).func_72269_c(world, i, j, k, world.field_73012_v, true, player, itemstack);
++                }
++
++                // --itemstack.count; - called later if the bonemeal attempt was succesful
++                // CraftBukkit end
+             }
+ 
+             return true;
+@@ -136,16 +151,16 @@
+             {
+                 if (l > 0 && Block.field_71973_m[l] instanceof BlockCrops)
+                 {
+-                    if (p_96604_1_.func_72805_g(p_96604_2_, p_96604_3_, p_96604_4_) == 7)
++                    if (world.func_72805_g(i, j, k) == 7)
+                     {
+                         return false;
+                     }
+                     else
+                     {
+-                        if (!p_96604_1_.field_72995_K)
+-                        {
+-                            ((BlockCrops)Block.field_71973_m[l]).func_72272_c_(p_96604_1_, p_96604_2_, p_96604_3_, p_96604_4_);
+-                            --p_96604_0_.field_77994_a;
++                        if (!world.field_72995_K)
++                        {
++                            ((BlockCrops) Block.field_71973_m[l]).func_72272_c_(world, i, j, k);
++                            --itemstack.field_77994_a;
+                         }
+ 
+                         return true;
+@@ -159,7 +174,7 @@
+ 
+                     if (l == Block.field_72086_bP.field_71990_ca)
+                     {
+-                        i1 = p_96604_1_.func_72805_g(p_96604_2_, p_96604_3_, p_96604_4_);
++                        i1 = world.func_72805_g(i, j, k);
+                         j1 = BlockDirectional.func_72217_d(i1);
+                         k1 = BlockCocoa.func_72219_c(i1);
+ 
+@@ -169,11 +184,11 @@
+                         }
+                         else
+                         {
+-                            if (!p_96604_1_.field_72995_K)
++                            if (!world.field_72995_K)
+                             {
+                                 ++k1;
+-                                p_96604_1_.func_72921_c(p_96604_2_, p_96604_3_, p_96604_4_, k1 << 2 | j1, 2);
+-                                --p_96604_0_.field_77994_a;
++                                world.func_72921_c(i, j, k, k1 << 2 | j1, 2);
++                                --itemstack.field_77994_a;
+                             }
+ 
+                             return true;
+@@ -185,16 +200,16 @@
+                     }
+                     else
+                     {
+-                        if (!p_96604_1_.field_72995_K)
+-                        {
+-                            --p_96604_0_.field_77994_a;
++                        if (!world.field_72995_K)
++                        {
++                            --itemstack.field_77994_a;
+                             label102:
+ 
+                             for (i1 = 0; i1 < 128; ++i1)
+                             {
+-                                j1 = p_96604_2_;
+-                                k1 = p_96604_3_ + 1;
+-                                int l1 = p_96604_4_;
++                                j1 = i;
++                                k1 = j + 1;
++                                int l1 = k;
+ 
+                                 for (int i2 = 0; i2 < i1 / 16; ++i2)
+                                 {
+@@ -202,31 +217,31 @@
+                                     k1 += (field_77697_d.nextInt(3) - 1) * field_77697_d.nextInt(3) / 2;
+                                     l1 += field_77697_d.nextInt(3) - 1;
+ 
+-                                    if (p_96604_1_.func_72798_a(j1, k1 - 1, l1) != Block.field_71980_u.field_71990_ca || p_96604_1_.func_72809_s(j1, k1, l1))
++                                    if (world.func_72798_a(j1, k1 - 1, l1) != Block.field_71980_u.field_71990_ca || world.func_72809_s(j1, k1, l1))
+                                     {
+                                         continue label102;
+                                     }
+                                 }
+ 
+-                                if (p_96604_1_.func_72798_a(j1, k1, l1) == 0)
++                                if (world.func_72798_a(j1, k1, l1) == 0)
+                                 {
+                                     if (field_77697_d.nextInt(10) != 0)
+                                     {
+-                                        if (Block.field_71962_X.func_71854_d(p_96604_1_, j1, k1, l1))
++                                        if (Block.field_71962_X.func_71854_d(world, j1, k1, l1))
+                                         {
+-                                            p_96604_1_.func_72832_d(j1, k1, l1, Block.field_71962_X.field_71990_ca, 1, 3);
++                                            world.func_72832_d(j1, k1, l1, Block.field_71962_X.field_71990_ca, 1, 3);
+                                         }
+                                     }
+                                     else if (field_77697_d.nextInt(3) != 0)
+                                     {
+-                                        if (Block.field_72097_ad.func_71854_d(p_96604_1_, j1, k1, l1))
++                                        if (Block.field_72097_ad.func_71854_d(world, j1, k1, l1))
+                                         {
+-                                            p_96604_1_.func_94575_c(j1, k1, l1, Block.field_72097_ad.field_71990_ca);
++                                            world.func_94575_c(j1, k1, l1, Block.field_72097_ad.field_71990_ca);
+                                         }
+                                     }
+-                                    else if (Block.field_72107_ae.func_71854_d(p_96604_1_, j1, k1, l1))
++                                    else if (Block.field_72107_ae.func_71854_d(world, j1, k1, l1))
+                                     {
+-                                        p_96604_1_.func_94575_c(j1, k1, l1, Block.field_72107_ae.field_71990_ca);
++                                        world.func_94575_c(j1, k1, l1, Block.field_72107_ae.field_71990_ca);
+                                     }
+                                 }
+                             }
+@@ -236,16 +251,16 @@
+                     }
+                 }
+             }
+-            else if (p_96604_1_.func_72805_g(p_96604_2_, p_96604_3_, p_96604_4_) == 7)
++            else if (world.func_72805_g(i, j, k) == 7)
+             {
+                 return false;
+             }
+             else
+             {
+-                if (!p_96604_1_.field_72995_K)
+-                {
+-                    ((BlockStem)Block.field_71973_m[l]).func_72264_l(p_96604_1_, p_96604_2_, p_96604_3_, p_96604_4_);
+-                    --p_96604_0_.field_77994_a;
++                if (!world.field_72995_K)
++                {
++                    ((BlockStem) Block.field_71973_m[l]).func_72264_l(world, i, j, k);
++                    --itemstack.field_77994_a;
+                 }
+ 
+                 return true;
+@@ -253,14 +268,17 @@
+         }
+         else
+         {
+-            if (!p_96604_1_.field_72995_K)
+-            {
+-                if ((double)p_96604_1_.field_73012_v.nextFloat() < 0.4D)
+-                {
+-                    ((BlockMushroom)Block.field_71973_m[l]).func_72271_c(p_96604_1_, p_96604_2_, p_96604_3_, p_96604_4_, p_96604_1_.field_73012_v);
+-                }
+-
+-                --p_96604_0_.field_77994_a;
++            if (!world.field_72995_K)
++            {
++                if ((double) world.field_73012_v.nextFloat() < 0.4D)
++                {
++                    // CraftBukkit start - validate
++                    Player player = (entityplayer instanceof EntityPlayerMP) ? (Player) entityplayer.getBukkitEntity() : null;
++                    ((BlockMushroom) Block.field_71973_m[l]).func_72271_c(world, i, j, k, world.field_73012_v, true, player, itemstack);
++                }
++
++                //--itemstack.count; - called later if the bonemeal attempt was succesful
++                // CraftBukkit end
+             }
+ 
+             return true;
+@@ -276,6 +294,18 @@
+ 
+             if (!entitysheep.func_70892_o() && entitysheep.func_70896_n() != i)
+             {
++                // CraftBukkit start
++                byte bColor = (byte) i;
++                SheepDyeWoolEvent event = new SheepDyeWoolEvent((org.bukkit.entity.Sheep) entitysheep.getBukkitEntity(), org.bukkit.DyeColor.getByData(bColor));
++                entitysheep.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++                if (event.isCancelled())
++                {
++                    return false;
++                }
++
++                i = (byte) event.getColor().getWoolData();
++                // CraftBukkit end
+                 entitysheep.func_70891_b(i);
+                 --p_77646_1_.field_77994_a;
+             }

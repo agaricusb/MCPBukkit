@@ -1,0 +1,14 @@
+--- ../net/minecraft/inventory/Slot.java
++++ ../net/minecraft/inventory/Slot.java
+@@ -2,10 +2,9 @@
+ 
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.item.ItemStack;
+-
+ public class Slot
+ {
+-    private final int field_75225_a;
++    public final int field_75225_a; // CraftBukkit - private -> public
+     public final IInventory field_75224_c;
+     public int field_75222_d;
+     public int field_75223_e;

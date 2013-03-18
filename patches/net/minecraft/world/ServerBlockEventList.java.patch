@@ -1,0 +1,11 @@
+--- ../net/minecraft/world/ServerBlockEventList.java
++++ ../net/minecraft/world/ServerBlockEventList.java
+@@ -1,6 +1,8 @@
+ package net.minecraft.world;
+ 
+ import java.util.ArrayList;
++
++// CraftBukkit - imported class because the constructor is package private
+ 
+ class ServerBlockEventList extends ArrayList
+ {

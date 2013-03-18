@@ -1,0 +1,11 @@
+--- ../net/minecraft/block/BlockReed.java
++++ ../net/minecraft/block/BlockReed.java
+@@ -33,7 +33,7 @@
+ 
+                 if (i1 == 15)
+                 {
+-                    p_71847_1_.func_94575_c(p_71847_2_, p_71847_3_ + 1, p_71847_4_, this.field_71990_ca);
++                    org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockGrowEvent(p_71847_1_, p_71847_2_, p_71847_3_ + 1, p_71847_4_, this.field_71990_ca, 0); // CraftBukkit
+                     p_71847_1_.func_72921_c(p_71847_2_, p_71847_3_, p_71847_4_, 0, 4);
+                 }
+                 else

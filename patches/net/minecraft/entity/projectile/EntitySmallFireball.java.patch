@@ -1,0 +1,54 @@
+--- ../net/minecraft/entity/projectile/EntitySmallFireball.java
++++ ../net/minecraft/entity/projectile/EntitySmallFireball.java
+@@ -1,10 +1,14 @@
+ package net.minecraft.entity.projectile;
+ 
++// CraftBukkit start
++import org.bukkit.event.block.BlockIgniteEvent;
++import org.bukkit.event.entity.EntityCombustByEntityEvent;
+ import net.minecraft.block.Block;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.MovingObjectPosition;
+ import net.minecraft.world.World;
++// CraftBukkit end
+ 
+ public class EntitySmallFireball extends EntityFireball
+ {
+@@ -34,7 +38,16 @@
+             {
+                 if (!p_70227_1_.field_72308_g.func_70045_F() && p_70227_1_.field_72308_g.func_70097_a(DamageSource.func_76362_a(this, this.field_70235_a), 5))
+                 {
+-                    p_70227_1_.field_72308_g.func_70015_d(5);
++                    // CraftBukkit start - entity damage by entity event + combust event
++                    EntityCombustByEntityEvent event = new EntityCombustByEntityEvent((org.bukkit.entity.Projectile) this.getBukkitEntity(), p_70227_1_.field_72308_g.getBukkitEntity(), 5);
++                    p_70227_1_.field_72308_g.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++                    if (!event.isCancelled())
++                    {
++                        p_70227_1_.field_72308_g.func_70015_d(event.getDuration());
++                    }
++
++                    // CraftBukkit end
+                 }
+             }
+             else
+@@ -66,7 +79,17 @@
+ 
+                 if (this.field_70170_p.func_72799_c(i, j, k))
+                 {
+-                    this.field_70170_p.func_94575_c(i, j, k, Block.field_72067_ar.field_71990_ca);
++                    // CraftBukkit start
++                    org.bukkit.block.Block block = field_70170_p.getWorld().getBlockAt(i, j, k);
++                    BlockIgniteEvent event = new BlockIgniteEvent(block, BlockIgniteEvent.IgniteCause.FIREBALL, null);
++                    field_70170_p.getServer().getPluginManager().callEvent(event);
++
++                    if (!event.isCancelled())
++                    {
++                        this.field_70170_p.func_94575_c(i, j, k, Block.field_72067_ar.field_71990_ca);
++                    }
++
++                    // CraftBukkit end
+                 }
+             }
+ 

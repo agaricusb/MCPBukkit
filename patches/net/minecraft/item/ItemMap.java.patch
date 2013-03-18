@@ -1,0 +1,63 @@
+--- ../net/minecraft/item/ItemMap.java
++++ ../net/minecraft/item/ItemMap.java
+@@ -1,5 +1,8 @@
+ package net.minecraft.item;
+ 
++// CraftBukkit start
++import org.bukkit.Bukkit;
++import org.bukkit.event.server.MapInitializeEvent;
+ import net.minecraft.block.Block;
+ import net.minecraft.block.material.MapColor;
+ import net.minecraft.entity.Entity;
+@@ -8,9 +11,12 @@
+ import net.minecraft.network.packet.Packet131MapData;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
++import net.minecraft.world.WorldSavedData;
++import net.minecraft.world.WorldServer;
+ import net.minecraft.world.chunk.Chunk;
+ import net.minecraft.world.storage.MapData;
+ import net.minecraft.world.storage.MapInfo;
++// CraftBukkit end
+ 
+ public class ItemMap extends ItemMapBase
+ {
+@@ -34,9 +40,13 @@
+             int i = 128 * (1 << mapdata.field_76197_d);
+             mapdata.field_76201_a = Math.round((float)p_77873_2_.func_72912_H().func_76079_c() / (float)i) * i;
+             mapdata.field_76199_b = Math.round((float)(p_77873_2_.func_72912_H().func_76074_e() / i)) * i;
+-            mapdata.field_76200_c = (byte)p_77873_2_.field_73011_w.field_76574_g;
++            mapdata.field_76200_c = (byte)((WorldServer) p_77873_2_).dimension;  // CraftBukkit - fixes Bukkit multiworld maps
+             mapdata.func_76185_a();
+-            p_77873_2_.func_72823_a(s, mapdata);
++            p_77873_2_.func_72823_a(s, (WorldSavedData) mapdata);
++            // CraftBukkit start
++            MapInitializeEvent event = new MapInitializeEvent(mapdata.mapView);
++            Bukkit.getServer().getPluginManager().callEvent(event);
++            // CraftBukkit end
+         }
+ 
+         return mapdata;
+@@ -44,7 +54,8 @@
+ 
+     public void func_77872_a(World p_77872_1_, Entity p_77872_2_, MapData p_77872_3_)
+     {
+-        if (p_77872_1_.field_73011_w.field_76574_g == p_77872_3_.field_76200_c && p_77872_2_ instanceof EntityPlayer)
++        // CraftBukkit
++        if (((WorldServer) p_77872_1_).dimension == p_77872_3_.field_76200_c && p_77872_2_ instanceof EntityPlayer)
+         {
+             short short1 = 128;
+             short short2 = 128;
+@@ -301,7 +312,11 @@
+             mapdata1.field_76199_b = mapdata.field_76199_b;
+             mapdata1.field_76200_c = mapdata.field_76200_c;
+             mapdata1.func_76185_a();
+-            p_77622_2_.func_72823_a("map_" + p_77622_1_.func_77960_j(), mapdata1);
++            p_77622_2_.func_72823_a("map_" + p_77622_1_.func_77960_j(), (WorldSavedData) mapdata1);
++            // CraftBukkit start
++            MapInitializeEvent event = new MapInitializeEvent(mapdata1.mapView);
++            Bukkit.getServer().getPluginManager().callEvent(event);
++            // CraftBukkit end
+         }
+     }
+ }

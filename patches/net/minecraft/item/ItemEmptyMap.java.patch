@@ -1,0 +1,30 @@
+--- ../net/minecraft/item/ItemEmptyMap.java
++++ ../net/minecraft/item/ItemEmptyMap.java
+@@ -3,8 +3,9 @@
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.world.World;
++import net.minecraft.world.WorldSavedData;
++import net.minecraft.world.WorldServer;
+ import net.minecraft.world.storage.MapData;
+-
+ public class ItemEmptyMap extends ItemMapBase
+ {
+     protected ItemEmptyMap(int p_i5083_1_)
+@@ -18,13 +19,14 @@
+         ItemStack itemstack1 = new ItemStack(Item.field_77744_bd, 1, p_77659_2_.func_72841_b("map"));
+         String s = "map_" + itemstack1.func_77960_j();
+         MapData mapdata = new MapData(s);
+-        p_77659_2_.func_72823_a(s, mapdata);
++        p_77659_2_.func_72823_a(s, (WorldSavedData) mapdata);
+         mapdata.field_76197_d = 0;
+         int i = 128 * (1 << mapdata.field_76197_d);
+         mapdata.field_76201_a = (int)(Math.round(p_77659_3_.field_70165_t / (double)i) * (long)i);
+         mapdata.field_76199_b = (int)(Math.round(p_77659_3_.field_70161_v / (double)i) * (long)i);
+-        mapdata.field_76200_c = (byte)p_77659_2_.field_73011_w.field_76574_g;
++        mapdata.field_76200_c = (byte)((WorldServer) p_77659_2_).dimension;  // CraftBukkit - use bukkit dimension
+         mapdata.func_76185_a();
++        org.bukkit.craftbukkit.event.CraftEventFactory.callEvent(new org.bukkit.event.server.MapInitializeEvent(mapdata.mapView)); // CraftBukkit
+         --p_77659_1_.field_77994_a;
+ 
+         if (p_77659_1_.field_77994_a <= 0)

@@ -1,0 +1,57 @@
+--- ../net/minecraft/block/BlockTripWire.java
++++ ../net/minecraft/block/BlockTripWire.java
+@@ -12,6 +12,8 @@
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
+ 
++import org.bukkit.event.entity.EntityInteractEvent; // CraftBukkit
++
+ public class BlockTripWire extends Block
+ {
+     public BlockTripWire(int p_i4018_1_)
+@@ -190,6 +192,45 @@
+             }
+         }
+ 
++        // CraftBukkit start
++        org.bukkit.World bworld = p_72147_1_.getWorld();
++        org.bukkit.plugin.PluginManager manager = p_72147_1_.getServer().getPluginManager();
++
++        if (flag != flag1)
++        {
++            if (flag1)
++            {
++                for (Object object : list)
++                {
++                    if (object != null)
++                    {
++                        org.bukkit.event.Cancellable cancellable;
++
++                        if (object instanceof EntityPlayer)
++                        {
++                            cancellable = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerInteractEvent((EntityPlayer) object, org.bukkit.event.block.Action.PHYSICAL, p_72147_2_, p_72147_3_, p_72147_4_, -1, null);
++                        }
++                        else if (object instanceof Entity)
++                        {
++                            cancellable = new EntityInteractEvent(((Entity) object).getBukkitEntity(), bworld.getBlockAt(p_72147_2_, p_72147_3_, p_72147_4_));
++                            manager.callEvent((EntityInteractEvent) cancellable);
++                        }
++                        else
++                        {
++                            continue;
++                        }
++
++                        if (cancellable.isCancelled())
++                        {
++                            return;
++                        }
++                    }
++                }
++            }
++        }
++
++        // CraftBukkit end
++
+         if (flag1 && !flag)
+         {
+             l |= 1;

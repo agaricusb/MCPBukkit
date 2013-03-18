@@ -1,0 +1,78 @@
+--- ../net/minecraft/entity/monster/EntityZombie.java
++++ ../net/minecraft/entity/monster/EntityZombie.java
+@@ -25,6 +25,8 @@
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
+ 
++import org.bukkit.event.entity.EntityCombustEvent; // CraftBukkit
++
+ public class EntityZombie extends EntityMob
+ {
+     private int field_82234_d = 0;
+@@ -96,7 +98,7 @@
+ 
+     public void func_82227_f(boolean p_82227_1_)
+     {
+-        this.func_70096_w().func_75692_b(12, Byte.valueOf((byte)1));
++        this.func_70096_w().func_75692_b(12, Byte.valueOf((byte)(p_82227_1_ ? 1 : 0)));  // CraftBukkit - added flag
+     }
+ 
+     public boolean func_82231_m()
+@@ -138,7 +140,16 @@
+ 
+                 if (flag)
+                 {
+-                    this.func_70015_d(8);
++                    // CraftBukkit start
++                    EntityCombustEvent event = new EntityCombustEvent(this.getBukkitEntity(), 8);
++                    this.field_70170_p.getServer().getPluginManager().callEvent(event);
++
++                    if (!event.isCancelled())
++                    {
++                        this.func_70015_d(event.getDuration());
++                    }
++
++                    // CraftBukkit end
+                 }
+             }
+         }
+@@ -182,7 +193,7 @@
+ 
+         if (itemstack != null)
+         {
+-            i += itemstack.func_77971_a(this);
++            i += itemstack.func_77971_a((Entity) this);
+         }
+ 
+         return i;
+@@ -218,20 +229,22 @@
+         return EnumCreatureAttribute.UNDEAD;
+     }
+ 
+-    protected void func_70600_l(int p_70600_1_)
++    // CraftBukkit start - return rare dropped item instead of dropping it
++    protected ItemStack func_70600_l(int i)
+     {
+         switch (this.field_70146_Z.nextInt(3))
+         {
+             case 0:
+-                this.func_70025_b(Item.field_77703_o.field_77779_bT, 1);
+-                break;
++                return new ItemStack(Item.field_77703_o.field_77779_bT, 1, 0);
+             case 1:
+-                this.func_70025_b(Item.field_82797_bK.field_77779_bT, 1);
+-                break;
++                return new ItemStack(Item.field_82797_bK.field_77779_bT, 1, 0);
+             case 2:
+-                this.func_70025_b(Item.field_82794_bL.field_77779_bT, 1);
+-        }
+-    }
++                return new ItemStack(Item.field_82794_bL.field_77779_bT, 1, 0);
++            default:
++                return null;
++        }
++    }
++    // CraftBukkit end
+ 
+     protected void func_82164_bB()
+     {
