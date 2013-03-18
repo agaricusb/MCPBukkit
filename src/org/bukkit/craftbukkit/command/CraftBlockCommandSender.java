@@ -28,7 +28,7 @@ public class CraftBlockCommandSender extends ServerCommandSender implements Bloc
     }
 
     public String getName() {
-        return "@";
+        return commandBlock.func_70005_c_();
     }
 
     public boolean isOp() {
